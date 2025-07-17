@@ -1,0 +1,30 @@
+import { Inter } from "next/font/google"
+import "./globals.css"
+import { cn } from "@/lib/utils"
+import { ThemeProvider } from "@/components/theme-provider"
+import { ReduxProvider } from "@/lib/redux/provider"
+import { Toaster } from "@/components/ui/toaster"
+
+const inter = Inter({ subsets: ["latin"] })
+
+// Se actualizó el título del sitio a "ParkDog".
+export const metadata = {
+  title: "ParkDog",
+  description: "Conecta con otros dueños de perros en tu zona.",
+    generator: 'v0.dev'
+}
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="es" suppressHydrationWarning>
+      <body className={cn("min-h-screen bg-background font-sans antialiased", inter.className)}>
+        <ReduxProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+            {children}
+            <Toaster />
+          </ThemeProvider>
+        </ReduxProvider>
+      </body>
+    </html>
+  )
+}
