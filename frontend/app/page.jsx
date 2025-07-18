@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { PawPrint, CheckCircle } from "lucide-react"
+import { Calendar, MapPin, Heart, Users, Clock, Dog, PawPrint, Bell, Menu, X, ChevronRight, Star, Shield, Search, Filter, Send, Check, CheckCheck, CheckCircle } from 'lucide-react';
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/hooks/use-auth"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -35,8 +35,10 @@ export default function LoginPage() {
         <ThemeToggle />
       </div>
       <div className="text-center max-w-lg w-full">
-        <PawPrint className="mx-auto h-16 w-16 text-primary mb-4" />
-        <h1 className="text-4xl md:text-5xl font-bold text-foreground">¡Bienvenido a ParkDog!</h1>
+                <div className="inline-flex items-center justify-center p-4 bg-blue-100 rounded-full mb-6">
+          <PawPrint className="h-16 w-16 text-blue-600" />
+        </div>
+        <h1 className="text-5xl font-bold mb-4">¡Bienvenido a ParkDog!</h1>
         <p className="mt-3 text-lg md:text-xl text-muted-foreground">Conecta con otros dueños de perros en tu zona.</p>
 
         <div className="mt-8 text-left bg-muted/50 p-6 rounded-lg border">

@@ -46,7 +46,9 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-lg mx-auto">
         <div className="text-center mb-6">
-          <PawPrint className="mx-auto h-12 w-12 text-primary mb-2" />
+                          <div className="inline-flex items-center justify-center p-4 bg-blue-100 rounded-full mb-6">
+          <PawPrint className="h-16 w-16 text-blue-600" />
+        </div>
           <h1 className="text-3xl font-bold">Configura tu perfil</h1>
           <OnboardingProgress currentStep={step} totalSteps={3} />
         </div>
