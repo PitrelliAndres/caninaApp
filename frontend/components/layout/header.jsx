@@ -49,6 +49,7 @@ export function Header() {
       <div className="container flex h-20 items-center justify-between">
         <Link href="/home" className="flex items-center gap-2">
         <div className="inline-flex items-center justify-center p-4 bg-blue-100 rounded-full mb-6">
+          
           <PawPrint className="h-16 w-16 text-blue-600" />
         </div>
           <span className="font-bold text-xl hidden sm:inline-block">ParkDog</span>
