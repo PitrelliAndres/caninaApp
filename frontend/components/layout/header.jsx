@@ -48,9 +48,9 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-20 items-center justify-between">
         <Link href="/home" className="flex items-center gap-2">
-        <div className="inline-flex items-center justify-center p-4 bg-blue-100 rounded-full mb-6">
+        <div className="inline-flex items-center justify-center p-3 bg-blue-100 rounded-full">
           
-          <PawPrint className="h-16 w-16 text-blue-600" />
+          <PawPrint className="h-10 w-10 text-blue-600" />
         </div>
           <span className="font-bold text-xl hidden sm:inline-block">ParkDog</span>
         </Link>
