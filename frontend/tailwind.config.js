@@ -10,6 +10,14 @@ module.exports = {
     "./src/**/*.{js,jsx}",
     "*.{js,ts,jsx,tsx,mdx}",
   ],
+  safelist: [
+    "bg-green-500",
+    "bg-gray-200",
+    "dark:bg-gray-700",
+    "rounded-full",
+    "h-full",
+    "transition-all",
+  ],
   prefix: "",
   theme: {
     container: {
