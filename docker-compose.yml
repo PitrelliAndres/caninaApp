@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_USER: parkdog
       POSTGRES_PASSWORD: parkdog123
-      POSTGRES_DB: parkdog_db
+      POSTGRES_DB: parkdog
     ports:
       - "5432:5432"
     volumes:
@@ -27,7 +27,7 @@ services:
       - "5000:5000"
     environment:
       - FLASK_ENV=development
-      - DATABASE_URL=postgresql://parkdog:parkdog123@db:5432/parkdog_db
+      - DATABASE_URL=postgresql://parkdog:parkdog123@db:5432/parkdog
       - SECRET_KEY=dev-secret-key-change-in-production
       - JWT_SECRET_KEY=dev-jwt-secret-key
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
@@ -61,8 +61,6 @@ services:
     depends_on:
       - backend
     volumes:
-      - ./frontend:/app
-      - /app/node_modules
       - /app/.next
 
 volumes:
