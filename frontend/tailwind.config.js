@@ -4,9 +4,10 @@ module.exports = {
   // Le dice a Tailwind que busque una clase 'dark' en el elemento HTML.
   darkMode: ["class"],
   content: [
-    "./pages/**/*.{js,jsx}",
-    "./components/**/*.{js,jsx}",
-    "./app/**/*.{js,jsx}",
+    "./pages/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
+    "./app/**/*.{js,ts,jsx,tsx}",
+    "./lib/**/*.{js,ts,jsx,tsx}",
     "./src/**/*.{js,jsx}",
     "*.{js,ts,jsx,tsx,mdx}",
   ],
@@ -17,6 +18,9 @@ module.exports = {
     "rounded-full",
     "h-full",
     "transition-all",
+      {
+    pattern: /data-\[state=(checked|unchecked)\]:.*/,
+  },
   ],
   prefix: "",
   theme: {

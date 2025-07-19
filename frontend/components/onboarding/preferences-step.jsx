@@ -49,7 +49,7 @@ export default function PreferencesStep({ onFinish, onPrevious }) {
             </div>
             <Switch
               id="isPublic"
-              checked={preferences.isPublic}
+              checked={!!preferences.isPublic}
               onCheckedChange={(c) => handleSwitchChange("isPublic", c)}
             />
           </div>
@@ -62,7 +62,7 @@ export default function PreferencesStep({ onFinish, onPrevious }) {
             </div>
             <Switch
               id="allowMatching"
-              checked={preferences.allowMatching}
+              checked={!!preferences.allowMatching}
               onCheckedChange={(c) => handleSwitchChange("allowMatching", c)}
             />
           </div>
@@ -71,11 +71,11 @@ export default function PreferencesStep({ onFinish, onPrevious }) {
               <Label htmlFor="allowProximity" className="text-base">
                 Descubrimiento por proximidad
               </Label>
-              <p className="text-sm text-muted-foreground">Encontrar usuarios cercanos (tipo Happn).</p>
+              <p className="text-sm text-muted-foreground">Encontrar usuarios cercanos.</p>
             </div>
             <Switch
               id="allowProximity"
-              checked={preferences.allowProximity}
+              checked={!!preferences.allowProximity}
               onCheckedChange={(c) => handleSwitchChange("allowProximity", c)}
             />
           </div>
