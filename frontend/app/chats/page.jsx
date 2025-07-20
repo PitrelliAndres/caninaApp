@@ -25,7 +25,7 @@ export default function ChatsPage() {
 
 // Componente para un item en la lista de chats
 const ChatItem = ({ chat, isLast }) => (
-  <Link href={`/chats/${chat.id}`}>
+  <Link href={`/chats/${chat?.id}`}>
     <div
       className={`flex items-center gap-4 p-4 hover:bg-accent transition-colors cursor-pointer ${
         !isLast ? "border-b" : ""
@@ -33,7 +33,7 @@ const ChatItem = ({ chat, isLast }) => (
     >
       <Avatar className="h-14 w-14">
         <AvatarImage src={chat?.avatarUrl || "/placeholder.svg"} />
-        <AvatarFallback>{chat?.name[0]}</AvatarFallback>
+        <AvatarFallback>{chat?.name?.[0]}</AvatarFallback>
       </Avatar>
       <div className="flex-1">
         <div className="flex justify-between items-center">
