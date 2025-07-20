@@ -9,10 +9,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/components/ui/use-toast"
 import { dogBreeds } from "@/lib/dummy-data"
 
-// Paso 2 del Onboarding: Datos del perro.
-export default function DogStep({ onNext, onPrevious }) {
+export default function DogStep({ initialData, onNext, onPrevious }) {
   const { toast } = useToast()
-  const [formData, setFormData] = useState({ name: "", age: "", breed: "" })
+  const [formData, setFormData] = useState({
+    name: initialData?.name || "",
+    age: initialData?.age || "",
+    breed: initialData?.breed || "",
+    avatar: initialData?.avatar || null
+  })
+  const [previewUrl, setPreviewUrl] = useState(initialData?.avatar || null)
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -21,6 +26,39 @@ export default function DogStep({ onNext, onPrevious }) {
 
   const handleBreedChange = (value) => {
     setFormData((prev) => ({ ...prev, breed: value }))
+  }
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    // Validar tamaño
+    if (file.size > 3 * 1024 * 1024) {
+      toast({
+        title: "Archivo muy grande",
+        description: "La imagen debe ser menor a 3MB",
+        variant: "destructive"
+      })
+      return
+    }
+
+    // Validar tipo
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Tipo de archivo inválido",
+        description: "Solo se permiten imágenes",
+        variant: "destructive"
+      })
+      return
+    }
+
+    // Crear preview
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setPreviewUrl(reader.result)
+      setFormData(prev => ({ ...prev, avatar: reader.result }))
+    }
+    reader.readAsDataURL(file)
   }
 
   const handleSubmit = (e) => {
@@ -55,6 +93,9 @@ export default function DogStep({ onNext, onPrevious }) {
               onChange={handleChange}
               required
               className="text-lg h-12"
+              aria-label="Nombre de tu perro"
+              minLength={2}
+              maxLength={50}
             />
           </div>
           <div className="space-y-2">
@@ -69,6 +110,9 @@ export default function DogStep({ onNext, onPrevious }) {
               onChange={handleChange}
               required
               className="text-lg h-12"
+              aria-label="Edad de tu perro en años"
+              min="0"
+              max="25"
             />
             <p className="text-sm text-muted-foreground">Si es cachorro, puedes poner 0.</p>
           </div>
@@ -77,7 +121,7 @@ export default function DogStep({ onNext, onPrevious }) {
               Raza *
             </Label>
             <Select onValueChange={handleBreedChange} value={formData.breed}>
-              <SelectTrigger className="text-lg h-12">
+              <SelectTrigger className="text-lg h-12" aria-label="Selecciona la raza de tu perro">
                 <SelectValue placeholder="Selecciona una raza" />
               </SelectTrigger>
               <SelectContent>
@@ -96,8 +140,20 @@ export default function DogStep({ onNext, onPrevious }) {
             <Input
               id="dog-photo"
               type="file"
+              accept="image/*"
+              onChange={handleFileChange}
               className="text-base file:text-base file:font-medium file:text-primary file:bg-primary-foreground hover:file:bg-primary/20"
+              aria-label="Subir foto de tu perro"
             />
+            {previewUrl && (
+              <div className="mt-2">
+                <img 
+                  src={previewUrl} 
+                  alt="Vista previa de la foto de tu perro" 
+                  className="w-24 h-24 rounded-lg object-cover border"
+                />
+              </div>
+            )}
           </div>
         </CardContent>
         <CardFooter className="grid grid-cols-2 gap-4">

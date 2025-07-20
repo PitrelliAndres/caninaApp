@@ -8,13 +8,12 @@ import { Switch } from "@/components/ui/switch"
 import { Checkbox } from "@/components/ui/checkbox"
 import { interests } from "@/lib/dummy-data"
 
-// Paso 3 del Onboarding: Preferencias de privacidad e intereses.
-export default function PreferencesStep({ onFinish, onPrevious }) {
+export default function PreferencesStep({ initialData, onFinish, onPrevious, isSubmitting }) {
   const [preferences, setPreferences] = useState({
-    isPublic: true,
-    allowMatching: true,
-    allowProximity: false,
-    selectedInterests: [],
+    isPublic: initialData?.isPublic ?? true,
+    allowMatching: initialData?.allowMatching ?? true,
+    allowProximity: initialData?.allowProximity ?? false,
+    selectedInterests: initialData?.selectedInterests || [],
   })
 
   const handleSwitchChange = (name, checked) => {
@@ -42,7 +41,7 @@ export default function PreferencesStep({ onFinish, onPrevious }) {
           <h3 className="text-lg font-semibold">Privacidad</h3>
           <div className="flex items-center justify-between rounded-lg border p-4">
             <div className="space-y-0.5">
-              <Label htmlFor="isPublic" className="text-base">
+              <Label htmlFor="isPublic" className="text-base cursor-pointer">
                 Perfil público
               </Label>
               <p className="text-sm text-muted-foreground">Otros usuarios pueden ver tu perfil.</p>
@@ -51,11 +50,12 @@ export default function PreferencesStep({ onFinish, onPrevious }) {
               id="isPublic"
               checked={!!preferences.isPublic}
               onCheckedChange={(c) => handleSwitchChange("isPublic", c)}
+              aria-label="Activar o desactivar perfil público"
             />
           </div>
           <div className="flex items-center justify-between rounded-lg border p-4">
             <div className="space-y-0.5">
-              <Label htmlFor="allowMatching" className="text-base">
+              <Label htmlFor="allowMatching" className="text-base cursor-pointer">
                 Permitir matches
               </Label>
               <p className="text-sm text-muted-foreground">Participar en el sistema de matches.</p>
@@ -64,11 +64,12 @@ export default function PreferencesStep({ onFinish, onPrevious }) {
               id="allowMatching"
               checked={!!preferences.allowMatching}
               onCheckedChange={(c) => handleSwitchChange("allowMatching", c)}
+              aria-label="Activar o desactivar sistema de matches"
             />
           </div>
           <div className="flex items-center justify-between rounded-lg border p-4">
             <div className="space-y-0.5">
-              <Label htmlFor="allowProximity" className="text-base">
+              <Label htmlFor="allowProximity" className="text-base cursor-pointer">
                 Descubrimiento por proximidad
               </Label>
               <p className="text-sm text-muted-foreground">Encontrar usuarios cercanos.</p>
@@ -77,6 +78,7 @@ export default function PreferencesStep({ onFinish, onPrevious }) {
               id="allowProximity"
               checked={!!preferences.allowProximity}
               onCheckedChange={(c) => handleSwitchChange("allowProximity", c)}
+              aria-label="Activar o desactivar descubrimiento por proximidad"
             />
           </div>
         </div>
@@ -87,10 +89,15 @@ export default function PreferencesStep({ onFinish, onPrevious }) {
           <div className="grid grid-cols-2 gap-4">
             {interests.map((interest) => (
               <div key={interest} className="flex items-center space-x-2">
-                <Checkbox id={interest} onCheckedChange={(c) => handleInterestChange(interest, c)} />
+                <Checkbox 
+                  id={interest} 
+                  checked={preferences.selectedInterests.includes(interest)}
+                  onCheckedChange={(c) => handleInterestChange(interest, c)}
+                  aria-label={`Seleccionar interés: ${interest}`}
+                />
                 <label
                   htmlFor={interest}
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                 >
                   {interest}
                 </label>
@@ -103,11 +110,23 @@ export default function PreferencesStep({ onFinish, onPrevious }) {
         </p>
       </CardContent>
       <CardFooter className="grid grid-cols-2 gap-4">
-        <Button type="button" variant="outline" onClick={onPrevious} size="lg" className="text-lg py-6 bg-transparent">
+        <Button 
+          type="button" 
+          variant="outline" 
+          onClick={onPrevious} 
+          size="lg" 
+          className="text-lg py-6 bg-transparent"
+          disabled={isSubmitting}
+        >
           Anterior
         </Button>
-        <Button onClick={() => onFinish(preferences)} size="lg" className="text-lg py-6">
-          Completar
+        <Button 
+          onClick={() => onFinish(preferences)} 
+          size="lg" 
+          className="text-lg py-6"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Completando..." : "Completar"}
         </Button>
       </CardFooter>
     </Card>

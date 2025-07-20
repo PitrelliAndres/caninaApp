@@ -9,15 +9,19 @@ import { useToast } from "@/components/ui/use-toast"
 import { onboardingService } from "@/lib/api/onboarding"
 import { CheckCircle, XCircle } from "lucide-react"
 
-export default function UserStep({ user, onNext }) {
+export default function UserStep({ user, initialData, onNext }) {
   const { toast } = useToast()
-  const [formData, setFormData] = useState({ nickname: "", age: "", avatar: user?.avatar || null })
+  const [formData, setFormData] = useState({
+    nickname: initialData?.nickname || "",
+    age: initialData?.age || "",
+    avatar: initialData?.avatar || user?.avatar || null
+  })
   const [checkingNickname, setCheckingNickname] = useState(false)
   const [nicknameAvailable, setNicknameAvailable] = useState(null)
-  const [previewUrl, setPreviewUrl] = useState(user?.avatar || null)
+  const [previewUrl, setPreviewUrl] = useState(initialData?.avatar || user?.avatar || null)
 
   useEffect(() => {
-    if (user?.avatar) {
+    if (user?.avatar && !formData.avatar) {
       setPreviewUrl(user.avatar)
       setFormData(prev => ({ ...prev, avatar: user.avatar }))
     }
@@ -108,16 +112,8 @@ export default function UserStep({ user, onNext }) {
       return
     }
 
-    try {
-      await onboardingService.submitStep1(formData)
-      onNext(formData)
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error.message || "No se pudo guardar la información",
-        variant: "destructive",
-      })
-    }
+    // Solo pasar los datos al siguiente paso, no enviar aún
+    onNext(formData)
   }
 
   return (
@@ -150,6 +146,8 @@ export default function UserStep({ user, onNext }) {
                 onChange={handleChange}
                 required
                 className="text-lg h-12 pr-10"
+                aria-label="Apodo o nombre preferido"
+                aria-describedby="nickname-help"
               />
               {checkingNickname && (
                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -163,7 +161,7 @@ export default function UserStep({ user, onNext }) {
                 <XCircle className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-red-500" />
               )}
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p id="nickname-help" className="text-sm text-muted-foreground">
               Este es el nombre que verán otros usuarios.
             </p>
             {nicknameAvailable === false && (
@@ -185,6 +183,7 @@ export default function UserStep({ user, onNext }) {
               min="10"
               max="99"
               className="text-lg h-12"
+              aria-label="Tu edad"
             />
           </div>
           
@@ -198,12 +197,13 @@ export default function UserStep({ user, onNext }) {
               accept="image/*"
               onChange={handleFileChange}
               className="text-base file:text-base file:font-medium file:text-primary file:bg-primary-foreground hover:file:bg-primary/20"
+              aria-label="Subir foto de perfil"
             />
             {previewUrl && (
               <div className="mt-2">
                 <img 
                   src={previewUrl} 
-                  alt="Preview" 
+                  alt="Vista previa de tu foto de perfil" 
                   className="w-24 h-24 rounded-full object-cover border"
                 />
               </div>
