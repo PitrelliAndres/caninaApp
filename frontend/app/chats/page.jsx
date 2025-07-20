@@ -32,18 +32,18 @@ const ChatItem = ({ chat, isLast }) => (
       }`}
     >
       <Avatar className="h-14 w-14">
-        <AvatarImage src={chat.avatarUrl || "/placeholder.svg"} />
-        <AvatarFallback>{chat.name[0]}</AvatarFallback>
+        <AvatarImage src={chat?.avatarUrl || "/placeholder.svg"} />
+        <AvatarFallback>{chat?.name[0]}</AvatarFallback>
       </Avatar>
       <div className="flex-1">
         <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold">{chat.name}</h3>
-          <p className="text-sm text-muted-foreground">{chat.lastMessageTime}</p>
+          <h3 className="text-lg font-semibold">{chat?.name}</h3>
+          <p className="text-sm text-muted-foreground">{chat?.lastMessageTime}</p>
         </div>
         <div className="flex justify-between items-start mt-1">
-          <p className="text-sm text-muted-foreground truncate max-w-xs">{chat.lastMessage}</p>
-          {chat.unreadCount > 0 && (
-            <Badge className="h-6 w-6 flex items-center justify-center p-0">{chat.unreadCount}</Badge>
+          <p className="text-sm text-muted-foreground truncate max-w-xs">{chat?.lastMessage}</p>
+          {chat?.unreadCount > 0 && (
+            <Badge className="h-6 w-6 flex items-center justify-center p-0">{chat?.unreadCount}</Badge>
           )}
         </div>
       </div>
