@@ -1,11 +1,10 @@
 """
-Configuración de la aplicación Flask
+Configuración completa de la aplicación Flask
 """
 import os
 from datetime import timedelta
 from dotenv import load_dotenv
 
-# Cargar variables de entorno
 load_dotenv()
 
 class Config:
@@ -28,21 +27,37 @@ class Config:
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or SECRET_KEY
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
+    JWT_ALGORITHM = 'HS256'
     
     # CORS
     CORS_ORIGINS = os.environ.get('CORS_ORIGINS', 'http://localhost:3000').split(',')
     
-    # Proximidad (en metros)
-    PROXIMITY_RADIUS = float(os.environ.get('PROXIMITY_RADIUS', '10'))
+    # Proximity (en metros)
+    PROXIMITY_RADIUS = float(os.environ.get('PROXIMITY_RADIUS', '1000'))  # 1km por defecto
     
     # Google Maps
     GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY')
     
-    # Frontend URL
+    # URLs
     FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
-    
-    # Backend URL
     BACKEND_URL = os.environ.get('BACKEND_URL', 'http://localhost:5000')
+    
+    # Upload limits
+    MAX_CONTENT_LENGTH = 3 * 1024 * 1024  # 3MB
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+    UPLOAD_FOLDER = 'uploads'
+    
+    # Pagination
+    ITEMS_PER_PAGE = 20
+    
+    # Match scoring weights
+    MATCH_WEIGHTS = {
+        'schedule_overlap': 0.3,
+        'interests': 0.25,
+        'park_proximity': 0.2,
+        'age_compatibility': 0.15,
+        'breed_compatibility': 0.1
+    }
 
 class DevelopmentConfig(Config):
     """Configuración de desarrollo"""
@@ -52,7 +67,6 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     """Configuración de producción"""
     DEBUG = False
-    # En producción, DATABASE_URL puede venir con postgres:// en lugar de postgresql://
     if os.environ.get('DATABASE_URL', '').startswith('postgres://'):
         SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL').replace('postgres://', 'postgresql://')
 
@@ -61,7 +75,6 @@ class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
 
-# Diccionario de configuraciones
 config = {
     'development': DevelopmentConfig,
     'production': ProductionConfig,

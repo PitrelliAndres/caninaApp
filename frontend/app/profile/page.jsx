@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Header } from "@/components/layout/header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,13 +8,78 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
-import { profileData as initialProfileData } from "@/lib/dummy-data"
+import { userService } from "@/lib/api/users"
+import { useAuth } from "@/hooks/use-auth"
+import { useRouter } from "next/navigation"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
-// Página de perfil con funcionalidad de edición
 export default function ProfilePage() {
   const { toast } = useToast()
+  const { logout } = useAuth()
+  const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
-  const [profileData, setProfileData] = useState(initialProfileData)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [profileData, setProfileData] = useState({
+    id: null,
+    name: "",
+    email: "",
+    nickname: "",
+    age: "",
+    role: "free",
+    member_since: "",
+    dog: {
+      id: null,
+      name: "",
+      age: "",
+      breed: ""
+    },
+    is_public: true,
+    allow_matching: true,
+    allow_proximity: false
+  })
+
+  useEffect(() => {
+    loadProfile()
+  }, [])
+
+  const loadProfile = async () => {
+    try {
+      setLoading(true)
+      const data = await userService.getProfile()
+      setProfileData({
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        nickname: data.nickname || "",
+        age: data.age || "",
+        role: data.role,
+        member_since: data.member_since,
+        dog: data.dog || { name: "", age: "", breed: "" },
+        is_public: data.is_public,
+        allow_matching: data.allow_matching,
+        allow_proximity: data.allow_proximity
+      })
+    } catch (error) {
+      toast({
+        title: "Error al cargar perfil",
+        description: "No se pudo cargar tu información",
+        variant: "destructive"
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -23,21 +88,77 @@ export default function ProfilePage() {
 
   const handleDogInputChange = (e) => {
     const { name, value } = e.target
-    setProfileData((prev) => ({ ...prev, dog: { ...prev.dog, [name]: value } }))
+    setProfileData((prev) => ({ 
+      ...prev, 
+      dog: { ...prev.dog, [name]: value } 
+    }))
   }
 
   const handlePrivacyChange = (name, checked) => {
-    setProfileData((prev) => ({ ...prev, privacy: { ...prev.privacy, [name]: checked } }))
+    setProfileData((prev) => ({ ...prev, [name]: checked }))
   }
 
-  const handleSave = () => {
-    setIsEditing(false)
-    // Aquí se enviaría 'profileData' al backend.
-    console.log("Guardando perfil:", profileData)
-    toast({
-      title: "Perfil actualizado",
-      description: "Tus cambios se han guardado correctamente.",
-    })
+  const handleSave = async () => {
+    try {
+      setSaving(true)
+      
+      // Actualizar usuario
+      await userService.updateProfile(profileData.id, {
+        nickname: profileData.nickname,
+        age: profileData.age,
+        is_public: profileData.is_public,
+        allow_matching: profileData.allow_matching,
+        allow_proximity: profileData.allow_proximity
+      })
+      
+      // Actualizar perro si existe
+      if (profileData.dog?.id) {
+        await userService.updateDog(profileData.dog.id, {
+          name: profileData.dog.name,
+          age: profileData.dog.age,
+          breed: profileData.dog.breed
+        })
+      }
+      
+      setIsEditing(false)
+      toast({
+        title: "Perfil actualizado",
+        description: "Tus cambios se han guardado correctamente.",
+      })
+    } catch (error) {
+      toast({
+        title: "Error al guardar",
+        description: error.message || "No se pudieron guardar los cambios",
+        variant: "destructive"
+      })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleDeleteAccount = async () => {
+    try {
+      await userService.deleteAccount(profileData.id)
+      logout()
+      router.push("/")
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo eliminar la cuenta",
+        variant: "destructive"
+      })
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex flex-col min-h-screen bg-muted/40">
+        <Header />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-lg text-muted-foreground">Cargando perfil...</div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -49,11 +170,23 @@ export default function ProfilePage() {
             <h1 className="text-3xl md:text-4xl font-bold">Mi Perfil</h1>
             {isEditing ? (
               <div className="flex gap-2">
-                <Button variant="outline" size="lg" onClick={() => setIsEditing(false)}>
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  onClick={() => {
+                    setIsEditing(false)
+                    loadProfile() // Recargar datos originales
+                  }}
+                  disabled={saving}
+                >
                   Cancelar
                 </Button>
-                <Button size="lg" onClick={handleSave}>
-                  Guardar Cambios
+                <Button 
+                  size="lg" 
+                  onClick={handleSave}
+                  disabled={saving}
+                >
+                  {saving ? "Guardando..." : "Guardar Cambios"}
                 </Button>
               </div>
             ) : (
@@ -85,8 +218,8 @@ export default function ProfilePage() {
                 value={profileData.age}
                 onChange={handleInputChange}
               />
-              <InfoItem label="Tipo de cuenta" value={profileData.accountType} isStatic />
-              <InfoItem label="Miembro desde" value={profileData.memberSince} isStatic />
+              <InfoItem label="Tipo de cuenta" value={profileData.role} isStatic />
+              <InfoItem label="Miembro desde" value={profileData.member_since} isStatic />
             </CardContent>
           </Card>
 
@@ -127,57 +260,93 @@ export default function ProfilePage() {
             <CardContent className="space-y-4">
               <PrivacyItem
                 isEditing={isEditing}
-                id="isPublic"
+                id="is_public"
                 label="Perfil público"
                 description="Permitir que otros usuarios vean tu perfil"
-                checked={profileData.privacy.isPublic}
-                onCheckedChange={(c) => handlePrivacyChange("isPublic", c)}
+                checked={profileData.is_public}
+                onCheckedChange={(c) => handlePrivacyChange("is_public", c)}
               />
               <PrivacyItem
                 isEditing={isEditing}
-                id="allowMatching"
+                id="allow_matching"
                 label="Participar en matches"
                 description="Aparecer en las sugerencias de otros usuarios"
-                checked={profileData.privacy.allowMatching}
-                onCheckedChange={(c) => handlePrivacyChange("allowMatching", c)}
+                checked={profileData.allow_matching}
+                onCheckedChange={(c) => handlePrivacyChange("allow_matching", c)}
               />
               <PrivacyItem
                 isEditing={isEditing}
-                id="allowProximity"
+                id="allow_proximity"
                 label="Descubrimiento por proximidad"
                 description="Permitir que usuarios cercanos te encuentren (tipo Happn)"
-                checked={profileData.privacy.allowProximity}
-                onCheckedChange={(c) => handlePrivacyChange("allowProximity", c)}
+                checked={profileData.allow_proximity}
+                onCheckedChange={(c) => handlePrivacyChange("allow_proximity", c)}
               />
             </CardContent>
           </Card>
+
+          <div className="border-t pt-8 space-y-4">
+            <Button 
+              variant="outline" 
+              size="lg"
+              onClick={logout}
+            >
+              Cerrar sesión
+            </Button>
+            
+            <Button 
+              variant="destructive" 
+              size="lg"
+              onClick={() => setShowDeleteDialog(true)}
+            >
+              Eliminar cuenta
+            </Button>
+          </div>
         </div>
       </main>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. Se eliminarán permanentemente tu cuenta,
+              tus datos y todas tus visitas registradas.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteAccount}
+              className="bg-destructive text-destructive-foreground"
+            >
+              Eliminar cuenta
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
 
-// Componente para mostrar información estática o un campo de input
 const EditableItem = ({ isEditing, label, value, ...props }) => (
   <div className="space-y-1">
     <Label className="text-sm font-medium text-muted-foreground">{label}</Label>
     {isEditing ? (
       <Input className="text-lg h-12" value={value} {...props} />
     ) : (
-      <p className="font-semibold h-12 flex items-center">{value}</p>
+      <p className="font-semibold h-12 flex items-center">{value || "-"}</p>
     )}
   </div>
 )
 
-// Componente para información que nunca es editable
 const InfoItem = ({ label, value }) => (
   <div className="space-y-1">
     <p className="text-sm font-medium text-muted-foreground">{label}</p>
-    <p className="font-semibold">{value}</p>
+    <p className="font-semibold">{value || "-"}</p>
   </div>
 )
 
-// Componente para los items de privacidad con Switch
 const PrivacyItem = ({ isEditing, id, label, description, checked, onCheckedChange }) => (
   <div className="flex items-center justify-between rounded-lg border p-4">
     <div className="space-y-0.5">
@@ -186,6 +355,11 @@ const PrivacyItem = ({ isEditing, id, label, description, checked, onCheckedChan
       </Label>
       <p className="text-sm text-muted-foreground">{description}</p>
     </div>
-    <Switch id={id} checked={checked} onCheckedChange={onCheckedChange} disabled={!isEditing} />
+    <Switch 
+      id={id} 
+      checked={checked} 
+      onCheckedChange={onCheckedChange} 
+      disabled={!isEditing} 
+    />
   </div>
 )

@@ -1,122 +1,165 @@
 """
 Rutas de parques
 """
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request, jsonify, current_app
+from app import db
+from app.models import Park, Visit
+from app.utils.auth import login_required
+from sqlalchemy import func
+from datetime import datetime, timedelta
 
 parks_bp = Blueprint('parks', __name__)
 
-# Datos de parques de CABA
-PARKS_DATA = [
-    {
-        'id': 1,
-        'name': 'Parque Centenario',
-        'neighborhood': 'caballito',
-        'description': 'Un gran pulmón verde con un lago, ideal para paseos largos y socializar.',
-        'latitude': -34.6064,
-        'longitude': -58.4362,
-        'has_dog_area': True,
-        'is_fenced': True,
-        'has_water': True
-    },
-    {
-        'id': 2,
-        'name': 'Plaza Irlanda',
-        'neighborhood': 'caballito',
-        'description': 'Amplia plaza con un canil cercado muy popular entre los vecinos.',
-        'latitude': -34.6137,
-        'longitude': -58.4416,
-        'has_dog_area': True,
-        'is_fenced': True,
-        'has_water': True
-    },
-    {
-        'id': 3,
-        'name': 'Parque Rivadavia',
-        'neighborhood': 'caballito',
-        'description': 'Famoso por su feria de libros, también tiene mucho espacio para perros.',
-        'latitude': -34.6186,
-        'longitude': -58.4372,
-        'has_dog_area': False,
-        'is_fenced': False,
-        'has_water': True
-    },
-    {
-        'id': 4,
-        'name': 'Bosques de Palermo',
-        'neighborhood': 'palermo',
-        'description': 'El espacio verde más grande de la ciudad, con lagos y áreas para correr.',
-        'latitude': -34.5711,
-        'longitude': -58.4167,
-        'has_dog_area': True,
-        'is_fenced': False,
-        'has_water': True
-    },
-    {
-        'id': 5,
-        'name': 'Plaza Inmigrantes de Armenia',
-        'neighborhood': 'palermo',
-        'description': 'Plaza concurrida en el corazón de Palermo Soho, con un canil bien mantenido.',
-        'latitude': -34.5886,
-        'longitude': -58.4301,
-        'has_dog_area': True,
-        'is_fenced': True,
-        'has_water': True
-    },
-    {
-        'id': 6,
-        'name': 'Parque Las Heras',
-        'neighborhood': 'palermo',
-        'description': 'Muy popular para deportes y paseos, con un canil grande y activo.',
-        'latitude': -34.5859,
-        'longitude': -58.4073,
-        'has_dog_area': True,
-        'is_fenced': True,
-        'has_water': True
-    },
-    {
-        'id': 7,
-        'name': 'Parque Lezama',
-        'neighborhood': 'san telmo',
-        'description': 'Histórico parque con barrancas y mucho espacio para explorar con tu mascota.',
-        'latitude': -34.6289,
-        'longitude': -58.3694,
-        'has_dog_area': False,
-        'is_fenced': False,
-        'has_water': True
-    },
-    {
-        'id': 8,
-        'name': 'Plaza Dorrego',
-        'neighborhood': 'san telmo',
-        'description': 'El corazón de San Telmo, ideal para un paseo tranquilo entre semana.',
-        'latitude': -34.6204,
-        'longitude': -58.3717,
-        'has_dog_area': False,
-        'is_fenced': False,
-        'has_water': False
-    }
-]
-
 @parks_bp.route('', methods=['GET'])
 def get_parks():
-    """Obtener lista de parques"""
-    neighborhood = request.args.get('neighborhood')
-    search = request.args.get('search')
-    
-    parks = PARKS_DATA.copy()
-    
-    # Filtrar por barrio
-    if neighborhood and neighborhood != 'all':
-        parks = [p for p in parks if p['neighborhood'] == neighborhood]
-    
-    # Buscar por nombre
-    if search:
-        parks = [p for p in parks if search.lower() in p['name'].lower()]
-    
-    return jsonify({'parks': parks, 'total': len(parks)}), 200
+    """Obtener lista de parques con filtros"""
+    try:
+        # Parámetros de filtrado
+        neighborhood = request.args.get('neighborhood')
+        search = request.args.get('search')
+        lat = request.args.get('lat', type=float)
+        lng = request.args.get('lng', type=float)
+        radius = request.args.get('radius', type=float, default=5.0)  # km
+        
+        query = Park.query.filter_by(is_active=True)
+        
+        # Filtrar por barrio
+        if neighborhood and neighborhood != 'all':
+            query = query.filter(Park.neighborhood == neighborhood)
+        
+        # Buscar por nombre
+        if search:
+            query = query.filter(Park.name.ilike(f'%{search}%'))
+        
+        # Filtrar por proximidad
+        if lat and lng:
+            # Fórmula de Haversine simplificada para distancia
+            # En producción usar PostGIS o similar
+            query = query.filter(
+                func.sqrt(
+                    func.pow(Park.latitude - lat, 2) + 
+                    func.pow(Park.longitude - lng, 2)
+                ) * 111 <= radius  # Aproximación: 1 grado ≈ 111km
+            )
+        
+        parks = query.all()
+        
+        # Agregar estadísticas de visitas si el usuario está autenticado
+        parks_data = []
+        for park in parks:
+            park_dict = park.to_dict()
+            
+            # Contar visitas activas hoy
+            today = datetime.utcnow().date()
+            active_visits = Visit.query.filter(
+                Visit.park_id == park.id,
+                Visit.date == today,
+                Visit.status == 'scheduled'
+            ).count()
+            
+            park_dict['active_visits_today'] = active_visits
+            parks_data.append(park_dict)
+        
+        return jsonify({
+            'parks': parks_data,
+            'total': len(parks_data)
+        }), 200
+        
+    except Exception as e:
+        current_app.logger.error(f"Get parks error: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 @parks_bp.route('/neighborhoods', methods=['GET'])
 def get_neighborhoods():
-    """Obtener barrios disponibles"""
-    neighborhoods = list(set(p['neighborhood'] for p in PARKS_DATA))
-    return jsonify({'neighborhoods': sorted(neighborhoods)}), 200
+    """Obtener lista de barrios disponibles"""
+    try:
+        neighborhoods = db.session.query(Park.neighborhood).distinct().order_by(Park.neighborhood).all()
+        
+        return jsonify({
+            'neighborhoods': [n[0] for n in neighborhoods]
+        }), 200
+        
+    except Exception as e:
+        current_app.logger.error(f"Get neighborhoods error: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+@parks_bp.route('/<int:park_id>', methods=['GET'])
+def get_park_detail(park_id):
+    """Obtener detalle de un parque"""
+    try:
+        park = Park.query.get(park_id)
+        if not park or not park.is_active:
+            return jsonify({'error': 'Park not found'}), 404
+        
+        park_data = park.to_dict(include_stats=True)
+        
+        # Agregar horarios populares
+        popular_times = db.session.query(
+            Visit.time,
+            func.count(Visit.id).label('count')
+        ).filter(
+            Visit.park_id == park_id,
+            Visit.date >= datetime.utcnow().date() - timedelta(days=30)
+        ).group_by(Visit.time).order_by(func.count(Visit.id).desc()).limit(5).all()
+        
+        park_data['popular_times'] = [
+            {'time': t[0].strftime('%H:%M'), 'visits': t[1]} 
+            for t in popular_times
+        ]
+        
+        return jsonify(park_data), 200
+        
+    except Exception as e:
+        current_app.logger.error(f"Get park detail error: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+@parks_bp.route('/<int:park_id>/visitors', methods=['GET'])
+@login_required
+def get_park_visitors(park_id):
+    """Obtener visitantes actuales/próximos de un parque"""
+    try:
+        park = Park.query.get(park_id)
+        if not park:
+            return jsonify({'error': 'Park not found'}), 404
+        
+        # Solo mostrar si el usuario tiene una visita programada al mismo parque
+        user_visit = Visit.query.filter_by(
+            user_id=request.current_user_id,
+            park_id=park_id,
+            status='scheduled'
+        ).filter(Visit.date >= datetime.utcnow().date()).first()
+        
+        if not user_visit:
+            return jsonify({'error': 'You must have a scheduled visit to see other visitors'}), 403
+        
+        # Obtener otros visitantes en horarios similares
+        time_range_start = (datetime.combine(user_visit.date, user_visit.time) - timedelta(hours=1)).time()
+        time_range_end = (datetime.combine(user_visit.date, user_visit.time) + timedelta(hours=1)).time()
+        
+        visits = Visit.query.filter(
+            Visit.park_id == park_id,
+            Visit.date == user_visit.date,
+            Visit.time >= time_range_start,
+            Visit.time <= time_range_end,
+            Visit.status == 'scheduled',
+            Visit.user_id != request.current_user_id
+        ).join(Visit.user).filter(User.is_public == True).all()
+        
+        visitors = []
+        for visit in visits:
+            visitor_data = {
+                'user_id': visit.user.id,
+                'nickname': visit.user.nickname,
+                'time': visit.time.strftime('%H:%M'),
+                'dog': visit.user.dog.to_dict() if visit.user.dog else None
+            }
+            visitors.append(visitor_data)
+        
+        return jsonify({
+            'visitors': visitors,
+            'total': len(visitors)
+        }), 200
+        
+    except Exception as e:
+        current_app.logger.error(f"Get park visitors error: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500

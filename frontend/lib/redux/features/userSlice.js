@@ -1,38 +1,84 @@
-import { createSlice } from "@reduxjs/toolkit"
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
+import { authService } from "@/lib/api/auth"
+import { userService } from "@/lib/api/users"
 
-// Estado inicial para el slice de usuario.
+// Async thunks
+export const loginWithGoogle = createAsyncThunk(
+  'user/loginWithGoogle',
+  async (googleToken) => {
+    const response = await authService.googleLogin(googleToken)
+    return response
+  }
+)
+
+export const fetchCurrentUser = createAsyncThunk(
+  'user/fetchCurrent',
+  async () => {
+    const response = await authService.getCurrentUser()
+    return response
+  }
+)
+
+export const updateUserProfile = createAsyncThunk(
+  'user/updateProfile',
+  async ({ userId, data }) => {
+    const response = await userService.updateProfile(userId, data)
+    return response
+  }
+)
+
 const initialState = {
   isLoggedIn: false,
-  name: null,
-  email: null,
-  isNew: false,
-  // Aquí irían más datos del perfil del usuario y del perro.
+  user: null,
+  loading: false,
+  error: null,
+  isNew: false
 }
 
-// Un 'slice' de Redux para manejar la autenticación y los datos del usuario.
 export const userSlice = createSlice({
   name: "user",
   initialState,
-  // Los 'reducers' son funciones que definen cómo cambia el estado.
   reducers: {
-    login: (state, action) => {
-      state.isLoggedIn = true
-      state.name = action.payload.name
-      state.email = action.payload.email
-      state.isNew = action.payload.isNew
-    },
     logout: (state) => {
       state.isLoggedIn = false
-      state.name = null
-      state.email = null
-      state.isNew = false
+      state.user = null
+      state.error = null
+      authService.logout()
     },
-    // Aquí se podrían añadir más acciones, como 'updateProfile'.
+    clearError: (state) => {
+      state.error = null
+    }
   },
+  extraReducers: (builder) => {
+    builder
+      // Login
+      .addCase(loginWithGoogle.pending, (state) => {
+        state.loading = true
+        state.error = null
+      })
+      .addCase(loginWithGoogle.fulfilled, (state, action) => {
+        state.loading = false
+        state.isLoggedIn = true
+        state.user = action.payload.user
+        state.isNew = action.payload.is_new
+      })
+      .addCase(loginWithGoogle.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.error.message
+      })
+      // Fetch current user
+      .addCase(fetchCurrentUser.fulfilled, (state, action) => {
+        state.isLoggedIn = true
+        state.user = action.payload
+      })
+      // Update profile
+      .addCase(updateUserProfile.fulfilled, (state, action) => {
+        if (state.user) {
+          state.user = { ...state.user, ...action.payload }
+        }
+      })
+  }
 })
 
-// Exportamos las acciones para poder usarlas en los componentes.
-export const { login, logout } = userSlice.actions
-
-// Exportamos el reducer para añadirlo al store.
+export const { logout, clearError } = userSlice.actions
 export default userSlice.reducer

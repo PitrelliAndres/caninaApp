@@ -1,33 +1,43 @@
-"use client"
-
 import { useSelector, useDispatch } from "react-redux"
-import { login as loginAction, logout as logoutAction } from "@/lib/redux/features/userSlice"
+import { loginWithGoogle, logout, fetchCurrentUser } from "@/lib/redux/features/userSlice"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 
-// Hook personalizado para manejar la lógica de autenticación.
-// Esto centraliza la interacción con Redux y facilita su uso en los componentes.
 export function useAuth() {
-  const user = useSelector((state) => state.user)
   const dispatch = useDispatch()
+  const router = useRouter()
+  const { user, isLoggedIn, loading, error, isNew } = useSelector((state) => state.user)
 
-  const login = () => {
-    // Simula la respuesta del login de Google.
-    const mockUserData = {
-      name: "Ana García",
-      email: "ana.garcia@example.com",
-      isNew: true, // Cambiar a false para simular un usuario existente.
+  // Verificar token al cargar
+  useEffect(() => {
+    const token = localStorage.getItem('jwt_token')
+    if (token && !isLoggedIn) {
+      dispatch(fetchCurrentUser())
     }
-    dispatch(loginAction(mockUserData))
-    return mockUserData
+  }, [dispatch, isLoggedIn])
+
+  const login = async (googleToken) => {
+    try {
+      const result = await dispatch(loginWithGoogle(googleToken)).unwrap()
+      return result
+    } catch (error) {
+      console.error('Login error:', error)
+      throw error
+    }
   }
 
-  const logout = () => {
-    dispatch(logoutAction())
+  const logoutUser = () => {
+    dispatch(logout())
+    router.push('/')
   }
 
   return {
     user,
-    isLoggedIn: user.isLoggedIn,
+    isLoggedIn,
+    loading,
+    error,
+    isNew,
     login,
-    logout,
+    logout: logoutUser
   }
 }
