@@ -11,10 +11,17 @@ import { CheckCircle, XCircle } from "lucide-react"
 
 export default function UserStep({ user, onNext }) {
   const { toast } = useToast()
-  const [formData, setFormData] = useState({ nickname: "", age: "", avatar: null })
+  const [formData, setFormData] = useState({ nickname: "", age: "", avatar: user?.avatar || null })
   const [checkingNickname, setCheckingNickname] = useState(false)
   const [nicknameAvailable, setNicknameAvailable] = useState(null)
-  const [previewUrl, setPreviewUrl] = useState(null)
+  const [previewUrl, setPreviewUrl] = useState(user?.avatar || null)
+
+  useEffect(() => {
+    if (user?.avatar) {
+      setPreviewUrl(user.avatar)
+      setFormData(prev => ({ ...prev, avatar: user.avatar }))
+    }
+  }, [user])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -127,7 +134,7 @@ export default function UserStep({ user, onNext }) {
             <Label htmlFor="name" className="text-lg">
               Nombre
             </Label>
-            <Input id="name" value={user.name} disabled className="text-lg h-12" />
+            <Input id="name" value={user?.name || ""} disabled className="text-lg h-12" />
             <p className="text-sm text-muted-foreground">Este nombre viene de tu cuenta de Google.</p>
           </div>
           

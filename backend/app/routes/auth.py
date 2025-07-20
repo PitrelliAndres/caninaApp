@@ -24,6 +24,10 @@ def google_login():
         if not google_data:
             return jsonify({'error': 'Invalid Google token'}), 401
         
+        # Verificar que el email esté verificado
+        """if not google_data.get('email_verified'):
+            return jsonify({'error': 'Email not verified'}), 401
+        """
         # Buscar o crear usuario
         user = User.query.filter_by(google_id=google_data['sub']).first()
         
@@ -44,6 +48,9 @@ def google_login():
             # Actualizar último login
             user.last_login = datetime.utcnow()
             user.is_online = True
+            # Actualizar avatar si cambió
+            if google_data.get('picture') and google_data['picture'] != user.avatar_url:
+                user.avatar_url = google_data['picture']
             db.session.commit()
             is_new = False
         
@@ -66,6 +73,7 @@ def google_login():
         
     except Exception as e:
         current_app.logger.error(f"Login error: {str(e)}")
+        db.session.rollback()
         return jsonify({'error': 'Internal server error'}), 500
 
 @auth_bp.route('/me', methods=['GET'])
@@ -103,14 +111,24 @@ def refresh_token():
         
         # Verificar y decodificar refresh token
         import jwt
-        payload = jwt.decode(
-            refresh_token,
-            current_app.config['JWT_SECRET_KEY'],
-            algorithms=[current_app.config['JWT_ALGORITHM']]
-        )
+        try:
+            payload = jwt.decode(
+                refresh_token,
+                current_app.config['JWT_SECRET_KEY'],
+                algorithms=['HS256']
+            )
+        except jwt.ExpiredSignatureError:
+            return jsonify({'error': 'Refresh token expired'}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({'error': 'Invalid refresh token'}), 401
         
         if payload.get('type') != 'refresh':
             return jsonify({'error': 'Invalid token type'}), 401
+        
+        # Verificar que el usuario existe y está activo
+        user = User.query.get(payload['user_id'])
+        if not user or not user.is_active:
+            return jsonify({'error': 'User not found or inactive'}), 401
         
         # Generar nuevos tokens
         tokens = generate_tokens(payload['user_id'])
@@ -120,11 +138,9 @@ def refresh_token():
             'tokens': tokens
         }), 200
         
-    except jwt.ExpiredSignatureError:
-        return jsonify({'error': 'Refresh token expired'}), 401
     except Exception as e:
         current_app.logger.error(f"Refresh token error: {str(e)}")
-        return jsonify({'error': 'Invalid refresh token'}), 401
+        return jsonify({'error': 'Internal server error'}), 500
 
 @auth_bp.route('/logout', methods=['POST'])
 @login_required

@@ -8,10 +8,12 @@ import DogStep from "@/components/onboarding/dog-step"
 import PreferencesStep from "@/components/onboarding/preferences-step"
 import OnboardingProgress from "@/components/onboarding/onboarding-progress"
 import { useRouter } from "next/navigation"
+import { useAuth } from "@/hooks/use-auth"
 
 // Página de Onboarding refactorizada a un flujo de 3 pasos.
 export default function OnboardingPage() {
   const router = useRouter()
+  const { user } = useAuth()
   const [step, setStep] = useState(1)
   const [onboardingData, setOnboardingData] = useState({
     user: {},
@@ -53,7 +55,7 @@ export default function OnboardingPage() {
           <OnboardingProgress currentStep={step} totalSteps={3} />
         </div>
 
-        {step === 1 && <UserStep user={userData} onNext={handleNext} />}
+        {step === 1 && <UserStep user={user} onNext={handleNext} />}
         {step === 2 && <DogStep onNext={handleNext} onPrevious={handlePrevious} />}
         {step === 3 && <PreferencesStep onFinish={handleFinish} onPrevious={handlePrevious} />}
       </div>

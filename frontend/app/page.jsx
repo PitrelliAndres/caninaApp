@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/use-auth"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useState } from "react"
 import { useToast } from "@/components/ui/use-toast"
+import { useGoogleLogin } from '@react-oauth/google'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -14,31 +15,39 @@ export default function LoginPage() {
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
 
-  const handleGoogleLogin = async () => {
-    try {
-      setLoading(true)
-      
-      // Aquí deberías integrar Google OAuth real
-      // Por ahora simulamos con un token de prueba
-      const mockGoogleToken = 'test-token'
-      
-      const result = await login(mockGoogleToken)
-      
-      if (result.user.onboarded) {
-        router.push("/home")
-      } else {
-        router.push("/onboarding")
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (codeResponse) => {
+      try {
+        setLoading(true)
+        
+        // El token de acceso viene en codeResponse.access_token
+        const result = await login(codeResponse.access_token)
+        
+        if (result.user.onboarded) {
+          router.push("/home")
+        } else {
+          router.push("/onboarding")
+        }
+      } catch (error) {
+        toast({
+          title: "Error al iniciar sesión",
+          description: error.message || "Por favor intenta de nuevo",
+          variant: "destructive"
+        })
+      } finally {
+        setLoading(false)
       }
-    } catch (error) {
+    },
+    onError: (error) => {
+      console.error('Login Failed:', error)
       toast({
         title: "Error al iniciar sesión",
-        description: error.message || "Por favor intenta de nuevo",
+        description: "No se pudo conectar con Google",
         variant: "destructive"
       })
-    } finally {
-      setLoading(false)
-    }
-  }
+    },
+    scope: 'openid email profile'
+  })
 
   const features = [
     "Registra tus visitas a parques",
@@ -75,7 +84,7 @@ export default function LoginPage() {
 
         <div className="mt-8">
           <Button 
-            onClick={handleGoogleLogin} 
+            onClick={() => googleLogin()}
             size="lg" 
             className="text-lg px-8 py-6 w-full sm:w-auto"
             disabled={loading}
