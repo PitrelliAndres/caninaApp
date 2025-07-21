@@ -27,7 +27,7 @@ services:
       - "5000:5000"
     environment:
       - FLASK_ENV=development
-      - DATABASE_URL=postgresql://parkdog:parkdog123@db:5432/parkdog
+      - DATABASE_URL=postgresql://neondb_owner:npg_BXIfTJuMl2E5@ep-twilight-wind-acr3jnrs-pooler.sa-east-1.aws.neon.tech/parkdog?sslmode=require&channel_binding=require
       - SECRET_KEY=dev-secret-key-change-in-production
       - JWT_SECRET_KEY=dev-jwt-secret-key
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
