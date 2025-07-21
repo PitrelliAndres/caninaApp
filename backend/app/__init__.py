@@ -60,6 +60,7 @@ def create_app(config_name=None):
     app.register_blueprint(visits_bp, url_prefix='/api/visits')
     app.register_blueprint(matches_bp, url_prefix='/api/matches')
     app.register_blueprint(messages_bp, url_prefix='/api/messages')
+    app.register_blueprint(admin_bp, url_prefix='/api/admin')
     app.register_blueprint(onboarding_bp, url_prefix='/api/onboarding')
     
     # Registrar manejadores de WebSocket

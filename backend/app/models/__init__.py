@@ -7,6 +7,7 @@ from app.models.park import Park
 from app.models.visit import Visit
 from app.models.match import Match
 from app.models.message import Message, Conversation
+from app.models.notification import Notification, NotificationPreference
 
 __all__ = [
     'User',
@@ -17,5 +18,7 @@ __all__ = [
     'Visit',
     'Match',
     'Message',
-    'Conversation'
+    'Conversation',
+    'Notification',
+    'NotificationPreference'
 ]

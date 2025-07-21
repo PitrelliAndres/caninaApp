@@ -51,3 +51,4 @@ class Visit(db.Model):
             time=time,
             status='scheduled'
         ).first() is not None
+    reminder_sent = db.Column(db.Boolean, default=False)

@@ -13,15 +13,17 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { LanguageSelector } from "@/components/language-selector"
 import { useAuth } from "@/hooks/use-auth"
 import { useRouter, usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { useTranslation } from 'react-i18next'
 
-// Header actualizado con iconos en el menú de navegación.
 export function Header() {
   const { user, logout } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
+  const { t } = useTranslation()
 
   const handleLogout = () => {
     logout()
@@ -38,20 +40,19 @@ export function Header() {
   }
 
   const navItems = [
-    { href: "/home", label: "Inicio", icon: Home },
-    { href: "/my-visits", label: "Mis Visitas", icon: CalendarDays },
-    { href: "/matches", label: "Matches", icon: Heart },
-    { href: "/chats", label: "Chats", icon: MessageSquare },
+    { href: "/home", label: t('common.home'), icon: Home },
+    { href: "/my-visits", label: t('visits.myVisits'), icon: CalendarDays },
+    { href: "/matches", label: t('matches.title'), icon: Heart },
+    { href: "/chats", label: t('chat.messages'), icon: MessageSquare },
   ]
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-20 items-center justify-between">
         <Link href="/home" className="flex items-center gap-2">
-        <div className="inline-flex items-center justify-center p-3 bg-blue-100 rounded-full">
-          
-          <PawPrint className="h-10 w-10 text-blue-600" />
-        </div>
+          <div className="inline-flex items-center justify-center p-3 bg-blue-100 rounded-full">
+            <PawPrint className="h-10 w-10 text-blue-600" />
+          </div>
           <span className="font-bold text-xl hidden sm:inline-block">ParkDog</span>
         </Link>
 
@@ -72,10 +73,11 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2 md:gap-4">
+          <LanguageSelector />
           <ThemeToggle />
           <Button variant="ghost" size="icon">
             <Bell className="h-6 w-6" />
-            <span className="sr-only">Notificaciones</span>
+            <span className="sr-only">{t('common.notifications')}</span>
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -97,16 +99,27 @@ export function Header() {
               <Link href="/profile">
                 <DropdownMenuItem className="cursor-pointer text-base py-2">
                   <User className="mr-2 h-5 w-5" />
-                  <span>Perfil</span>
+                  <span>{t('profile.title')}</span>
                 </DropdownMenuItem>
               </Link>
+              {user?.role === 'admin' && (
+                <>
+                  <DropdownMenuSeparator />
+                  <Link href="/admin">
+                    <DropdownMenuItem className="cursor-pointer text-base py-2">
+                      <Shield className="mr-2 h-5 w-5" />
+                      <span>{t('admin.title')}</span>
+                    </DropdownMenuItem>
+                  </Link>
+                </>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={handleLogout}
                 className="cursor-pointer text-base py-2 text-red-500 focus:text-red-500 focus:bg-red-500/10"
               >
                 <LogOut className="mr-2 h-5 w-5" />
-                <span>Cerrar sesión</span>
+                <span>{t('auth.logout')}</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

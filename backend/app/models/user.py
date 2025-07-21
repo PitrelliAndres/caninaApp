@@ -87,3 +87,9 @@ class UserPreference(db.Model):
             'preferred_age_min': self.preferred_age_min,
             'preferred_age_max': self.preferred_age_max,
         }
+
+    # Campos adicionales para notificaciones
+    fcm_token = db.Column(db.String(500))
+    phone_number = db.Column(db.String(50))
+    ban_reason = db.Column(db.Text)
+    banned_at = db.Column(db.DateTime)
