@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { PawPrint, User, LogOut, Bell, Home, CalendarDays, Heart, MessageSquare } from "lucide-react"
+import { PawPrint, User, LogOut, Bell, Home, CalendarDays, Heart, MessageSquare, Shield } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu,
