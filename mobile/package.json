@@ -44,10 +44,14 @@
     "expo-splash-screen": "~0.20.5",
     "date-fns": "^2.30.0",
     "react-native-modal": "^13.0.1",
-    "react-native-keyboard-aware-scroll-view": "^0.9.5"
+    "react-native-keyboard-aware-scroll-view": "^0.9.5",
+    "@react-navigation/material-top-tabs": "^6.6.5",
+    "react-native-tab-view": "^3.5.2",
+    "@react-native-picker/picker": "^2.5.1",
+    "react-native-pager-view": "^6.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
   },
-  "private": true
+  "private": true   
 }
