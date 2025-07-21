@@ -3,6 +3,7 @@ from app import create_app, socketio, db
 
 app = create_app(os.environ.get('FLASK_ENV', 'production'))
 
+
 # Ejecutar migraciones automáticamente
 with app.app_context():
     from flask_migrate import upgrade
