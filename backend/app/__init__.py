@@ -53,6 +53,7 @@ def create_app(config_name=None):
     from app.routes.matches import matches_bp
     from app.routes.messages import messages_bp
     from app.routes.onboarding import onboarding_bp
+    from app.routes.admin import admin_bp
     
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(users_bp, url_prefix='/api/users')
