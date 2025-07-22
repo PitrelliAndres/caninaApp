@@ -5,12 +5,15 @@ import { PawPrint, CheckCircle } from 'lucide-react'
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/hooks/use-auth"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { LanguageSelector } from "@/components/language-selector"
 import { useState } from "react"
 import { useToast } from "@/components/ui/use-toast"
 import { useGoogleLogin } from '@react-oauth/google'
+import { useTranslation } from 'react-i18next'
 
 export default function LoginPage() {
   const router = useRouter()
+  const { t } = useTranslation()
   const { login } = useAuth()
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
@@ -30,8 +33,8 @@ export default function LoginPage() {
         }
       } catch (error) {
         toast({
-          title: "Error al iniciar sesión",
-          description: error.message || "Por favor intenta de nuevo",
+          title: t('auth.loginError'),
+          description: error.message || t('errors.generic'),
           variant: "destructive"
         })
       } finally {
@@ -41,8 +44,8 @@ export default function LoginPage() {
     onError: (error) => {
       console.error('Login Failed:', error)
       toast({
-        title: "Error al iniciar sesión",
-        description: "No se pudo conectar con Google",
+        title: t('auth.loginError'),
+        description: t('errors.network'),
         variant: "destructive"
       })
     },
@@ -50,15 +53,16 @@ export default function LoginPage() {
   })
 
   const features = [
-    "Registra tus visitas a parques",
-    "Conoce a otros dueños de perros",
-    "Haz match según tus intereses",
-    "Chatea y coordina encuentros",
+    t('auth.features.registerVisits'),
+    t('auth.features.meetOwners'),
+    t('auth.features.matchInterests'),
+    t('auth.features.chatCoordinate'),
   ]
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background p-6">
       <div className="absolute top-4 right-4">
+        <LanguageSelector />
         <ThemeToggle />
       </div>
       <div className="text-center max-w-lg w-full">
@@ -67,11 +71,11 @@ export default function LoginPage() {
         </div>
         <h1 className="text-5xl font-bold mb-4">¡Bienvenido a ParkDog!</h1>
         <p className="mt-3 text-lg md:text-xl text-muted-foreground">
-          Conecta con otros dueños de perros en tu zona.
+          {t('auth.loginSubtitle')}
         </p>
 
         <div className="mt-8 text-left bg-muted/50 p-6 rounded-lg border">
-          <h2 className="text-xl font-semibold mb-4 text-center">¿Qué puedes hacer en ParkDog?</h2>
+          <h2 className="text-xl font-semibold mb-4 text-center">{t('auth.whatCanYouDo')}</h2>
           <ul className="space-y-3">
             {features.map((feature, index) => (
               <li key={index} className="flex items-center text-base">
@@ -90,7 +94,7 @@ export default function LoginPage() {
             disabled={loading}
           >
             {loading ? (
-              <>Iniciando sesión...</>
+              <>{t('auth.loggingIn')}</>
             ) : (
               <>
                 <svg className="w-6 h-6 mr-3" viewBox="0 0 48 48">
@@ -112,12 +116,12 @@ export default function LoginPage() {
                   ></path>
                   <path fill="none" d="M0 0h48v48H0z"></path>
                 </svg>
-                Iniciar sesión con Google
+                {t('auth.loginWithGoogle')}
               </>
             )}
           </Button>
           <p className="mt-4 text-xs text-muted-foreground">
-            Al iniciar sesión, aceptas nuestros términos y condiciones.
+            {t('auth.termsAccept')}
           </p>
         </div>
       </div>

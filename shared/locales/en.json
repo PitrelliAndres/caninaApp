@@ -91,7 +91,8 @@
     "searching": "Searching...",
     "noParksFound": "No parks found with those filters",
     "listView": "List",
-    "mapView": "Map"
+    "mapView": "Map",
+    "loadingParks": "Loading parks..."
   },
   "visits": {
     "myVisits": "My Visits",
@@ -124,7 +125,10 @@
     "keep": "No, keep it",
     "confirmCancel": "Yes, cancel",
     "visitCancelled": "Visit cancelled",
-    "visitRegistered": "Visit registered!"
+    "visitRegistered": "Visit registered!",
+    "selectTime": "Select time",
+    "estimatedDuration": "Estimated duration",
+    "registering": "Registering..."
   },
   "matches": {
     "title": "Matches",
@@ -227,6 +231,17 @@
     "dashboard": "Dashboard",
     "users": "Users",
     "parks": "Parks",
-    "reports": "Reports"
+    "reports": "Reports",
+    "totalUsers": "Total Users",
+    "newToday": "{{count}} new today",
+    "visits": "Visits",
+    "matchs": "Matchs",
+    "today": "today",
+    "mutual": "mutual",
+    "activeParks": "Active parks",
+    "parksInDevelopment": "Park management - In development",
+    "reportsInDevelopment": "Reports - In development",
+    "searchUsers": "Search users...",
+    "errorLoadingUsers": "Could not load users"
   }
 }

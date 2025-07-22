@@ -26,8 +26,8 @@ export function AdminUsers() {
       setUsers(data.users || [])
     } catch (error) {
       toast({
-        title: "Error",
-        description: "No se pudieron cargar los usuarios",
+        title: t('common.error'),
+        description: t('admin.errorLoadingUsers'),
         variant: "destructive"
       })
     } finally {
@@ -43,14 +43,14 @@ export function AdminUsers() {
       <CardContent>
         <div className="space-y-4">
           <Input
-            placeholder="Buscar usuarios..."
+            placeholder={t('admin.searchUsers')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && loadUsers()}
           />
           
           {loading ? (
-            <div>Cargando...</div>
+            <div>{t('common.loading')}</div>
           ) : (
             <div className="space-y-2">
               {users.map(user => (

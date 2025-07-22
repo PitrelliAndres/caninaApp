@@ -3,15 +3,17 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { chats } from "@/lib/dummy-data"
 import Link from "next/link"
+import { useTranslation } from 'react-i18next'
 
 // Página principal de "Chats"
 export default function ChatsPage() {
+  const { t } = useTranslation()
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-1">
         <div className="max-w-2xl mx-auto p-4 md:p-8">
-          <h1 className="text-3xl md:text-4xl font-bold mb-6">Mensajes</h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-6">{t('chat.messages')}</h1>
           <div className="border rounded-lg">
             {chats.map((chat, index) => (
               <ChatItem key={chat.id} chat={chat} isLast={index === chats.length - 1} />

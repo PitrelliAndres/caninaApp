@@ -4,8 +4,8 @@ import * as Localization from 'expo-localization'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 // Importar traducciones
-import es from '../../../shared/locales/es.json'
-import en from '../../../shared/locales/en.json'
+import es from '../locales/es.json'
+import en from '../locales/en.json'
 
 const resources = {
   es: { translation: es },

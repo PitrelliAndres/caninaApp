@@ -22,52 +22,52 @@ export function AdminDashboard({ stats, onRefresh }) {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Usuarios</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('admin.totalUsers')}</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.users?.total || 0}</div>
             <p className="text-xs text-muted-foreground">
-              {stats.users?.new_today || 0} nuevos hoy
+              {t('admin.newToday', { count: stats.users?.new_today || 0 })}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Visitas</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('admin.visits')}</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.visits?.total || 0}</div>
             <p className="text-xs text-muted-foreground">
-              {stats.visits?.today || 0} hoy
+              {stats.visits?.today || 0} {t('admin.today')}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Matches</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('admin.matchs')}</CardTitle>
             <Heart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.matches?.total || 0}</div>
             <p className="text-xs text-muted-foreground">
-              {stats.matches?.mutual || 0} mutuos
+              {stats.matches?.mutual || 0} {t('admin.mutual')}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Parques</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('admin.parks')}</CardTitle>
             <MapPin className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.popular_parks?.length || 0}</div>
             <p className="text-xs text-muted-foreground">
-              Parques activos
+              {t('admin.activeParks')}
             </p>
           </CardContent>
         </Card>

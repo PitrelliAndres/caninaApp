@@ -11,8 +11,10 @@ import { cn } from "@/lib/utils"
 import { messageService } from "@/lib/api/messages"
 import { useToast } from "@/components/ui/use-toast"
 import { useAuth } from "@/hooks/use-auth"
+import { useTranslation } from 'react-i18next'
 
 export default function ChatPage() {
+  const { t } = useTranslation()
   const params = useParams()
   const chatId = params.id
   const { user } = useAuth()
@@ -154,7 +156,7 @@ export default function ChatPage() {
       <div className="flex flex-col h-screen">
         <Header />
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-lg text-muted-foreground">Cargando chat...</div>
+          <div className="text-lg text-muted-foreground">{t('chat.loadingChat')}</div>
         </div>
       </div>
     )
@@ -165,7 +167,7 @@ export default function ChatPage() {
       <div className="flex flex-col h-screen">
         <Header />
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-lg text-muted-foreground">Chat no encontrado</div>
+          <div className="text-lg text-muted-foreground">{t('chat.chatNotFound')}</div>
         </div>
       </div>
     )

@@ -13,7 +13,7 @@ export function AdminParks() {
       </CardHeader>
       <CardContent>
         <p className="text-muted-foreground">
-          Gestión de parques - En desarrollo
+          {t('admin.parksInDevelopment')}
         </p>
       </CardContent>
     </Card>

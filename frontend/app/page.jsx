@@ -5,8 +5,10 @@ import { Header } from "@/components/layout/header"
 import { ParkList } from "@/components/parks/park-list"
 import { parkService } from "@/lib/api/parks"
 import { useToast } from "@/components/ui/use-toast"
+import { useTranslation } from 'react-i18next'
 
 export default function HomePage() {
+  const { t } = useTranslation()
   const [parks, setParks] = useState([])
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
@@ -36,10 +38,10 @@ export default function HomePage() {
       <Header />
       <main className="flex-1 p-4 md:p-8 bg-muted/40">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl md:text-4xl font-bold mb-6">Parques en CABA</h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-6">{t('parks.title')}</h1>
           {loading ? (
             <div className="flex justify-center items-center h-64">
-              <div className="text-lg text-muted-foreground">Cargando parques...</div>
+              <div className="text-lg text-muted-foreground">{t('parks.loadingParks')}</div>
             </div>
           ) : (
             <ParkList parks={parks} onRefresh={loadParks} />

@@ -21,6 +21,7 @@ import Toast from 'react-native-toast-message'
 
 import { loginWithGoogle } from '../../store/slices/userSlice'
 import { PawIcon } from '../../components/icons/PawIcon'
+import { LanguageSelector } from '../../components/common/LanguageSelector'
 
 const { width } = Dimensions.get('window')
 
@@ -78,6 +79,10 @@ export function LoginScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.languageSelector}>
+        <LanguageSelector />
+      </View>
+      
       <ScrollView 
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -137,6 +142,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  languageSelector: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    zIndex: 1,
   },
   scrollContent: {
     flexGrow: 1,

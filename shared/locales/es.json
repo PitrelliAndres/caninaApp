@@ -91,7 +91,8 @@
     "searching": "Buscando...",
     "noParksFound": "No se encontraron parques con esos filtros",
     "listView": "Lista",
-    "mapView": "Mapa"
+    "mapView": "Mapa",
+    "loadingParks": "Cargando parques..."
   },
   "visits": {
     "myVisits": "Mis Visitas",
@@ -124,7 +125,10 @@
     "keep": "No, mantener",
     "confirmCancel": "Sí, cancelar",
     "visitCancelled": "Visita cancelada",
-    "visitRegistered": "¡Visita registrada!"
+    "visitRegistered": "¡Visita registrada!",
+    "selectTime": "Selecciona hora",
+    "estimatedDuration": "Duración estimada",
+    "registering": "Registrando..."
   },
   "matches": {
     "title": "Matches",
@@ -226,7 +230,18 @@
     "title": "Panel de Administración",
     "dashboard": "Dashboard",
     "users": "Usuarios",
-    "parks": "Parques",
-    "reports": "Reportes"
+  "parks": "Parques",
+    "reports": "Reportes",
+    "totalUsers": "Total Usuarios",
+    "newToday": "{{count}} nuevos hoy",
+    "visits": "Visitas",
+    "matchs": "Matches",
+    "today": "hoy",
+    "mutual": "mutuos",
+    "activeParks": "Parques activos",
+    "parksInDevelopment": "Gestión de parques - En desarrollo",
+    "reportsInDevelopment": "Reportes - En desarrollo",
+    "searchUsers": "Buscar usuarios...",
+    "errorLoadingUsers": "No se pudieron cargar los usuarios"
   }
 }

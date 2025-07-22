@@ -19,8 +19,10 @@ import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
 import { AlertCircle } from "lucide-react"
 import { visitService } from "@/lib/api/visits"
+import { useTranslation } from 'react-i18next'
 
 export function RegisterVisitModal({ parkId, parkName, children, onSuccess }) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [date, setDate] = useState("")
   const [time, setTime] = useState("")
@@ -121,7 +123,7 @@ export function RegisterVisitModal({ parkId, parkName, children, onSuccess }) {
             </Label>
             <Select onValueChange={setTime} disabled={loading}>
               <SelectTrigger className="col-span-3 h-11 text-base">
-                <SelectValue placeholder="Selecciona hora" />
+                <SelectValue placeholder={t('visits.selectTime')} />
               </SelectTrigger>
               <SelectContent className="max-h-[300px]">
                 {timeOptions.map((timeOpt) => (
@@ -138,7 +140,7 @@ export function RegisterVisitModal({ parkId, parkName, children, onSuccess }) {
             </Label>
             <Select onValueChange={setDuration} disabled={loading}>
               <SelectTrigger className="col-span-3 h-11 text-base">
-                <SelectValue placeholder="Duración estimada" />
+                <SelectValue placeholder={t('visits.estimatedDuration')} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="30">30 minutos</SelectItem>
@@ -171,7 +173,7 @@ export function RegisterVisitModal({ parkId, parkName, children, onSuccess }) {
             </Button>
           </DialogClose>
           <Button onClick={handleRegister} size="lg" disabled={loading}>
-            {loading ? "Registrando..." : "Registrar Visita"}
+            {loading ? t('visits.registering') : t('visits.registerVisit')}
           </Button>
         </DialogFooter>
       </DialogContent>
