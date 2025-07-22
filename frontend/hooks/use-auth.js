@@ -10,7 +10,7 @@ export function useAuth() {
   const { user, isLoggedIn, loading, error, isNew } = useSelector((state) => state.user)
 
   // Rutas públicas que no requieren auth
-  const publicRoutes = ['/', '/privacy', '/terms']
+  const publicRoutes = ['/login', '/privacy', '/terms']
 
   // Verificar token al cargar
   useEffect(() => {
@@ -18,7 +18,7 @@ export function useAuth() {
     
     // Si no hay token y no estamos en ruta pública, ir a login
     if (!token && !publicRoutes.includes(pathname)) {
-      router.push('/')
+      router.push('/login')
       return
     }
     
@@ -28,7 +28,7 @@ export function useAuth() {
         // Si falla, el token es inválido
         localStorage.removeItem('jwt_token')
         localStorage.removeItem('refresh_token')
-        router.push('/')
+        router.push('/login')
       })
     }
   }, [dispatch, isLoggedIn, loading, pathname, router])
@@ -45,7 +45,7 @@ export function useAuth() {
 
   const logoutUser = () => {
     dispatch(logout())
-    router.push('/')
+    router.push('/login')
   }
 
   return {

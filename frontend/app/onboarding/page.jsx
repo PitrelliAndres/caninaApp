@@ -107,7 +107,7 @@ export default function OnboardingPage() {
       })
       
       // Redirigir a home
-      router.push("/home")
+      router.push("/")
     } catch (error) {
       toast({
         title: "Error",

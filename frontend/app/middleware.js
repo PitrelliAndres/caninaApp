@@ -20,7 +20,7 @@ export async function middleware(request) {
   const { pathname } = request.nextUrl
   
   // Rutas públicas que no requieren autenticación
-  const publicPaths = ['/', '/privacy', '/terms', '/api/auth/google']
+  const publicPaths = ['/login', '/privacy', '/terms', '/api/auth/google']
   
   // Si es ruta pública o archivo estático, permitir acceso
   if (
@@ -39,7 +39,7 @@ export async function middleware(request) {
   if (!token) {
     // Si no hay token, redirigir a login
     const url = request.nextUrl.clone()
-    url.pathname = '/'
+    url.pathname = '/login'
     url.searchParams.set('redirect', pathname)
     return NextResponse.redirect(url)
   }
@@ -69,7 +69,7 @@ export async function middleware(request) {
   // Verificar rutas específicas de roles
   if (pathname.startsWith('/admin')) {
     if (payload.role !== 'admin') {
-      return NextResponse.redirect(new URL('/home', request.url))
+      return NextResponse.redirect(new URL('/', request.url))
     }
   }
   

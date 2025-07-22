@@ -216,7 +216,7 @@ const EmptyState = () => (
       ¡Registra tu primera visita a un parque para empezar a conectar!
     </p>
     <Button asChild size="lg" className="mt-6">
-      <Link href="/home">Explorar parques</Link>
+      <Link href="/">Explorar parques</Link>
     </Button>
   </div>
 )

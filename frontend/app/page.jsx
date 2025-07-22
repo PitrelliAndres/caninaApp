@@ -24,7 +24,7 @@ export default function LoginPage() {
         const result = await login(codeResponse.access_token)
         
         if (result.user.onboarded) {
-          router.push("/home")
+          router.push("/")
         } else {
           router.push("/onboarding")
         }

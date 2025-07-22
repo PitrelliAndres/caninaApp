@@ -27,7 +27,7 @@ export function Header() {
 
   const handleLogout = () => {
     logout()
-    router.push("/")
+    router.push("/login")
   }
 
   const getInitials = (name) => {
@@ -40,7 +40,7 @@ export function Header() {
   }
 
   const navItems = [
-    { href: "/home", label: t('common.home'), icon: Home },
+    { href: "/", label: t('common.home'), icon: Home },
     { href: "/my-visits", label: t('visits.myVisits'), icon: CalendarDays },
     { href: "/matches", label: t('matches.title'), icon: Heart },
     { href: "/chats", label: t('chat.messages'), icon: MessageSquare },
@@ -49,7 +49,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-20 items-center justify-between">
-        <Link href="/home" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
           <div className="inline-flex items-center justify-center p-3 bg-blue-100 rounded-full">
             <PawPrint className="h-10 w-10 text-blue-600" />
           </div>

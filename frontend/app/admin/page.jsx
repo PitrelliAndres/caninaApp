@@ -24,7 +24,7 @@ export default function AdminPage() {
   useEffect(() => {
     // Verificar rol de admin
     if (user && user.role !== 'admin') {
-      router.push('/home')
+      router.push('/')
       return
     }
 

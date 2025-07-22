@@ -140,7 +140,7 @@ export default function ProfilePage() {
     try {
       await userService.deleteAccount(profileData.id)
       logout()
-      router.push("/")
+      router.push("/login")
     } catch (error) {
       toast({
         title: "Error",

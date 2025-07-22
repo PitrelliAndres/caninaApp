@@ -218,7 +218,7 @@ def step3_preferences():
             
             return jsonify({
                 'success': True,
-                'redirect': '/home'
+                'redirect': '/'
             }), 200
             
         except Exception as e:
@@ -268,7 +268,7 @@ def skip_onboarding():
         
         return jsonify({
             'success': True,
-            'redirect': '/home'
+            'redirect': '/'
         }), 200
         
     except Exception as e:
