@@ -6,10 +6,15 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
+    "scheme": "parkdog",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/your-project-id"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -17,14 +22,20 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.parkdog.app",
-      "config": {
-        "googleMapsApiKey": "YOUR_IOS_GOOGLE_MAPS_KEY"
-      },
       "infoPlist": {
         "NSCameraUsageDescription": "ParkDog necesita acceso a tu cámara para tomar fotos de tu mascota",
         "NSPhotoLibraryUsageDescription": "ParkDog necesita acceso a tu galería para seleccionar fotos",
-        "NSLocationWhenInUseUsageDescription": "ParkDog necesita tu ubicación para mostrarte parques cercanos"
-      }
+        "NSLocationWhenInUseUsageDescription": "ParkDog necesita tu ubicación para mostrarte parques cercanos",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "ParkDog necesita tu ubicación para mostrarte parques cercanos",
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.YOUR_GOOGLE_IOS_CLIENT_ID"
+            ]
+          }
+        ]
+      },
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
@@ -32,30 +43,88 @@
         "backgroundColor": "#FFFFFF"
       },
       "package": "com.parkdog.app",
-      "config": {
-        "googleMaps": {
-          "apiKey": "YOUR_ANDROID_GOOGLE_MAPS_KEY"
-        }
-      },
+      "googleServicesFile": "./google-services.json",
       "permissions": [
         "CAMERA",
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE",
         "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION"
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "parkdog.app",
+              "pathPrefix": "/redirect"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
       ]
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
     },
     "plugins": [
-      "@react-native-google-signin/google-signin",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.YOUR_GOOGLE_IOS_CLIENT_ID"
+        }
+      ],
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow ParkDog to use your location."
+          "locationAlwaysAndWhenInUsePermission": "Permitir a ParkDog usar tu ubicación para encontrar parques cercanos."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Permitir a ParkDog acceder a tu cámara para tomar fotos."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "La app accede a tus fotos para que puedas compartir imágenes de tu mascota."
+        }
+      ],
+      "expo-font",
+      "expo-secure-store",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "buildToolsVersion": "35.0.0",
+            "minSdkVersion": 24,
+            "usesCleartextTraffic": true,
+            "enableProguardInReleaseBuilds": false,
+            "enableShrinkResourcesInReleaseBuilds": false
+          },
+          "ios": {
+            "deploymentTarget": "15.1",
+            "useFrameworks": "static"
+          }
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "your-eas-project-id"
+      }
+    },
+    "owner": "parkdog-team",
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    }
   }
 }
