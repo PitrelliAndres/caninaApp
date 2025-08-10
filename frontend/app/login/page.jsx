@@ -69,7 +69,7 @@ export default function LoginPage() {
         <div className="inline-flex items-center justify-center p-4 bg-blue-100 rounded-full mb-6">
           <PawPrint className="h-16 w-16 text-blue-600" />
         </div>
-        <h1 className="text-5xl font-bold mb-4">¡Bienvenido a ParkDog!</h1>
+        <h1 className="text-5xl font-bold mb-4">{t('auth.loginTitle')}</h1>
         <p className="mt-3 text-lg md:text-xl text-muted-foreground">
           {t('auth.loginSubtitle')}
         </p>

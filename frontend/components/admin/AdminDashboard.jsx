@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next'
 export function AdminDashboard({ stats, onRefresh }) {
   const { t } = useTranslation()
 
-  if (!stats) return <div>Loading...</div>
+  if (!stats) return <div>{t('common.loading')}</div>
 
   return (
     <div className="space-y-6">

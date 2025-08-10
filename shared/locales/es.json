@@ -92,7 +92,8 @@
     "noParksFound": "No se encontraron parques con esos filtros",
     "listView": "Lista",
     "mapView": "Mapa",
-    "loadingParks": "Cargando parques..."
+    "loadingParks": "Cargando parques...",
+    "viewNearbyParks": "Ver parques cercanos"
   },
   "visits": {
     "myVisits": "Mis Visitas",
@@ -143,6 +144,7 @@
     "like": "Me gusta",
     "yearsOld": "{{age}} años",
     "withDog": "con {{dogName}}",
+    "withDogFull": "con {{dogName}} ({{breed}}), {{age}} años",
     "matchSince": "Match desde {{date}}",
     "unmatch": "Deshacer match",
     "chat": "Chatear",
@@ -150,7 +152,11 @@
     "noMatches": "Aquí aparecerán tus matches mutuos",
     "itsAMatch": "¡Es un match! 🎉",
     "mutualLike": "Ambos se dieron like. Ya pueden chatear.",
-    "matchRemoved": "Match eliminado"
+    "matchRemoved": "Match eliminado",
+    "matchRemovedDetail": "Se ha deshecho el match",
+    "loadingMatches": "Cargando matches...",
+    "likeButton": "LIKE",
+    "nopeButton": "NOPE"
   },
   "chat": {
     "messages": "Mensajes",
@@ -184,7 +190,8 @@
     "deleteAccount": "Eliminar cuenta",
     "deleteAccountConfirm": "¿Estás seguro?",
     "deleteAccountWarning": "Esta acción no se puede deshacer. Se eliminarán permanentemente tu cuenta, tus datos y todas tus visitas registradas.",
-    "accountDeleted": "Cuenta eliminada exitosamente"
+    "accountDeleted": "Cuenta eliminada exitosamente",
+    "loadingProfile": "Cargando perfil..."
   },
   "errors": {
     "generic": "Algo salió mal. Por favor intenta de nuevo.",
@@ -198,7 +205,19 @@
     "nicknameAlphanumeric": "El apodo solo puede contener letras, números y guiones bajos",
     "ageRange": "La edad debe estar entre {{min}} y {{max}} años",
     "dogNameMin": "El nombre debe tener al menos 2 caracteres",
-    "dogAgeRange": "La edad del perro debe estar entre 0 y 25 años"
+    "dogAgeRange": "La edad del perro debe estar entre 0 y 25 años",
+    "loadingParks": "Error al cargar parques",
+    "loadingParksDetail": "No se pudieron cargar los parques",
+    "locationError": "No se pudo obtener tu ubicación. Puedes intentarlo de nuevo:",
+    "loadingMatches": "Error al cargar matches",
+    "loadingMatchesDetail": "No se pudieron cargar las sugerencias",
+    "processingAction": "No se pudo procesar la acción",
+    "undoMatch": "No se pudo deshacer el match",
+    "loadingProfile": "Error al cargar perfil",
+    "loadingProfileDetail": "No se pudo cargar tu información",
+    "savingProfile": "Error al guardar",
+    "savingProfileDetail": "No se pudieron guardar los cambios",
+    "deleteAccountError": "No se pudo eliminar la cuenta"
   },
   "permissions": {
     "location": {

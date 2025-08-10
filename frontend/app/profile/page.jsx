@@ -11,6 +11,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { userService } from "@/lib/api/users"
 import { useAuth } from "@/hooks/use-auth"
 import { useRouter } from "next/navigation"
+import { useTranslation } from 'react-i18next'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,6 +24,7 @@ import {
 } from "@/components/ui/alert-dialog"
 
 export default function ProfilePage() {
+  const { t } = useTranslation()
   const { toast } = useToast()
   const { logout } = useAuth()
   const router = useRouter()
@@ -72,8 +74,8 @@ export default function ProfilePage() {
       })
     } catch (error) {
       toast({
-        title: "Error al cargar perfil",
-        description: "No se pudo cargar tu información",
+        title: t('errors.loadingProfile'),
+        description: t('errors.loadingProfileDetail'),
         variant: "destructive"
       })
     } finally {
@@ -122,13 +124,13 @@ export default function ProfilePage() {
       
       setIsEditing(false)
       toast({
-        title: "Perfil actualizado",
-        description: "Tus cambios se han guardado correctamente.",
+        title: t('profile.profileUpdated'),
+        description: t('profile.updateSuccess'),
       })
     } catch (error) {
       toast({
-        title: "Error al guardar",
-        description: error.message || "No se pudieron guardar los cambios",
+        title: t('errors.savingProfile'),
+        description: error.message || t('errors.savingProfileDetail'),
         variant: "destructive"
       })
     } finally {
@@ -143,8 +145,8 @@ export default function ProfilePage() {
       router.push("/login")
     } catch (error) {
       toast({
-        title: "Error",
-        description: "No se pudo eliminar la cuenta",
+        title: t('common.error'),
+        description: t('errors.deleteAccountError'),
         variant: "destructive"
       })
     }
@@ -155,7 +157,7 @@ export default function ProfilePage() {
       <div className="flex flex-col min-h-screen bg-muted/40">
         <Header />
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-lg text-muted-foreground">Cargando perfil...</div>
+          <div className="text-lg text-muted-foreground">{t('profile.loadingProfile')}</div>
         </div>
       </div>
     )
@@ -167,7 +169,7 @@ export default function ProfilePage() {
       <main className="flex-1 p-4 md:p-8">
         <div className="max-w-4xl mx-auto space-y-8">
           <div className="flex justify-between items-center">
-            <h1 className="text-3xl md:text-4xl font-bold">Mi Perfil</h1>
+            <h1 className="text-3xl md:text-4xl font-bold">{t('profile.title')}</h1>
             {isEditing ? (
               <div className="flex gap-2">
                 <Button 
@@ -179,65 +181,65 @@ export default function ProfilePage() {
                   }}
                   disabled={saving}
                 >
-                  Cancelar
+                  {t('common.cancel')}
                 </Button>
                 <Button 
                   size="lg" 
                   onClick={handleSave}
                   disabled={saving}
                 >
-                  {saving ? "Guardando..." : "Guardar Cambios"}
+                  {saving ? t('profile.saving') : t('profile.saveChanges')}
                 </Button>
               </div>
             ) : (
               <Button size="lg" onClick={() => setIsEditing(true)}>
-                Editar Perfil
+                {t('profile.editProfile')}
               </Button>
             )}
           </div>
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl">Información Personal</CardTitle>
+              <CardTitle className="text-2xl">{t('profile.personalInfo')}</CardTitle>
             </CardHeader>
             <CardContent className="grid md:grid-cols-2 gap-6 text-lg">
-              <InfoItem label="Nombre" value={profileData.name} isStatic />
-              <InfoItem label="Email" value={profileData.email} isStatic />
+              <InfoItem label={t('profile.name')} value={profileData.name} isStatic />
+              <InfoItem label={t('profile.email')} value={profileData.email} isStatic />
               <EditableItem
                 isEditing={isEditing}
-                label="Apodo"
+                label={t('profile.nickname')}
                 name="nickname"
                 value={profileData.nickname}
                 onChange={handleInputChange}
               />
               <EditableItem
                 isEditing={isEditing}
-                label="Edad"
+                label={t('profile.age')}
                 name="age"
                 type="number"
                 value={profileData.age}
                 onChange={handleInputChange}
               />
-              <InfoItem label="Tipo de cuenta" value={profileData.role} isStatic />
-              <InfoItem label="Miembro desde" value={profileData.member_since} isStatic />
+              <InfoItem label={t('profile.accountType')} value={profileData.role} isStatic />
+              <InfoItem label={t('profile.memberSince')} value={profileData.member_since} isStatic />
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl">Mi Mascota</CardTitle>
+              <CardTitle className="text-2xl">{t('profile.myPet')}</CardTitle>
             </CardHeader>
             <CardContent className="grid md:grid-cols-2 gap-6 text-lg">
               <EditableItem
                 isEditing={isEditing}
-                label="Nombre"
+                label={t('profile.dogName')}
                 name="name"
                 value={profileData.dog.name}
                 onChange={handleDogInputChange}
               />
               <EditableItem
                 isEditing={isEditing}
-                label="Edad"
+                label={t('profile.dogAge')}
                 name="age"
                 type="number"
                 value={profileData.dog.age}
@@ -245,7 +247,7 @@ export default function ProfilePage() {
               />
               <EditableItem
                 isEditing={isEditing}
-                label="Raza"
+                label={t('profile.breed')}
                 name="breed"
                 value={profileData.dog.breed}
                 onChange={handleDogInputChange}
@@ -255,30 +257,30 @@ export default function ProfilePage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl">Configuración de Privacidad</CardTitle>
+              <CardTitle className="text-2xl">{t('profile.privacySettings')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <PrivacyItem
                 isEditing={isEditing}
                 id="is_public"
-                label="Perfil público"
-                description="Permitir que otros usuarios vean tu perfil"
+                label={t('onboarding.step3.publicProfile')}
+                description={t('onboarding.step3.publicProfileDesc')}
                 checked={profileData.is_public}
                 onCheckedChange={(c) => handlePrivacyChange("is_public", c)}
               />
               <PrivacyItem
                 isEditing={isEditing}
                 id="allow_matching"
-                label="Participar en matches"
-                description="Aparecer en las sugerencias de otros usuarios"
+                label={t('onboarding.step3.allowMatching')}
+                description={t('onboarding.step3.allowMatchingDesc')}
                 checked={profileData.allow_matching}
                 onCheckedChange={(c) => handlePrivacyChange("allow_matching", c)}
               />
               <PrivacyItem
                 isEditing={isEditing}
                 id="allow_proximity"
-                label="Descubrimiento por proximidad"
-                description="Permitir que usuarios cercanos te encuentren (tipo Happn)"
+                label={t('onboarding.step3.allowProximity')}
+                description={t('onboarding.step3.allowProximityDesc')}
                 checked={profileData.allow_proximity}
                 onCheckedChange={(c) => handlePrivacyChange("allow_proximity", c)}
               />
@@ -291,7 +293,7 @@ export default function ProfilePage() {
               size="lg"
               onClick={logout}
             >
-              Cerrar sesión
+              {t('auth.logout')}
             </Button>
             
             <Button 
@@ -299,7 +301,7 @@ export default function ProfilePage() {
               size="lg"
               onClick={() => setShowDeleteDialog(true)}
             >
-              Eliminar cuenta
+              {t('profile.deleteAccount')}
             </Button>
           </div>
         </div>
@@ -308,19 +310,18 @@ export default function ProfilePage() {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+            <AlertDialogTitle>{t('profile.deleteAccountConfirm')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción no se puede deshacer. Se eliminarán permanentemente tu cuenta,
-              tus datos y todas tus visitas registradas.
+              {t('profile.deleteAccountWarning')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction 
               onClick={handleDeleteAccount}
               className="bg-destructive text-destructive-foreground"
             >
-              Eliminar cuenta
+              {t('profile.deleteAccount')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -40,8 +40,8 @@ export default function HomePage() {
       setParks(response.parks || [])
     } catch (error) {
       toast({
-        title: "Error al cargar parques",
-        description: "No se pudieron cargar los parques",
+        title: t('errors.loadingParks'),
+        description: t('errors.loadingParksDetail'),
         variant: "destructive"
       })
     } finally {
@@ -86,12 +86,12 @@ export default function HomePage() {
           <h1 className="text-3xl md:text-4xl font-bold mb-6">{t('parks.title')}</h1>
           {locationError && (
             <div className="mb-4 flex flex-col items-center">
-              <div className="text-sm text-muted-foreground mb-2">{t('parks.locationDenied', 'No se pudo obtener tu ubicación. Puedes intentarlo de nuevo:')}</div>
+              <div className="text-sm text-muted-foreground mb-2">{t('errors.locationError')}</div>
               <button
                 className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/80 transition"
                 onClick={requestLocation}
               >
-                {t('parks.retryLocation', 'Ver parques cercanos')}
+                {t('parks.viewNearbyParks')}
               </button>
             </div>
           )}

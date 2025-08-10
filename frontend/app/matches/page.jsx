@@ -11,8 +11,10 @@ import { X, Heart, MapPin, MessageSquare } from "lucide-react"
 import { matchService } from "@/lib/api/matches"
 import { useToast } from "@/components/ui/use-toast"
 import { useRouter } from "next/navigation"
+import { useTranslation } from 'react-i18next'
 
 export default function MatchesPage() {
+  const { t } = useTranslation()
   const [suggestions, setSuggestions] = useState([])
   const [mutualMatches, setMutualMatches] = useState([])
   const [loading, setLoading] = useState(true)
@@ -36,8 +38,8 @@ export default function MatchesPage() {
       setMutualMatches(mutualRes.matches || [])
     } catch (error) {
       toast({
-        title: "Error al cargar matches",
-        description: "No se pudieron cargar las sugerencias",
+        title: t('errors.loadingMatches'),
+        description: t('errors.loadingMatchesDetail'),
         variant: "destructive"
       })
     } finally {
@@ -52,8 +54,8 @@ export default function MatchesPage() {
       
       if (response.is_mutual) {
         toast({
-          title: "¡Es un match! 🎉",
-          description: "Ambos se dieron like. Ya pueden chatear.",
+          title: t('matches.itsAMatch'),
+          description: t('matches.mutualLike'),
         })
         // Recargar datos para actualizar listas
         loadData()
@@ -63,8 +65,8 @@ export default function MatchesPage() {
       }
     } catch (error) {
       toast({
-        title: "Error",
-        description: "No se pudo procesar la acción",
+        title: t('common.error'),
+        description: t('errors.processingAction'),
         variant: "destructive"
       })
     } finally {
@@ -81,14 +83,14 @@ export default function MatchesPage() {
     try {
       await matchService.unmatch(matchId)
       toast({
-        title: "Match eliminado",
-        description: "Se ha deshecho el match"
+        title: t('matches.matchRemoved'),
+        description: t('matches.matchRemovedDetail')
       })
       loadData()
     } catch (error) {
       toast({
-        title: "Error",
-        description: "No se pudo deshacer el match",
+        title: t('common.error'),
+        description: t('errors.undoMatch'),
         variant: "destructive"
       })
     }
@@ -99,18 +101,18 @@ export default function MatchesPage() {
       <Header />
       <main className="flex-1 p-4 md:p-8">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl md:text-4xl font-bold">Matches</h1>
-          <p className="text-lg text-muted-foreground mt-1">Conecta con otros dueños de perros.</p>
+          <h1 className="text-3xl md:text-4xl font-bold">{t('matches.title')}</h1>
+          <p className="text-lg text-muted-foreground mt-1">{t('matches.subtitle')}</p>
 
           {loading ? (
             <div className="flex justify-center items-center h-64">
-              <div className="text-lg text-muted-foreground">Cargando matches...</div>
+              <div className="text-lg text-muted-foreground">{t('matches.loadingMatches')}</div>
             </div>
           ) : (
             <Tabs defaultValue="discover" className="mt-6">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="discover">Descubrir</TabsTrigger>
-                <TabsTrigger value="my-matches">Mis Matches ({mutualMatches.length})</TabsTrigger>
+                <TabsTrigger value="discover">{t('matches.tabs.discover')}</TabsTrigger>
+                <TabsTrigger value="my-matches">{t('matches.tabs.myMatches')} ({mutualMatches.length})</TabsTrigger>
               </TabsList>
               
               <TabsContent value="discover">
@@ -128,7 +130,7 @@ export default function MatchesPage() {
                 ) : (
                   <div className="text-center py-16">
                     <p className="text-xl text-muted-foreground">
-                      No hay más sugerencias por ahora. Vuelve más tarde.
+                      {t('matches.noMoreSuggestions')}
                     </p>
                   </div>
                 )}
@@ -149,7 +151,7 @@ export default function MatchesPage() {
                 ) : (
                   <div className="text-center py-16">
                     <p className="text-xl text-muted-foreground">
-                      Aquí aparecerán tus matches mutuos.
+                      {t('matches.noMatches')}
                     </p>
                   </div>
                 )}
@@ -162,11 +164,13 @@ export default function MatchesPage() {
   )
 }
 
-const MatchCard = ({ profile, onAction, disabled }) => (
+const MatchCard = ({ profile, onAction, disabled }) => {
+  const { t } = useTranslation()
+  return (
   <Card className="flex flex-col">
     <CardHeader className="relative">
       <Badge className="absolute top-4 right-4 text-base" variant="destructive">
-        {profile.compatibility}% compatible
+        {t('matches.compatibility', { percent: profile.compatibility })}
       </Badge>
       <Avatar className="w-24 h-24 mx-auto border-4 border-background ring-2 ring-primary">
         <AvatarImage src={profile.user?.avatar_url || "/placeholder.svg"} />
@@ -179,13 +183,13 @@ const MatchCard = ({ profile, onAction, disabled }) => (
       </h3>
       {profile.dog && (
         <p className="text-lg text-muted-foreground">
-          con {profile.dog.name} ({profile.dog.breed}), {profile.dog.age} años
+          {t('matches.withDogFull', { dogName: profile.dog.name, breed: profile.dog.breed, age: profile.dog.age })}
         </p>
       )}
       {profile.park_name && (
         <div className="flex items-center justify-center gap-2 mt-2 text-sm text-muted-foreground">
           <MapPin className="h-4 w-4" />
-          <span>Visto en {profile.park_name}</span>
+          <span>{t('matches.lastSeenAt', { parkName: profile.park_name })}</span>
         </div>
       )}
       {profile.shared_interests?.length > 0 && (
@@ -207,7 +211,7 @@ const MatchCard = ({ profile, onAction, disabled }) => (
         disabled={disabled}
       >
         <X className="h-6 w-6 mr-2" />
-        <span className="text-lg">Pasar</span>
+        <span className="text-lg">{t('matches.pass')}</span>
       </Button>
       <Button 
         size="lg" 
@@ -216,13 +220,16 @@ const MatchCard = ({ profile, onAction, disabled }) => (
         disabled={disabled}
       >
         <Heart className="h-6 w-6 mr-2" />
-        <span className="text-lg">Me gusta</span>
+        <span className="text-lg">{t('matches.like')}</span>
       </Button>
     </CardFooter>
   </Card>
-)
+  )
+}
 
-const MutualMatchCard = ({ match, onStartChat, onUnmatch }) => (
+const MutualMatchCard = ({ match, onStartChat, onUnmatch }) => {
+  const { t } = useTranslation()
+  return (
   <Card className="flex flex-col">
     <CardHeader>
       <Avatar className="w-20 h-20 mx-auto">
@@ -234,11 +241,11 @@ const MutualMatchCard = ({ match, onStartChat, onUnmatch }) => (
       <h3 className="text-xl font-bold">{match.user.nickname}</h3>
       {match.user.dog && (
         <p className="text-sm text-muted-foreground">
-          con {match.user.dog.name}
+          {t('matches.withDog', { dogName: match.user.dog.name })}
         </p>
       )}
       <p className="text-xs text-muted-foreground mt-2">
-        Match desde {new Date(match.matched_at).toLocaleDateString()}
+        {t('matches.matchSince', { date: new Date(match.matched_at).toLocaleDateString() })}
       </p>
     </CardContent>
     <CardFooter className="grid grid-cols-2 gap-2">
@@ -247,15 +254,16 @@ const MutualMatchCard = ({ match, onStartChat, onUnmatch }) => (
         size="sm"
         onClick={() => onUnmatch(match.match_id)}
       >
-        Deshacer match
+        {t('matches.unmatch')}
       </Button>
       <Button
         size="sm"
         onClick={() => onStartChat(match.user.id)}
       >
         <MessageSquare className="h-4 w-4 mr-1" />
-        Chatear
+        {t('matches.chat')}
       </Button>
     </CardFooter>
   </Card>
-)
+  )
+}

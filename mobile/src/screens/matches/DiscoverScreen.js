@@ -194,7 +194,7 @@ export function DiscoverScreen({ navigation }) {
               },
             ]}
           >
-            <Text style={styles.likeText}>LIKE</Text>
+            <Text style={styles.likeText}>{t('matches.likeButton')}</Text>
           </Animated.View>
 
           <Animated.View
@@ -205,7 +205,7 @@ export function DiscoverScreen({ navigation }) {
               },
             ]}
           >
-            <Text style={styles.nopeText}>NOPE</Text>
+            <Text style={styles.nopeText}>{t('matches.nopeButton')}</Text>
           </Animated.View>
 
           <MatchCard profile={currentSuggestion} />

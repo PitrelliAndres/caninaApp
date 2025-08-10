@@ -92,7 +92,8 @@
     "noParksFound": "No parks found with those filters",
     "listView": "List",
     "mapView": "Map",
-    "loadingParks": "Loading parks..."
+    "loadingParks": "Loading parks...",
+    "viewNearbyParks": "View nearby parks"
   },
   "visits": {
     "myVisits": "My Visits",
@@ -143,6 +144,7 @@
     "like": "Like",
     "yearsOld": "{{age}} years old",
     "withDog": "with {{dogName}}",
+    "withDogFull": "with {{dogName}} ({{breed}}), {{age}} years old",
     "matchSince": "Match since {{date}}",
     "unmatch": "Unmatch",
     "chat": "Chat",
@@ -150,7 +152,11 @@
     "noMatches": "Your mutual matches will appear here",
     "itsAMatch": "It's a match! 🎉",
     "mutualLike": "You both liked each other. You can now chat.",
-    "matchRemoved": "Match removed"
+    "matchRemoved": "Match removed",
+    "matchRemovedDetail": "Match has been undone",
+    "loadingMatches": "Loading matches...",
+    "likeButton": "LIKE",
+    "nopeButton": "NOPE"
   },
   "chat": {
     "messages": "Messages",
@@ -184,7 +190,8 @@
     "deleteAccount": "Delete account",
     "deleteAccountConfirm": "Are you sure?",
     "deleteAccountWarning": "This action cannot be undone. Your account, data and all visits will be permanently deleted.",
-    "accountDeleted": "Account deleted successfully"
+    "accountDeleted": "Account deleted successfully",
+    "loadingProfile": "Loading profile..."
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",
@@ -198,7 +205,19 @@
     "nicknameAlphanumeric": "Nickname can only contain letters, numbers and underscores",
     "ageRange": "Age must be between {{min}} and {{max}} years",
     "dogNameMin": "Name must be at least 2 characters",
-    "dogAgeRange": "Dog's age must be between 0 and 25 years"
+    "dogAgeRange": "Dog's age must be between 0 and 25 years",
+    "loadingParks": "Error loading parks",
+    "loadingParksDetail": "Could not load parks",
+    "locationError": "Could not get your location. You can try again:",
+    "loadingMatches": "Error loading matches",
+    "loadingMatchesDetail": "Could not load suggestions",
+    "processingAction": "Could not process action",
+    "undoMatch": "Could not undo match",
+    "loadingProfile": "Error loading profile",
+    "loadingProfileDetail": "Could not load your information",
+    "savingProfile": "Error saving",
+    "savingProfileDetail": "Could not save changes",
+    "deleteAccountError": "Could not delete account"
   },
   "permissions": {
     "location": {
