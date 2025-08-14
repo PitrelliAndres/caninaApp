@@ -6,12 +6,12 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/hooks/use-auth"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { LanguageSelector } from "@/components/language-selector"
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useToast } from "@/components/ui/use-toast"
 import { useGoogleLogin } from '@react-oauth/google'
 import { useTranslation } from 'react-i18next'
 
-export default function LoginPage() {
+function LoginPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { t } = useTranslation()
@@ -161,5 +161,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Cargando...</div>}>
+      <LoginPageContent />
+    </Suspense>
   )
 }
