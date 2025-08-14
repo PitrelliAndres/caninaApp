@@ -14,6 +14,10 @@ class Config:
     DEBUG = False
     TESTING = False
     
+    # Security environment flags
+    IS_PRODUCTION = os.environ.get('FLASK_ENV') == 'production'
+    IS_DEVELOPMENT = os.environ.get('FLASK_ENV') == 'development'
+    
     # Database
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'postgresql://localhost/parkdog'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -23,11 +27,18 @@ class Config:
     GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
     GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
     
-    # JWT
+    # JWT (security-first configuration)
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or SECRET_KEY
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
-    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=2)  # DEV: 2h, PROD: overridden below
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=7)  # Reduced from 30 days
     JWT_ALGORITHM = 'HS256'
+    JWT_ISSUER = os.environ.get('JWT_ISSUER', 'parkdog-api')
+    JWT_AUDIENCE = os.environ.get('JWT_AUDIENCE', 'parkdog-client')
+    
+    # Authentication security settings
+    STRICT_JWT_VALIDATION = os.environ.get('STRICT_JWT_VALIDATION', 'false').lower() == 'true'
+    ENABLE_TOKEN_BLACKLIST = os.environ.get('ENABLE_TOKEN_BLACKLIST', 'false').lower() == 'true'
+    REQUIRE_HTTPS = os.environ.get('REQUIRE_HTTPS', 'false').lower() == 'true'
     
     # CORS
     CORS_ORIGINS = os.environ.get('CORS_ORIGINS', 'http://localhost:3000').split(',')
@@ -63,10 +74,27 @@ class DevelopmentConfig(Config):
     """Configuración de desarrollo"""
     DEBUG = True
     SQLALCHEMY_ECHO = True
+    IS_DEVELOPMENT = True
+    IS_PRODUCTION = False
+    
+    # DEV: Relaxed JWT settings
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=2)
+    STRICT_JWT_VALIDATION = False
+    ENABLE_TOKEN_BLACKLIST = False
+    REQUIRE_HTTPS = False
 
 class ProductionConfig(Config):
     """Configuración de producción"""
     DEBUG = False
+    IS_DEVELOPMENT = False
+    IS_PRODUCTION = True
+    
+    # PROD: Strict security settings
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=15)  # Short-lived tokens
+    STRICT_JWT_VALIDATION = True
+    ENABLE_TOKEN_BLACKLIST = True
+    REQUIRE_HTTPS = True
+    
     if os.environ.get('DATABASE_URL', '').startswith('postgres://'):
         SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL').replace('postgres://', 'postgresql://')
 

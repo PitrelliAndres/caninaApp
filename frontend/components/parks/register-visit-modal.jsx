@@ -20,6 +20,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { AlertCircle } from "lucide-react"
 import { visitService } from "@/lib/api/visits"
 import { useTranslation } from 'react-i18next'
+import { useVisitActions } from "@/hooks/use-protected-actions"
 
 export function RegisterVisitModal({ parkId, parkName, children, onSuccess }) {
   const { t } = useTranslation()
@@ -30,6 +31,9 @@ export function RegisterVisitModal({ parkId, parkName, children, onSuccess }) {
   const [notes, setNotes] = useState("")
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
+  
+  // Use protected visit actions
+  const { registerVisit, canRegisterVisit, requireVisitAuth } = useVisitActions()
 
   const handleRegister = async () => {
     if (!date || !time || !duration) {
@@ -43,8 +47,9 @@ export function RegisterVisitModal({ parkId, parkName, children, onSuccess }) {
 
     try {
       setLoading(true)
-      await visitService.createVisit({
-        park_id: parkId,
+      
+      // Use the protected action that handles auth automatically
+      await registerVisit(parkId, {
         date,
         time,
         duration: parseInt(duration),
@@ -67,6 +72,12 @@ export function RegisterVisitModal({ parkId, parkName, children, onSuccess }) {
       // Callback opcional
       if (onSuccess) onSuccess()
     } catch (error) {
+      if (error.message === 'AUTH_REQUIRED') {
+        // Auth hook already handled redirect, just close modal
+        setOpen(false)
+        return
+      }
+      
       toast({
         title: "Error al registrar visita",
         description: error.message || "Por favor intenta de nuevo",
@@ -74,6 +85,15 @@ export function RegisterVisitModal({ parkId, parkName, children, onSuccess }) {
       })
     } finally {
       setLoading(false)
+    }
+  }
+  
+  // Handle opening modal with auth check
+  const handleOpenModal = () => {
+    if (canRegisterVisit()) {
+      setOpen(true)
+    } else {
+      requireVisitAuth()
     }
   }
 
@@ -87,8 +107,13 @@ export function RegisterVisitModal({ parkId, parkName, children, onSuccess }) {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+    <>
+      {/* Trigger with auth check */}
+      <div onClick={handleOpenModal}>
+        {children}
+      </div>
+      
+      <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
           <DialogTitle className="text-2xl">Registrar visita a {parkName}</DialogTitle>
@@ -178,5 +203,6 @@ export function RegisterVisitModal({ parkId, parkName, children, onSuccess }) {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+    </>
   )
 }

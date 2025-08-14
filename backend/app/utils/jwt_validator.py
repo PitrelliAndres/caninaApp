@@ -16,13 +16,17 @@ def decode_token(token: str, token_type: str = 'access') -> Dict[str, Any]:
     """
     try:
         # Decode with strict validation
+        # Use config-based security settings instead of debug flag
+        is_production = getattr(current_app.config, 'IS_PRODUCTION', False)
+        strict_validation = getattr(current_app.config, 'STRICT_JWT_VALIDATION', False)
+        
         options = {
             'verify_signature': True,
             'verify_exp': True,
             'verify_nbf': True,
             'verify_iat': True,
-            'verify_aud': True if not current_app.debug else False,  # TODO: harden for production
-            'verify_iss': True if not current_app.debug else False,  # TODO: harden for production
+            'verify_aud': is_production or strict_validation,
+            'verify_iss': is_production or strict_validation,
         }
         
         payload = jwt.decode(
@@ -43,8 +47,8 @@ def decode_token(token: str, token_type: str = 'access') -> Dict[str, Any]:
         if not user_id or not isinstance(user_id, int):
             raise jwt.InvalidTokenError('Invalid user_id in token')
         
-        # TODO: harden for production - Check token blacklist/revocation
-        if not current_app.debug:
+        # Check token blacklist if enabled
+        if current_app.config.get('ENABLE_TOKEN_BLACKLIST', False):
             jti = payload.get('jti')
             if jti and is_token_blacklisted(jti):
                 raise jwt.InvalidTokenError('Token has been revoked')
@@ -82,8 +86,9 @@ def validate_websocket_token(token: str) -> Optional[Dict[str, Any]]:
         current_time = time.time()
         token_age = current_time - payload.get('iat', current_time)
         
-        # TODO: harden for production - Very short-lived tokens for WebSocket
-        max_age = 3600 if current_app.debug else 900  # 1 hour DEV, 15 min PROD
+        # Use config-based token age limits
+        is_dev = getattr(current_app.config, 'IS_DEVELOPMENT', True)
+        max_age = 3600 if is_dev else 900  # 1 hour DEV, 15 min PROD
         if token_age > max_age:
             logger.warning(f"WebSocket token too old: {token_age}s")
             return None
@@ -97,10 +102,10 @@ def validate_websocket_token(token: str) -> Optional[Dict[str, Any]]:
 def is_token_blacklisted(jti: str) -> bool:
     """
     Check if token is blacklisted/revoked.
-    TODO: harden for production - Implement with Redis/database.
+    Uses Redis in production, always allows in development.
     """
     # DEV: Always allow
-    if current_app.debug:
+    if current_app.config.get('IS_DEVELOPMENT', True):
         return False
     
     # PROD: Check blacklist in Redis
@@ -115,9 +120,9 @@ def is_token_blacklisted(jti: str) -> bool:
 def blacklist_token(jti: str, ttl_seconds: int = 86400):
     """
     Add token to blacklist.
-    TODO: harden for production - Implement proper token revocation.
+    Implements proper token revocation in production.
     """
-    if current_app.debug:
+    if current_app.config.get('IS_DEVELOPMENT', True):
         logger.info(f"DEV: Would blacklist token {jti}")
         return
     

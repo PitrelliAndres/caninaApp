@@ -35,7 +35,10 @@
       "meetOwners": "Conoce a otros dueños de perros",
       "matchInterests": "Haz match según tus intereses",
       "chatCoordinate": "Chatea y coordina encuentros"
-    }
+    },
+    "loginToAction": "Inicia sesión para {{action}}",
+    "loginToAccess": "Inicia sesión para acceder a esta página",
+    "actionRequired": "Para {{action}} necesitas estar registrado"
   },
   "onboarding": {
     "step1": {
@@ -129,7 +132,9 @@
     "visitRegistered": "¡Visita registrada!",
     "selectTime": "Selecciona hora",
     "estimatedDuration": "Duración estimada",
-    "registering": "Registrando..."
+    "registering": "Registrando...",
+    "loginToRegister": "Iniciar sesión para registrar visita",
+    "completeProfileToRegister": "Completar perfil para registrar visita"
   },
   "matches": {
     "title": "Matches",

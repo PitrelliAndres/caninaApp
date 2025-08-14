@@ -15,7 +15,29 @@ class ApiClient {
 
   getAuthHeaders() {
     const token = localStorage.getItem('jwt_token')
+    
+    // Basic token format validation
+    if (token && !this.isValidJWTFormat(token)) {
+      // TODO: Log security incident - malformed token detected
+      this.clearTokens()
+      return {}
+    }
+    
     return token ? { 'Authorization': `Bearer ${token}` } : {}
+  }
+  
+  isValidJWTFormat(token) {
+    try {
+      const parts = token.split('.')
+      return parts.length === 3 && parts.every(part => part.length > 0)
+    } catch {
+      return false
+    }
+  }
+  
+  clearTokens() {
+    localStorage.removeItem('jwt_token')
+    localStorage.removeItem('refresh_token')
   }
 
   // Manejar cola de requests durante refresh
@@ -59,10 +81,14 @@ class ApiClient {
       
       throw new Error('No token in refresh response')
     } catch (error) {
-      // Si falla el refresh, limpiar tokens y redirigir a login
-      localStorage.removeItem('jwt_token')
-      localStorage.removeItem('refresh_token')
-      window.location.href = '/'
+      // Refresh failed - clear tokens and redirect
+      // TODO: Log refresh failure for security monitoring
+      this.clearTokens()
+      
+      // Preserve current path for redirect after login
+      const currentPath = window.location.pathname + window.location.search
+      const redirectUrl = encodeURIComponent(currentPath)
+      window.location.href = `/login?redirect=${redirectUrl}`
       throw error
     }
   }
@@ -94,8 +120,16 @@ class ApiClient {
       const { response, data } = await makeRequest()
       
       if (!response.ok) {
-        // Token expirado, intentar refresh
-        if (response.status === 401 && localStorage.getItem('refresh_token')) {
+        // Handle authentication errors with security logging
+        if (response.status === 401) {
+          // TODO: Log 401 error for security monitoring
+          const refreshToken = localStorage.getItem('refresh_token')
+          
+          if (!refreshToken) {
+            // No refresh token available
+            this.clearTokens()
+            throw new Error('Authentication required')
+          }
           // Si ya estamos refreshing, esperar
           if (this.isRefreshing) {
             return new Promise((resolve, reject) => {
@@ -131,8 +165,12 @@ class ApiClient {
             return retryData
           } catch (error) {
             this.isRefreshing = false
+            // TODO: Log refresh failure for security analysis
             throw error
           }
+        } else if (response.status === 403) {
+          // TODO: Log forbidden access attempt
+          throw new Error('Access forbidden')
         } else {
           throw new Error(data.error || `HTTP error! status: ${response.status}`)
         }

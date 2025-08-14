@@ -96,18 +96,35 @@ export default function OnboardingPage() {
         interests: preferencesData.selectedInterests
       })
       
-      // Limpiar sessionStorage
+      // Check for post-onboarding redirect
+      let redirectUrl = '/'
+      let actionMessage = ''
+      
       if (typeof window !== 'undefined') {
+        const savedRedirect = sessionStorage.getItem('postOnboardingRedirect')
+        const savedAction = sessionStorage.getItem('postOnboardingAction')
+        
+        if (savedRedirect) {
+          redirectUrl = savedRedirect
+          sessionStorage.removeItem('postOnboardingRedirect')
+        }
+        
+        if (savedAction) {
+          actionMessage = ` Ahora puedes ${savedAction}.`
+          sessionStorage.removeItem('postOnboardingAction')
+        }
+        
+        // Limpiar sessionStorage
         sessionStorage.removeItem('onboardingData')
       }
       
       toast({
         title: "¡Bienvenido a ParkDog!",
-        description: "Tu perfil ha sido creado exitosamente",
+        description: `Tu perfil ha sido creado exitosamente.${actionMessage}`,
       })
       
-      // Redirigir a home
-      router.push("/")
+      // Redirigir a la URL original o al home
+      router.push(redirectUrl)
     } catch (error) {
       toast({
         title: "Error",

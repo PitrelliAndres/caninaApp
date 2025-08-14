@@ -5,6 +5,8 @@ from flask import Blueprint, request, jsonify, current_app
 from app import db
 from app.models import Park, Visit
 from app.utils.auth import login_required
+from app.utils.jwt_validator import decode_token
+import jwt
 from sqlalchemy import func
 from datetime import datetime, timedelta
 
@@ -44,20 +46,52 @@ def get_parks():
         
         parks = query.all()
         
-        # Agregar estadísticas de visitas si el usuario está autenticado
+        # Check if user is authenticated for enhanced data
+        is_authenticated = False
+        user_id = None
+        
+        auth_header = request.headers.get('Authorization')
+        if auth_header and auth_header.startswith('Bearer '):
+            try:
+                token = auth_header.split(' ')[1]
+                payload = decode_token(token, 'access')
+                is_authenticated = True
+                user_id = payload.get('user_id')
+            except:
+                # TODO: Log invalid token attempt for security monitoring
+                pass
+        
+        # Build parks data with auth-based limiting
         parks_data = []
         for park in parks:
             park_dict = park.to_dict()
             
-            # Contar visitas activas hoy
-            today = datetime.utcnow().date()
-            active_visits = Visit.query.filter(
-                Visit.park_id == park.id,
-                Visit.date == today,
-                Visit.status == 'scheduled'
-            ).count()
-            
-            park_dict['active_visits_today'] = active_visits
+            if is_authenticated:
+                # Authenticated users get full data including visit stats
+                today = datetime.utcnow().date()
+                active_visits = Visit.query.filter(
+                    Visit.park_id == park.id,
+                    Visit.date == today,
+                    Visit.status == 'scheduled'
+                ).count()
+                
+                park_dict['active_visits_today'] = active_visits
+                
+                # Add user-specific data if authenticated
+                user_visit_today = Visit.query.filter(
+                    Visit.park_id == park.id,
+                    Visit.user_id == user_id,
+                    Visit.date == today
+                ).first()
+                
+                park_dict['user_has_visit_today'] = user_visit_today is not None
+            else:
+                # TODO: Public users get limited data for privacy
+                # Remove sensitive information
+                park_dict.pop('created_at', None)
+                park_dict.pop('updated_at', None)
+                park_dict['active_visits_today'] = None  # Hide counts for non-auth users
+                
             parks_data.append(park_dict)
         
         return jsonify({

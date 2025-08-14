@@ -2,21 +2,37 @@
 
 import { Button } from "@/components/ui/button"
 import { PawPrint, CheckCircle } from 'lucide-react'
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/hooks/use-auth"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { LanguageSelector } from "@/components/language-selector"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useToast } from "@/components/ui/use-toast"
 import { useGoogleLogin } from '@react-oauth/google'
 import { useTranslation } from 'react-i18next'
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { t } = useTranslation()
   const { login } = useAuth()
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
+  
+  // Extract redirect URL and action from query params
+  const redirectUrl = searchParams.get('redirect')
+  const actionName = searchParams.get('action')
+  
+  // Show contextual message based on action
+  const getContextualMessage = () => {
+    if (actionName) {
+      return t('auth.loginToAction', { action: actionName })
+    }
+    if (redirectUrl && redirectUrl !== '/') {
+      return t('auth.loginToAccess')
+    }
+    return t('auth.loginSubtitle')
+  }
 
   const googleLogin = useGoogleLogin({
     onSuccess: async (codeResponse) => {
@@ -26,9 +42,20 @@ export default function LoginPage() {
         // El token de acceso viene en codeResponse.access_token
         const result = await login(codeResponse.access_token)
         
+        // Handle redirect based on user state and original intention
         if (result.user.onboarded) {
-          router.push("/")
+          // User is onboarded, redirect to intended page or home
+          const targetUrl = redirectUrl && redirectUrl !== '/login' ? redirectUrl : '/'
+          router.push(targetUrl)
         } else {
+          // New user or incomplete onboarding
+          // Store redirect URL for after onboarding completion
+          if (redirectUrl && redirectUrl !== '/login' && redirectUrl !== '/') {
+            sessionStorage.setItem('postOnboardingRedirect', redirectUrl)
+            if (actionName) {
+              sessionStorage.setItem('postOnboardingAction', actionName)
+            }
+          }
           router.push("/onboarding")
         }
       } catch (error) {
@@ -71,8 +98,16 @@ export default function LoginPage() {
         </div>
         <h1 className="text-5xl font-bold mb-4">{t('auth.loginTitle')}</h1>
         <p className="mt-3 text-lg md:text-xl text-muted-foreground">
-          {t('auth.loginSubtitle')}
+          {getContextualMessage()}
         </p>
+        
+        {actionName && (
+          <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
+              {t('auth.actionRequired', { action: actionName })}
+            </p>
+          </div>
+        )}
 
         <div className="mt-8 text-left bg-muted/50 p-6 rounded-lg border">
           <h2 className="text-xl font-semibold mb-4 text-center">{t('auth.whatCanYouDo')}</h2>
