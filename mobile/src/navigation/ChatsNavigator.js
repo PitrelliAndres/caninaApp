@@ -24,7 +24,8 @@ export function ChatsNavigator() {
         name="Chat" 
         component={ChatScreen}
         options={({ route }) => ({ 
-          title: route.params?.user?.nickname || t('chat.messages')
+          title: route.params?.user?.nickname || t('chat.messages'),
+          headerShown: false
         })}
       />
     </Stack.Navigator>

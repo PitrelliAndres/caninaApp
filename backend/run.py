@@ -52,10 +52,10 @@ if __name__ == '__main__':
     debug = os.environ.get('FLASK_ENV') == 'development'
     
     print(f"""
-    🐕 ParkDog Backend
+    ParkDog Backend
     =================
     Servidor corriendo en: http://localhost:{port}
-    Modo: {'Desarrollo' if debug else 'Producción'}
+    Modo: {'Desarrollo' if debug else 'Produccion'}
     
     Endpoints disponibles:
     - API Health: http://localhost:{port}/api/health
@@ -67,9 +67,19 @@ if __name__ == '__main__':
     - Messages: http://localhost:{port}/api/messages/...
     """)
     
+    # Run compatibility check in development
+    if debug:
+        try:
+            from app.utils.compatibility_check import log_compatibility_status
+            with app.app_context():
+                log_compatibility_status()
+        except Exception as e:
+            print(f"Compatibility check failed: {e}")
+    
     # Ejecutar con SocketIO para soporte de WebSocket
     socketio.run(app, 
                  host='0.0.0.0', 
                  port=port, 
                  debug=debug,
-                 use_reloader=debug)
+                 use_reloader=debug,
+                 allow_unsafe_werkzeug=True)  # TODO: harden for production - Use proper WSGI server

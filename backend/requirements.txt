@@ -30,6 +30,22 @@ marshmallow==3.20.1
 marshmallow-sqlalchemy==0.29.0
 python-dateutil==2.8.2
 
+# Redis for Pub/Sub and caching
+# TODO: PRODUCTION - Install Redis: pip install redis==4.6.0
+# redis==4.6.0
+
+# ULID for message IDs
+python-ulid==3.0.0
+
+# Rate limiting and security (ver como usar)
+# TODO: PRODUCTION - Install security libs: pip install Flask-Limiter==3.5.0 bleach==6.1.0
+# Flask-Limiter==3.5.0
+# bleach==6.1.0
+
+# Performance monitoring
+# TODO: PRODUCTION - Install monitoring: pip install psutil==5.9.6
+# psutil==5.9.6
+
 # Location services
 geopy==2.4.1
 haversine==2.8.0

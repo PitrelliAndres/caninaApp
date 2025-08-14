@@ -1,6 +1,6 @@
-"""
-Utilidades de autenticación y autorización (versión simplificada para desarrollo)
-"""
+"""Authentication utilities with strict JWT validation for PROD."""
+import os
+import time
 from functools import wraps
 from flask import request, jsonify, current_app
 import jwt
@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from google.oauth2 import id_token
 from google.auth.transport import requests
 import requests as http_requests
+from app.utils.error_handler import safe_error_response, mask_sensitive_data
 
 def verify_google_token(access_token):
     """Verificar token de acceso de Google y obtener info del usuario"""
@@ -37,27 +38,42 @@ def verify_google_token(access_token):
         return None
 
 def generate_tokens(user_id):
-    """Generar tokens JWT de acceso y refresh"""
-    # Access token
+    """Generate JWT tokens with strict validation claims."""
+    now = datetime.utcnow()
+    
+    # DEV: longer-lived tokens, PROD: short-lived (5-15 min)
+    access_ttl = timedelta(hours=2) if current_app.debug else timedelta(minutes=15)
+    
+    # Access token with strict claims
     access_payload = {
         'user_id': user_id,
-        'exp': datetime.utcnow() + current_app.config['JWT_ACCESS_TOKEN_EXPIRES'],
-        'iat': datetime.utcnow(),
-        'type': 'access'
+        'iss': current_app.config.get('JWT_ISSUER', 'parkdog-api'),  # issuer
+        'aud': current_app.config.get('JWT_AUDIENCE', 'parkdog-client'),  # audience
+        'iat': now,  # issued at
+        'nbf': now,  # not before
+        'exp': now + access_ttl,  # expires
+        'type': 'access',
+        'jti': f"{user_id}-{int(now.timestamp())}"  # JWT ID for tracking
     }
+    
     access_token = jwt.encode(
         access_payload,
         current_app.config['JWT_SECRET_KEY'],
         algorithm='HS256'
     )
     
-    # Refresh token
+    # Refresh token (longer-lived)
     refresh_payload = {
         'user_id': user_id,
-        'exp': datetime.utcnow() + current_app.config['JWT_REFRESH_TOKEN_EXPIRES'],
-        'iat': datetime.utcnow(),
-        'type': 'refresh'
+        'iss': current_app.config.get('JWT_ISSUER', 'parkdog-api'),
+        'aud': current_app.config.get('JWT_AUDIENCE', 'parkdog-client'),
+        'iat': now,
+        'nbf': now,
+        'exp': now + current_app.config.get('JWT_REFRESH_TOKEN_EXPIRES', timedelta(days=7)),
+        'type': 'refresh',
+        'jti': f"refresh-{user_id}-{int(now.timestamp())}"
     }
+    
     refresh_token = jwt.encode(
         refresh_payload,
         current_app.config['JWT_SECRET_KEY'],
@@ -67,7 +83,8 @@ def generate_tokens(user_id):
     return {
         'access_token': access_token,
         'refresh_token': refresh_token,
-        'token_type': 'Bearer'
+        'token_type': 'Bearer',
+        'expires_in': int(access_ttl.total_seconds())
     }
 
 """ def verify_google_token(token):
@@ -93,32 +110,39 @@ def generate_tokens(user_id):
         return None """
 
 def login_required(f):
-    """Decorator para rutas que requieren autenticación"""
+    """Decorator with strict JWT validation for API routes."""
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        from app.utils.jwt_validator import decode_token
+        from app.utils.error_handler import safe_error_response
+        
         auth_header = request.headers.get('Authorization')
         
         if not auth_header or not auth_header.startswith('Bearer '):
-            return jsonify({'error': 'No authorization token provided'}), 401
+            return safe_error_response(
+                'No authorization token provided', 
+                401, 
+                'MISSING_TOKEN'
+            )
         
         token = auth_header.split(' ')[1]
         
         try:
-            payload = jwt.decode(
-                token,
-                current_app.config['JWT_SECRET_KEY'],
-                algorithms=['HS256']
-            )
-            
-            if payload.get('type') != 'access':
-                return jsonify({'error': 'Invalid token type'}), 401
-                
+            payload = decode_token(token, 'access')
             request.current_user_id = payload['user_id']
             
         except jwt.ExpiredSignatureError:
-            return jsonify({'error': 'Token has expired'}), 401
+            return safe_error_response('Token has expired', 401, 'TOKEN_EXPIRED')
+        except jwt.InvalidAudienceError:
+            return safe_error_response('Invalid token audience', 401, 'INVALID_AUDIENCE')
+        except jwt.InvalidIssuerError:
+            return safe_error_response('Invalid token issuer', 401, 'INVALID_ISSUER')
+        except jwt.ImmatureSignatureError:
+            return safe_error_response('Token not yet valid', 401, 'TOKEN_NOT_YET_VALID')
         except jwt.InvalidTokenError:
-            return jsonify({'error': 'Invalid token'}), 401
+            return safe_error_response('Invalid token', 401, 'INVALID_TOKEN')
+        except Exception:
+            return safe_error_response('Token validation failed', 401, 'AUTH_FAILED')
             
         return f(*args, **kwargs)
     

@@ -37,4 +37,4 @@ with app.app_context():
         print(f"Error verificando/creando datos: {e}")
 
 if __name__ == "__main__":
-    socketio.run(app)git add .
+    socketio.run(app)

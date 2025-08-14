@@ -18,12 +18,19 @@ import { useAuth } from "@/hooks/use-auth"
 import { useRouter, usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { useTranslation } from 'react-i18next'
+import { useState, useEffect } from 'react'
 
 export function Header() {
   const { user, logout } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
   const { t } = useTranslation()
+  const [mounted, setMounted] = useState(false)
+
+  // Prevent hydration mismatch by only rendering translations after mount
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleLogout = () => {
     logout()
@@ -40,10 +47,10 @@ export function Header() {
   }
 
   const navItems = [
-    { href: "/", label: t('common.home'), icon: Home },
-    { href: "/my-visits", label: t('visits.myVisits'), icon: CalendarDays },
-    { href: "/matches", label: t('matches.title'), icon: Heart },
-    { href: "/chats", label: t('chat.messages'), icon: MessageSquare },
+    { href: "/", label: mounted ? t('common.home') : 'Home', icon: Home },
+    { href: "/my-visits", label: mounted ? t('visits.myVisits') : 'My Visits', icon: CalendarDays },
+    { href: "/matches", label: mounted ? t('matches.title') : 'Matches', icon: Heart },
+    { href: "/chats", label: mounted ? t('chat.messages') : 'Messages', icon: MessageSquare },
   ]
 
   return (

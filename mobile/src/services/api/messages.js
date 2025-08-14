@@ -1,8 +1,9 @@
 /**
- * Servicio de mensajes
+ * Servicio de mensajes para móvil
  */
 import { apiClient } from './client'
-import io from 'socket.io-client'
+import { io } from 'socket.io-client'
+import * as SecureStore from 'expo-secure-store'
 
 let socket = null
 
@@ -11,8 +12,8 @@ export const messageService = {
     return apiClient.get('/messages/conversations')
   },
 
-  async getChatMessages(chatId, params = {}) {
-    return apiClient.get(`/messages/chats/${chatId}/messages`, params)
+  async getChatMessages(chatId, page = 1) {
+    return apiClient.get(`/messages/chats/${chatId}/messages`, { page })
   },
 
   async sendMessage(chatId, text) {
@@ -20,8 +21,14 @@ export const messageService = {
   },
 
   // WebSocket
-  connectWebSocket(token) {
+  async connectWebSocket() {
     if (socket) return socket
+    
+    const token = await SecureStore.getItemAsync('jwt_token')
+    if (!token) {
+      console.warn('No token available for WebSocket connection')
+      return null
+    }
     
     socket = io(apiClient.wsURL, {
       auth: { token },

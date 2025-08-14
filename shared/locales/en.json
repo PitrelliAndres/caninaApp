@@ -166,7 +166,16 @@
     "writePlaceholder": "Write a message...",
     "loadingChat": "Loading chat...",
     "chatNotFound": "Chat not found",
-    "messageSent": "✓✓"
+    "messageSent": "✓✓",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "messageTooLong": "Message too long",
+    "messageEmpty": "Message cannot be empty",
+    "suspiciousContent": "Suspicious content detected and filtered",
+    "sendError": "Error sending",
+    "couldNotSend": "Could not send message",
+    "invalidMessage": "Invalid message after security validation",
+    "warning": "Warning"
   },
   "profile": {
     "title": "My Profile",
