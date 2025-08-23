@@ -18,17 +18,62 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useTranslation } from 'react-i18next'
 import Toast from 'react-native-toast-message'
 
-import { useMatches } from '../../hooks/useMatches'
-import { matchService } from '../../services/api/matches'
+// import { useMatches } from '../../hooks/useMatches'
+// import { matchService } from '../../services/api/matches'
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window')
 const SWIPE_THRESHOLD = 0.25 * screenWidth
 const SWIPE_OUT_DURATION = 250
 
+// Datos dummy para sugerencias de matches
+const DUMMY_SUGGESTIONS = [
+  {
+    id: 1,
+    user_id: 101,
+    nickname: 'María',
+    user: { age: 28, avatar_url: 'https://images.unsplash.com/photo-1494790108755-2616b612b147' },
+    dog: { name: 'Luna', breed: 'Golden Retriever', age: 3 },
+    compatibility: 85,
+    park_name: 'Parque Centenario',
+    shared_interests: ['Paseos matutinos', 'Entrenamiento', 'Juegos']
+  },
+  {
+    id: 2,
+    user_id: 102,
+    nickname: 'Carlos',
+    user: { age: 32, avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d' },
+    dog: { name: 'Max', breed: 'Labrador', age: 2 },
+    compatibility: 78,
+    park_name: 'Parque Sarmiento',
+    shared_interests: ['Deportes caninos', 'Socialización']
+  },
+  {
+    id: 3,
+    user_id: 103,
+    nickname: 'Ana',
+    user: { age: 25, avatar_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80' },
+    dog: { name: 'Coco', breed: 'Border Collie', age: 4 },
+    compatibility: 92,
+    park_name: 'Parque Rivadavia',
+    shared_interests: ['Agilidad', 'Paseos largos', 'Fotografía']
+  },
+  {
+    id: 4,
+    user_id: 104,
+    nickname: 'Diego',
+    user: { age: 29, avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e' },
+    dog: { name: 'Rocky', breed: 'Pastor Alemán', age: 5 },
+    compatibility: 73,
+    park_name: 'Parque Chacabuco',
+    shared_interests: ['Entrenamiento', 'Guardería']
+  }
+]
+
 export function DiscoverScreen({ navigation }) {
   const { t } = useTranslation()
   const theme = useTheme()
-  const { suggestions, loading, refetch } = useMatches()
+  const [suggestions] = useState(DUMMY_SUGGESTIONS)
+  const [loading] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
   
   const position = useRef(new Animated.ValueXY()).current
@@ -103,18 +148,19 @@ export function DiscoverScreen({ navigation }) {
   const onSwipeComplete = async (direction) => {
     const action = direction === 'right' ? 'like' : 'pass'
     
-    try {
-      const response = await matchService.createMatch(currentSuggestion.user_id, action)
-      
-      if (response.is_mutual) {
-        Toast.show({
-          type: 'success',
-          text1: t('matches.itsAMatch'),
-          text2: t('matches.mutualLike'),
-        })
-      }
-    } catch (error) {
-      console.error('Match error:', error)
+    // Simular match con 30% de probabilidad en likes
+    if (action === 'like' && Math.random() < 0.3) {
+      Toast.show({
+        type: 'success',
+        text1: t('matches.itsAMatch'),
+        text2: t('matches.mutualLike'),
+      })
+    } else if (action === 'like') {
+      Toast.show({
+        type: 'info',
+        text1: t('matches.likeSent'),
+        text2: t('matches.waitingForResponse'),
+      })
     }
     
     position.setValue({ x: 0, y: 0 })
@@ -150,7 +196,7 @@ export function DiscoverScreen({ navigation }) {
             mode="contained"
             onPress={() => {
               setCurrentIndex(0)
-              refetch()
+              // Reiniciar con datos dummy
             }}
             style={styles.refreshButton}
           >

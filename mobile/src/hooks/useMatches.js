@@ -17,8 +17,8 @@ export function useMatches() {
       setError(null)
       
       const [suggestionsRes, mutualRes] = await Promise.all([
-        matchService.getSuggestions(),
-        matchService.getMutualMatches()
+        matchService.getSuggestedMatches(),
+        matchService.getMatches()
       ])
       
       setSuggestions(suggestionsRes.suggestions || [])

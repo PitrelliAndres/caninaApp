@@ -27,8 +27,8 @@ const { width } = Dimensions.get('window')
 
 // Configurar Google Sign In
 GoogleSignin.configure({
-  webClientId: process.env.GOOGLE_WEB_CLIENT_ID,
-  iosClientId: process.env.GOOGLE_IOS_CLIENT_ID,
+  webClientId: '301209986798-fuk4h414g85ljkaho0b4hgn6qgb4o16p.apps.googleusercontent.com',
+  offlineAccess: true,
 })
 
 export function LoginScreen({ navigation }) {
@@ -53,12 +53,23 @@ export function LoginScreen({ navigation }) {
       
       // Realizar login
       const userInfo = await GoogleSignin.signIn()
+      console.log('Google Sign-In successful:', userInfo)
       
-      // Obtener token
-      const tokens = await GoogleSignin.getTokens()
+      // Verificar que tenemos la información necesaria
+      if (!userInfo?.data?.idToken && !userInfo?.data?.accessToken) {
+        throw new Error('No se pudo obtener el token de Google')
+      }
+      
+      // Usar el token que esté disponible (idToken es preferido para autenticación)
+      const googleToken = userInfo.data.idToken || userInfo.data.accessToken
+      console.log('Using Google token:', googleToken ? 'Token available' : 'No token')
+      
+      if (!googleToken) {
+        throw new Error('Google token required')
+      }
       
       // Enviar al backend
-      const result = await dispatch(loginWithGoogle(tokens.accessToken)).unwrap()
+      const result = await dispatch(loginWithGoogle(googleToken)).unwrap()
       
       if (result.user.onboarded) {
         navigation.replace('Main')

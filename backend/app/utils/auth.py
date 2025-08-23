@@ -10,13 +10,35 @@ from google.auth.transport import requests
 import requests as http_requests
 from app.utils.error_handler import safe_error_response, mask_sensitive_data
 
-def verify_google_token(access_token):
-    """Verificar token de acceso de Google y obtener info del usuario"""
+def verify_google_token(token):
+    """Verificar token de Google (ID token o access token)"""
     try:
-        # Usar el access token para obtener la info del usuario
+        # Primero intentar como ID token (JWT)
+        if token.startswith('eyJ'):
+            try:
+                # Verificar ID token con Google
+                client_id = os.environ.get('GOOGLE_CLIENT_ID', '301209986798-fuk4h414g85ljkaho0b4hgn6qgb4o16p.apps.googleusercontent.com')
+                idinfo = id_token.verify_oauth2_token(token, requests.Request(), client_id)
+                
+                if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
+                    raise ValueError('Wrong issuer.')
+                
+                return {
+                    'sub': idinfo['sub'],
+                    'email': idinfo['email'],
+                    'name': idinfo.get('name'),
+                    'picture': idinfo.get('picture'),
+                    'email_verified': idinfo.get('email_verified', False)
+                }
+            except ValueError as e:
+                current_app.logger.error(f"Error verificando ID token: {str(e)}")
+                # Si falla, intentar como access token
+                pass
+        
+        # Intentar como access token
         response = http_requests.get(
             'https://www.googleapis.com/oauth2/v1/userinfo',
-            headers={'Authorization': f'Bearer {access_token}'}
+            headers={'Authorization': f'Bearer {token}'}
         )
         
         if response.status_code != 200:

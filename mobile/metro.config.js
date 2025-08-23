@@ -1,7 +1,9 @@
 // metro.config.js
 const { getDefaultConfig } = require('expo/metro-config');
 
-const defaultConfig = getDefaultConfig(__dirname);
+const defaultConfig = getDefaultConfig(__dirname, {
+  isCSSEnabled: false,
+});
 
 // Agregar soporte para SVG
 defaultConfig.resolver.assetExts = defaultConfig.resolver.assetExts.filter(
@@ -12,6 +14,9 @@ defaultConfig.resolver.sourceExts.push('svg');
 // Configuración para Windows - resolver problemas de rutas
 defaultConfig.resolver.unstable_enableSymlinks = true;
 defaultConfig.resolver.unstable_enablePackageExports = true;
+
+// Excluir plataformas web para evitar conflictos
+defaultConfig.resolver.platforms = ['android', 'ios', 'native'];
 
 // Optimización de caché
 defaultConfig.resetCache = true;

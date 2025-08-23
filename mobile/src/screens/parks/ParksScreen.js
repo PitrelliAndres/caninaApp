@@ -1,5 +1,5 @@
 // mobile/src/screens/parks/ParksScreen.js
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import {
   View,
   StyleSheet,
@@ -12,6 +12,7 @@ import {
   SegmentedButtons,
   FAB,
   Portal,
+  Text,
   useTheme,
 } from 'react-native-paper'
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps'
@@ -42,7 +43,13 @@ export function ParksScreen({ navigation }) {
   })
   const [showFilters, setShowFilters] = useState(false)
   
-  const { parks, loading, error, refetch } = useParks({ ...filters, search: searchQuery })
+  // Memorizar filtros para evitar re-renders infinitos
+  const memoizedFilters = useMemo(() => ({
+    ...filters,
+    search: searchQuery
+  }), [filters.neighborhood, filters.hasArea, filters.isFenced, filters.hasWater, searchQuery])
+  
+  const { parks, loading, error, refetch } = useParks(memoizedFilters)
   const { location, requestPermission } = useLocation()
 
   useEffect(() => {

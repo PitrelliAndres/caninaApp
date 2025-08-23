@@ -13,8 +13,7 @@
       "backgroundColor": "#ffffff"
     },
     "updates": {
-      "fallbackToCacheTimeout": 0,
-      "url": "https://u.expo.dev/your-project-id"
+      "fallbackToCacheTimeout": 0
     },
     "assetBundlePatterns": [
       "**/*"
@@ -27,15 +26,8 @@
         "NSPhotoLibraryUsageDescription": "ParkDog necesita acceso a tu galería para seleccionar fotos",
         "NSLocationWhenInUseUsageDescription": "ParkDog necesita tu ubicación para mostrarte parques cercanos",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "ParkDog necesita tu ubicación para mostrarte parques cercanos",
-        "CFBundleURLTypes": [
-          {
-            "CFBundleURLSchemes": [
-              "com.googleusercontent.apps.YOUR_GOOGLE_IOS_CLIENT_ID"
-            ]
-          }
-        ]
-      },
-      "googleServicesFile": "./GoogleService-Info.plist"
+        "CFBundleURLTypes": []
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -43,7 +35,6 @@
         "backgroundColor": "#FFFFFF"
       },
       "package": "com.parkdog.app",
-      "googleServicesFile": "./google-services.json",
       "permissions": [
         "CAMERA",
         "READ_EXTERNAL_STORAGE",
@@ -72,12 +63,7 @@
       "bundler": "metro"
     },
     "plugins": [
-      [
-        "@react-native-google-signin/google-signin",
-        {
-          "iosUrlScheme": "com.googleusercontent.apps.YOUR_GOOGLE_IOS_CLIENT_ID"
-        }
-      ],
+      "@react-native-google-signin/google-signin",
       [
         "expo-location",
         {
@@ -117,11 +103,6 @@
         }
       ]
     ],
-    "extra": {
-      "eas": {
-        "projectId": "your-eas-project-id"
-      }
-    },
     "owner": "parkdog-team",
     "runtimeVersion": {
       "policy": "sdkVersion"

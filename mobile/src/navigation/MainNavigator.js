@@ -6,7 +6,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 
 import { HomeNavigator } from './HomeNavigator'
 import { VisitsNavigator } from './VisitsNavigator'
-import { MatchesNavigator } from './MatchesNavigator'
+import { DiscoverScreen } from '../screens/matches/DiscoverScreen'
+import { MyMatchesScreen } from '../screens/matches/MyMatchesScreen'
 import { ChatsNavigator } from './ChatsNavigator'
 import { ProfileNavigator } from './ProfileNavigator'
 
@@ -52,12 +53,22 @@ export function MainNavigator() {
         }}
       />
       <Tab.Screen
-        name="MatchesTab"
-        component={MatchesNavigator}
+        name="DiscoverTab"
+        component={DiscoverScreen}
         options={{
-          tabBarLabel: t('matches.title'),
+          tabBarLabel: t('matches.tabs.discover'),
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="heart" color={color} size={size} />
+            <MaterialCommunityIcons name="cards-heart" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="MatchesTab"
+        component={MyMatchesScreen}
+        options={{
+          tabBarLabel: t('matches.tabs.matches'),
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="heart-multiple" color={color} size={size} />
           ),
         }}
       />

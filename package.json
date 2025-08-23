@@ -22,6 +22,6 @@
     "copy:locales": "cp -r shared/locales/* frontend/public/locales/ && cp -r shared/locales/* mobile/assets/locales/"
   },
   "devDependencies": {
-    "concurrently": "^8.2.0"
+    "concurrently": "^8.2.2"
   }
 }

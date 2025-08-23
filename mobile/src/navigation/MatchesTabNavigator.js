@@ -1,11 +1,12 @@
 import React from 'react'
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { useTranslation } from 'react-i18next'
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 import { DiscoverScreen } from '../screens/matches/DiscoverScreen'
 import { MyMatchesScreen } from '../screens/matches/MyMatchesScreen'
 
-const Tab = createMaterialTopTabNavigator()
+const Tab = createBottomTabNavigator()
 
 export function MatchesTabNavigator() {
   const { t } = useTranslation()
@@ -15,19 +16,25 @@ export function MatchesTabNavigator() {
       screenOptions={{
         tabBarActiveTintColor: '#2563eb',
         tabBarInactiveTintColor: '#6b7280',
-        tabBarIndicatorStyle: { backgroundColor: '#2563eb' },
         tabBarStyle: { backgroundColor: '#fff' },
+        headerShown: false,
       }}
     >
       <Tab.Screen 
         name="Discover" 
         component={DiscoverScreen}
-        options={{ title: t('matches.tabs.discover') }}
+        options={{ 
+          title: t('matches.tabs.discover'),
+          tabBarIcon: ({ color }) => <Icon name="cards-heart" color={color} size={24} />
+        }}
       />
       <Tab.Screen 
-        name="MyMatches" 
+        name="Matches" 
         component={MyMatchesScreen}
-        options={{ title: t('matches.tabs.myMatches') }}
+        options={{ 
+          title: t('matches.tabs.matches'),
+          tabBarIcon: ({ color }) => <Icon name="message-heart" color={color} size={24} />
+        }}
       />
     </Tab.Navigator>
   )

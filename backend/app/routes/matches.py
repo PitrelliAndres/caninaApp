@@ -2,6 +2,7 @@
 Rutas de sistema de matches
 """
 from flask import Blueprint, request, jsonify, current_app
+from sqlalchemy import and_, or_
 from app import db
 from app.models import Match, User
 from app.utils.auth import login_required
@@ -31,6 +32,43 @@ def get_match_suggestions():
         
     except Exception as e:
         current_app.logger.error(f"Get suggestions error: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+@matches_bp.route('', methods=['GET'])
+@login_required
+def get_matches():
+    """Obtener matches del usuario"""
+    try:
+        # Obtener matches mutuos del usuario
+        matches = Match.query.filter(
+            Match.user_id == request.current_user_id,
+            Match.is_mutual == True
+        ).order_by(Match.mutual_at.desc()).all()
+        
+        match_list = []
+        for match in matches:
+            matched_user = User.query.get(match.matched_user_id)
+            if matched_user and matched_user.is_active:
+                match_data = {
+                    'match_id': match.id,
+                    'user': {
+                        'id': matched_user.id,
+                        'nickname': matched_user.nickname,
+                        'avatar_url': matched_user.avatar_url,
+                        'dog': matched_user.dog.to_dict() if matched_user.dog else None
+                    },
+                    'matched_at': match.mutual_at.isoformat() if match.mutual_at else None,
+                    'compatibility_score': match.compatibility_score
+                }
+                match_list.append(match_data)
+        
+        return jsonify({
+            'matches': match_list,
+            'total': len(match_list)
+        }), 200
+        
+    except Exception as e:
+        current_app.logger.error(f"Get matches error: {str(e)}")
         return jsonify({'error': 'Internal server error'}), 500
 
 @matches_bp.route('', methods=['POST'])
