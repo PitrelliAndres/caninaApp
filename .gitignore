@@ -41,6 +41,54 @@ Thumbs.db
 *.sqlite
 *.sqlite3
 
+# React Native / Expo
+mobile/.expo/
+mobile/android/app/build/
+mobile/android/build/
+mobile/android/.gradle/
+mobile/android/gradlew
+mobile/android/gradlew.bat
+mobile/android/local.properties
+mobile/ios/build/
+mobile/ios/DerivedData/
+mobile/ios/*.xcworkspace/xcuserdata/
+mobile/ios/*.xcodeproj/xcuserdata/
+mobile/ios/Pods/
+mobile/ios/Podfile.lock
+mobile/web-build/
+mobile/dist/
+mobile/.expo-shared/
+
+# Metro bundler
+mobile/.metro-health-check*
+mobile/metro.config.js.bak
+
+# Expo
+mobile/.expo/
+mobile/.expo-shared/
+
+# Android specific
+mobile/android/app/debug.keystore
+mobile/android/app/release.keystore
+mobile/android/app/*.jks
+mobile/android/app/*.p8
+mobile/android/app/*.p12
+mobile/android/app/*.mobileprovision
+mobile/android/app/google-services.json
+mobile/android/app/GoogleService-Info.plist
+
+# iOS specific  
+mobile/ios/*.mobileprovision
+mobile/ios/*.p12
+mobile/ios/GoogleService-Info.plist
+mobile/ios/Config.xcconfig
+
+# Build artifacts
+mobile/android/app/build/
+mobile/android/build/
+mobile/ios/build/
+mobile/web-build/
+
 # Deployment
 .vercel
 dist/
