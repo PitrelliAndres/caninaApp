@@ -81,5 +81,5 @@ if __name__ == '__main__':
                  host='0.0.0.0', 
                  port=port, 
                  debug=debug,
-                 use_reloader=debug,
+                 use_reloader=False,  # Deshabilitar reloader en Docker para evitar WERKZEUG_SERVER_FD
                  allow_unsafe_werkzeug=True)  # TODO: harden for production - Use proper WSGI server

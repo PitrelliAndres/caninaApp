@@ -39,11 +39,34 @@ def create_app(config_name=None):
          supports_credentials=True,
          allow_headers=['Content-Type', 'Authorization'])
     
-    # Inicializar SocketIO
+    # Inicializar SocketIO con configuración más permisiva para desarrollo
+    # Permitir conexiones desde dispositivos móviles en la red local
+    cors_origins = app.config['CORS_ORIGINS']
+    if app.debug:
+        # Development: include local network and mobile IPs
+        # TODO: Production - remove local IPs, use only CORS_ORIGINS from env
+        additional_origins = [
+            "http://localhost:3000",       # Frontend web
+            "http://192.168.0.243:8081",  # Mobile device
+            "http://10.0.2.2:8081",      # Android emulator
+            "http://localhost:8081"       # Local mobile dev
+        ]
+        if isinstance(cors_origins, list):
+            cors_origins = cors_origins + additional_origins
+        else:
+            cors_origins = cors_origins.split(',') + additional_origins
+    
+    # TODO: Production - use only cors_origins without "*"
+    # Development: allow connections from any origin for testing
+    socketio_cors_origins = cors_origins if not app.debug else "*"
+    
     socketio.init_app(app, 
-                      cors_allowed_origins=app.config['CORS_ORIGINS'],
+                      cors_allowed_origins=socketio_cors_origins,
                       logger=True,
-                      engineio_logger=True)
+                      engineio_logger=True,
+                      async_mode='threading',
+                      ping_timeout=60,
+                      ping_interval=25)
     
     # Registrar blueprints
     from app.routes.auth import auth_bp

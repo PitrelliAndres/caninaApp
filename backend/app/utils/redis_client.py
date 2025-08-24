@@ -172,6 +172,53 @@ class RedisClient:
             logger.error(f"Get online users failed: {e}")
             return []
     
+    # Socket-User mapping for SocketIO sessions
+    def set_socket_user(self, socket_id: str, user_id: int):
+        """Map socket_id to user_id"""
+        try:
+            if self.redis_client:
+                key = f"socket:user:{socket_id}"
+                self.redis_client.setex(key, 7200, str(user_id))  # 2 hours TTL
+            else:
+                # Development fallback
+                if not hasattr(self, '_socket_users'):
+                    self._socket_users = {}
+                self._socket_users[socket_id] = user_id
+                
+        except Exception as e:
+            logger.error(f"Set socket user failed: {e}")
+    
+    def get_socket_user(self, socket_id: str) -> Optional[int]:
+        """Get user_id from socket_id"""
+        try:
+            if self.redis_client:
+                key = f"socket:user:{socket_id}"
+                user_id_str = self.redis_client.get(key)
+                return int(user_id_str) if user_id_str else None
+            else:
+                # Development fallback
+                if not hasattr(self, '_socket_users'):
+                    self._socket_users = {}
+                return self._socket_users.get(socket_id)
+                
+        except Exception as e:
+            logger.error(f"Get socket user failed: {e}")
+            return None
+    
+    def remove_socket_user(self, socket_id: str):
+        """Remove socket_id to user_id mapping"""
+        try:
+            if self.redis_client:
+                key = f"socket:user:{socket_id}"
+                self.redis_client.delete(key)
+            else:
+                # Development fallback
+                if hasattr(self, '_socket_users'):
+                    self._socket_users.pop(socket_id, None)
+                
+        except Exception as e:
+            logger.error(f"Remove socket user failed: {e}")
+    
     # Rate limiting
     def check_rate_limit(self, key: str, limit: int, window: int) -> bool:
         """Check rate limit (requests per window in seconds)"""

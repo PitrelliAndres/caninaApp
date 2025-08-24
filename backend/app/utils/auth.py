@@ -60,22 +60,26 @@ def verify_google_token(token):
         return None
 
 def generate_tokens(user_id):
-    """Generate JWT tokens with strict validation claims."""
+    """Generate JWT tokens with strict validation claims and realtime token."""
     now = datetime.utcnow()
     
-    # DEV: longer-lived tokens, PROD: short-lived (5-15 min)
-    access_ttl = timedelta(hours=2) if current_app.debug else timedelta(minutes=15)
+    # Environment-based configuration
+    is_dev = os.environ.get('FLASK_ENV', 'development') == 'development'
     
-    # Access token with strict claims
+    # DEV: longer-lived tokens, PROD: short-lived (10-15 min)
+    access_ttl = timedelta(hours=2) if is_dev else timedelta(minutes=int(os.environ.get('JWT_ACCESS_TTL_MIN', 15)))
+    realtime_ttl = timedelta(hours=1) if is_dev else timedelta(minutes=int(os.environ.get('WS_JWT_TTL_MIN', 10)))
+    
+    # Access token for REST API
     access_payload = {
         'user_id': user_id,
-        'iss': current_app.config.get('JWT_ISSUER', 'parkdog-api'),  # issuer
-        'aud': current_app.config.get('JWT_AUDIENCE', 'parkdog-client'),  # audience
-        'iat': now,  # issued at
-        'nbf': now,  # not before
-        'exp': now + access_ttl,  # expires
+        'iss': os.environ.get('JWT_ISSUER', 'parkdog-api'),
+        'aud': os.environ.get('JWT_AUDIENCE', 'parkdog-client'),
+        'iat': now,
+        'nbf': now,
+        'exp': now + access_ttl,
         'type': 'access',
-        'jti': f"{user_id}-{int(now.timestamp())}"  # JWT ID for tracking
+        'jti': f"access-{user_id}-{int(now.timestamp())}"
     }
     
     access_token = jwt.encode(
@@ -84,11 +88,29 @@ def generate_tokens(user_id):
         algorithm='HS256'
     )
     
+    # Realtime token for WebSocket (shorter-lived, different audience)
+    realtime_payload = {
+        'user_id': user_id,
+        'iss': os.environ.get('JWT_ISSUER', 'parkdog-api'),
+        'aud': os.environ.get('WS_AUDIENCE', 'realtime'),  # Different audience for WebSocket
+        'iat': now,
+        'nbf': now,
+        'exp': now + realtime_ttl,
+        'type': 'realtime',
+        'jti': f"realtime-{user_id}-{int(now.timestamp())}"
+    }
+    
+    realtime_token = jwt.encode(
+        realtime_payload,
+        current_app.config['JWT_SECRET_KEY'],
+        algorithm='HS256'
+    )
+    
     # Refresh token (longer-lived)
     refresh_payload = {
         'user_id': user_id,
-        'iss': current_app.config.get('JWT_ISSUER', 'parkdog-api'),
-        'aud': current_app.config.get('JWT_AUDIENCE', 'parkdog-client'),
+        'iss': os.environ.get('JWT_ISSUER', 'parkdog-api'),
+        'aud': os.environ.get('JWT_AUDIENCE', 'parkdog-client'),
         'iat': now,
         'nbf': now,
         'exp': now + current_app.config.get('JWT_REFRESH_TOKEN_EXPIRES', timedelta(days=7)),
@@ -104,9 +126,11 @@ def generate_tokens(user_id):
     
     return {
         'access_token': access_token,
+        'realtime_token': realtime_token,  # New: separate token for WebSocket
         'refresh_token': refresh_token,
         'token_type': 'Bearer',
-        'expires_in': int(access_ttl.total_seconds())
+        'expires_in': int(access_ttl.total_seconds()),
+        'realtime_expires_in': int(realtime_ttl.total_seconds())
     }
 
 """ def verify_google_token(token):

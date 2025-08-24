@@ -1,94 +1,98 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-venv/
-env/
-*.egg-info/
-.pytest_cache/
+# ==========================================
+# 🎯 MONOREPO GITIGNORE - REGLAS GENERALES
+# ==========================================
+# Este archivo contiene solo reglas que se aplican a TODO el workspace
+# Cada subdirectorio (frontend/, backend/, mobile/) tiene su propio .gitignore
 
-# Node
+# === DEPENDENCIES (todas las tecnologías) ===
 node_modules/
-.next/
-out/
-build/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
 
-# Env files
+# === ENVIRONMENT VARIABLES ===
 .env
-.env.local
-.env.production
+.env.*
+!.env.example
 
-# IDE
+# === IDE & EDITORS ===
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+*.sublime-*
 
-# OS
+# === OPERATING SYSTEM ===
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+Desktop.ini
 
-# Database
+# === LOGS (generales) ===
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# === TEMPORARY FILES ===
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# === BUILD ARTIFACTS (general) ===
+dist/
+build/
+.turbo/
+
+# === VERSION CONTROL ===
+.git/
+.svn/
+.hg/
+
+# === COMPRESSION ===
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# === DOCKER (si usas Docker localmente) ===
+.docker/
+docker-compose.override.yml
+
+# === DATABASE (archivos locales) ===
 *.db
 *.sqlite
 *.sqlite3
 
-# React Native / Expo
-mobile/.expo/
-mobile/android/app/build/
-mobile/android/build/
-mobile/android/.gradle/
-mobile/android/gradlew
-mobile/android/gradlew.bat
-mobile/android/local.properties
-mobile/ios/build/
-mobile/ios/DerivedData/
-mobile/ios/*.xcworkspace/xcuserdata/
-mobile/ios/*.xcodeproj/xcuserdata/
-mobile/ios/Pods/
-mobile/ios/Podfile.lock
-mobile/web-build/
-mobile/dist/
-mobile/.expo-shared/
+# === WORKSPACE ESPECÍFICO ===
+# Archivos de testing/debugging del workspace
+nul
+.coverage
+coverage/
+.nyc_output
 
-# Metro bundler
-mobile/.metro-health-check*
-mobile/metro.config.js.bak
+# === DEPLOYMENT SECRETS ===
+.vercel/
+.netlify/
+.deployment/
 
-# Expo
-mobile/.expo/
-mobile/.expo-shared/
-
-# Android specific
-mobile/android/app/debug.keystore
-mobile/android/app/release.keystore
-mobile/android/app/*.jks
-mobile/android/app/*.p8
-mobile/android/app/*.p12
-mobile/android/app/*.mobileprovision
-mobile/android/app/google-services.json
-mobile/android/app/GoogleService-Info.plist
-
-# iOS specific  
-mobile/ios/*.mobileprovision
-mobile/ios/*.p12
-mobile/ios/GoogleService-Info.plist
-mobile/ios/Config.xcconfig
-
-# Build artifacts
-mobile/android/app/build/
-mobile/android/build/
-mobile/ios/build/
-mobile/web-build/
-
-# Deployment
-.vercel
-dist/
+# === MONOREPO TOOLS ===
+.rush/
+.ultra.cache.json
+turbo.json.bak

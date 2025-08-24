@@ -15,6 +15,10 @@ export const authService = {
       if (response.tokens?.refresh_token) {
         localStorage.setItem('refresh_token', response.tokens.refresh_token)
       }
+      // Guardar realtime token para WebSocket
+      if (response.tokens?.realtime_token) {
+        localStorage.setItem('realtime_token', response.tokens.realtime_token)
+      }
     }
     
     return response
@@ -37,6 +41,10 @@ export const authService = {
       if (response.tokens?.refresh_token) {
         localStorage.setItem('refresh_token', response.tokens.refresh_token)
       }
+      // Actualizar realtime token en refresh
+      if (response.tokens?.realtime_token) {
+        localStorage.setItem('realtime_token', response.tokens.realtime_token)
+      }
     }
     
     return response
@@ -45,6 +53,7 @@ export const authService = {
   logout() {
     localStorage.removeItem('jwt_token')
     localStorage.removeItem('refresh_token')
+    localStorage.removeItem('realtime_token')
     return apiClient.post('/auth/logout').catch(() => {})
   }
 }

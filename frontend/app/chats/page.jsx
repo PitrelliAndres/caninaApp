@@ -28,9 +28,8 @@ export default function ChatsPage() {
         setChats(response.conversations || [])
       } catch (error) {
         console.error('Error loading chats:', error)
-        // Use dummy data as fallback for development
-        const { dummyConversations } = await import("@/lib/dummy-messages")
-        setChats(dummyConversations)
+        // Sin datos disponibles - usar array vacío
+        setChats([])
       } finally {
         setLoading(false)
       }

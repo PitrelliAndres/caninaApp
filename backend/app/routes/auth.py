@@ -157,3 +157,83 @@ def logout():
     except Exception as e:
         current_app.logger.error(f"Logout error: {str(e)}")
         return jsonify({'error': 'Internal server error'}), 500
+
+@auth_bp.route('/ws-token', methods=['POST'])
+@login_required
+def get_websocket_token():
+    """Generate short-lived WebSocket token for realtime connections"""
+    try:
+        # Generate only realtime token for WebSocket connection
+        from app.utils.auth import generate_tokens
+        from datetime import datetime, timedelta
+        import jwt
+        import os
+        
+        user_id = request.current_user_id
+        now = datetime.utcnow()
+        
+        # Very short-lived token for WebSocket handshake only
+        is_dev = os.environ.get('FLASK_ENV', 'development') == 'development'
+        realtime_ttl = timedelta(hours=1) if is_dev else timedelta(minutes=int(os.environ.get('WS_JWT_TTL_MIN', 5)))
+        
+        # Realtime token with aud=realtime for WebSocket
+        realtime_payload = {
+            'user_id': user_id,
+            'iss': os.environ.get('JWT_ISSUER', 'parkdog-api'),
+            'aud': os.environ.get('WS_AUDIENCE', 'realtime'),
+            'iat': now,
+            'nbf': now,
+            'exp': now + realtime_ttl,
+            'type': 'realtime',
+            'scope': 'ws:connect',  # Specific scope for WebSocket connection
+            'jti': f"ws-{user_id}-{int(now.timestamp())}"
+        }
+        
+        realtime_token = jwt.encode(
+            realtime_payload,
+            current_app.config['JWT_SECRET_KEY'],
+            algorithm='HS256'
+        )
+        
+        return jsonify({
+            'realtime_token': realtime_token,
+            'expires_in': int(realtime_ttl.total_seconds()),
+            'token_type': 'Bearer'
+        }), 200
+        
+    except Exception as e:
+        current_app.logger.error(f"WS token generation error: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+@auth_bp.route('/dev-token', methods=['POST'])
+def dev_token():
+    """Generate tokens for development testing - DEV ONLY"""
+    if current_app.config.get('ENV') == 'production':
+        return jsonify({'error': 'Not available in production'}), 404
+    
+    try:
+        data = request.get_json()
+        user_id = data.get('user_id', 7)  # Default to test user
+        
+        # Verify user exists
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({'error': f'User {user_id} not found'}), 404
+        
+        # Generate tokens
+        tokens = generate_tokens(user.id)
+        
+        return jsonify({
+            'message': 'Development tokens generated',
+            'tokens': tokens,
+            'user': {
+                'id': user.id,
+                'email': user.email,
+                'name': user.name,
+                'nickname': user.nickname
+            }
+        }), 200
+        
+    except Exception as e:
+        current_app.logger.error(f"Dev token error: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500

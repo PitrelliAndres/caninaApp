@@ -177,6 +177,28 @@
     "messageTooLong": "Mensaje demasiado largo",
     "messageEmpty": "El mensaje no puede estar vacío",
     "suspiciousContent": "Contenido sospechoso detectado y filtrado",
+    
+    // DM functionality
+    "dm": {
+      "start": "Enviar mensaje",
+      "unavailable_no_match": "Necesitan un match para enviar mensajes.",
+      "placeholder": "Escribe un mensaje...",
+      "sending": "Enviando…",
+      "failed": "No se pudo enviar. Reintentar",
+      "read": "Leído",
+      "typing": "está escribiendo…",
+      "blocked": "Mensajería bloqueada",
+      "unmatched": "Ya no pueden enviarse mensajes",
+      "connectionLost": "Conexión perdida",
+      "reconnecting": "Reconectando...",
+      "connected": "Conectado",
+      "messageFailedToSend": "Error al enviar mensaje",
+      "userBlocked": "Usuario bloqueado",
+      "noMutualMatch": "Se requiere match mutuo",
+      "conversationNotFound": "Conversación no encontrada",
+      "unauthorized": "No autorizado",
+      "invalidMessage": "Mensaje inválido"
+    },
     "sendError": "Error al enviar",
     "couldNotSend": "No se pudo enviar el mensaje",
     "invalidMessage": "Mensaje inválido después de la validación de seguridad",

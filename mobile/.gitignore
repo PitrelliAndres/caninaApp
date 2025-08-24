@@ -1,0 +1,83 @@
+# ==========================================
+# 🎯 MOBILE (REACT NATIVE/EXPO) - REGLAS ESPECÍFICAS
+# ==========================================
+# Solo reglas específicas de React Native y Expo
+# Las reglas generales están en el .gitignore de la raíz
+
+# === EXPO ESPECÍFICO ===
+.expo/
+.expo-shared/
+expo-env.d.ts
+
+# === REACT NATIVE BUILD ===
+android/app/build/
+android/build/
+ios/build/
+ios/DerivedData/
+web-build/
+
+# === ANDROID ESPECÍFICO ===
+android/.gradle/
+android/gradlew
+android/gradlew.bat
+android/local.properties
+android/app/debug.keystore
+android/app/release.keystore
+android/app/*.jks
+android/app/*.p8
+android/app/*.p12
+android/app/*.mobileprovision
+android/app/google-services.json
+android/app/GoogleService-Info.plist
+
+# === iOS ESPECÍFICO ===
+ios/*.xcworkspace/xcuserdata/
+ios/*.xcodeproj/xcuserdata/
+ios/Pods/
+ios/Podfile.lock
+ios/*.mobileprovision
+ios/*.p12
+ios/GoogleService-Info.plist
+ios/Config.xcconfig
+ios/build/
+
+# === METRO BUNDLER ===
+.metro-health-check*
+metro.config.js.bak
+.metro/
+
+# === REACT NATIVE ESPECÍFICO ===
+.react-native/
+
+# === FLIPPER (React Native debugger) ===
+flipper-rn-addons.json
+.flipper/
+ios/Flipper/
+
+# === REACT NATIVE MAPS ===
+GoogleService-Info.plist
+
+# === EAS BUILD ===
+.easignore
+
+# === DEVELOPMENT ===
+*.orig
+.vscode/launch.json
+
+# === TESTING (React Native specific) ===
+__tests__/coverage/
+jest-coverage/
+
+# === HERMES ENGINE ===
+android/app/build/intermediates/
+ios/build/Build/
+
+# === FASTLANE ===
+ios/fastlane/report.xml
+ios/fastlane/Preview.html
+ios/fastlane/screenshots
+ios/fastlane/test_output
+android/fastlane/
+
+# === COCOAPODS ===
+ios/Pods/

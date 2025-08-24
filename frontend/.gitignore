@@ -1,0 +1,49 @@
+# ==========================================
+# 🎯 FRONTEND (NEXT.JS) - REGLAS ESPECÍFICAS  
+# ==========================================
+# Solo reglas específicas de Next.js/React
+# Las reglas generales están en el .gitignore de la raíz
+
+# === NEXT.JS BUILD ===
+.next/
+out/
+.swc/
+
+# === NEXT.JS SPECIFIC ===
+next-env.d.ts
+.next/static/chunks/webpack-*.js
+.next/trace
+
+# === VERCEL DEPLOYMENT ===
+.vercel/
+
+# === NEXT.JS CACHE ===
+.next/cache/
+
+# === NEXT.JS STANDALONE ===
+.next/standalone/
+.next/static/
+
+# === TESTING (React/Next.js specific) ===
+.nyc_output/
+jest-coverage/
+
+# === STORYBOOK ===
+storybook-static/
+.storybook/build/
+
+# === NEXT.JS PWA ===
+**/public/workbox-*
+**/public/worker-*
+**/public/sw.js
+**/public/fallback-*
+
+# === TURBO (Next.js build tool) ===
+.turbo/
+
+# === ESLINT CACHE (Next.js specific) ===
+.eslintcache
+
+# === TYPESCRIPT BUILD INFO ===
+*.tsbuildinfo
+next-env.d.ts

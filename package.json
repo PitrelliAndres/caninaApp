@@ -2,26 +2,9 @@
   "name": "parkdog-monorepo",
   "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "frontend",
-    "mobile",
-    "shared"
-  ],
   "scripts": {
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "dev:backend": "cd backend && python run.py",
-    "dev:frontend": "cd frontend && npm run dev",
-    "dev:mobile": "cd mobile && expo start",
-    "build": "npm run build:frontend && npm run build:mobile",
-    "build:frontend": "cd frontend && npm run build",
-    "build:mobile": "cd mobile && eas build",
-    "test": "npm run test:backend && npm run test:frontend",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
-    "docker:build": "docker-compose build",
-    "copy:locales": "cp -r shared/locales/* frontend/public/locales/ && cp -r shared/locales/* mobile/assets/locales/"
-  },
-  "devDependencies": {
-    "concurrently": "^8.2.2"
+    "docker:build": "docker-compose build --no-cache && docker-compose up -d"
   }
 }

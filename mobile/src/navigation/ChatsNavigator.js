@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { useTranslation } from 'react-i18next'
 
 import { ChatsListScreen } from '../screens/chats/ChatsListScreen'
-import { ChatScreen } from '../screens/chats/ChatScreen'
+import { DMChatScreen } from '../screens/chats/DMChatScreen'
 
 const Stack = createNativeStackNavigator()
 
@@ -22,7 +22,7 @@ export function ChatsNavigator() {
       />
       <Stack.Screen 
         name="Chat" 
-        component={ChatScreen}
+        component={DMChatScreen}
         options={({ route }) => ({ 
           title: route.params?.user?.nickname || t('chat.messages'),
           headerShown: false

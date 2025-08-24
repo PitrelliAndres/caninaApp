@@ -172,6 +172,29 @@
     "messageTooLong": "Message too long",
     "messageEmpty": "Message cannot be empty",
     "suspiciousContent": "Suspicious content detected and filtered",
+    
+    // DM functionality
+    "dm": {
+      "start": "Send message",
+      "unavailable_no_match": "You need a match to send messages.",
+      "placeholder": "Type a message...",
+      "sending": "Sending…",
+      "failed": "Failed to send. Retry",
+      "read": "Read",
+      "typing": "is typing…",
+      "blocked": "Messaging blocked",
+      "unmatched": "Can no longer send messages",
+      "connectionLost": "Connection lost",
+      "reconnecting": "Reconnecting...",
+      "connected": "Connected",
+      "messageFailedToSend": "Failed to send message",
+      "userBlocked": "User blocked",
+      "noMutualMatch": "Mutual match required",
+      "conversationNotFound": "Conversation not found",
+      "unauthorized": "Unauthorized",
+      "invalidMessage": "Invalid message"
+    },
+    
     "sendError": "Error sending",
     "couldNotSend": "Could not send message",
     "invalidMessage": "Invalid message after security validation",

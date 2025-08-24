@@ -102,26 +102,15 @@ def create_match():
             return jsonify({'message': 'Passed'}), 200
         
         # Si es "like", verificar match mutuo
-        match, is_mutual = Match.create_match(
+        match, is_mutual, conversation = Match.create_match(
             request.current_user_id,
             target_user_id,
             match_type='manual'
         )
         
-        # Si es match mutuo, crear conversación y notificar
-        if is_mutual:
-            from app.models import Conversation
-            
-            # Crear conversación
-            conversation = Conversation(
-                user1_id=min(request.current_user_id, target_user_id),
-                user2_id=max(request.current_user_id, target_user_id),
-                created_at=datetime.utcnow()
-            )
-            db.session.add(conversation)
-            db.session.commit()
-            
-            # Notificar a ambos usuarios
+        # //TODO LOGICA Si es match mutuo, notificar
+        if is_mutual:            
+            # Notificar a ambos usuarios del match
             NotificationService.notify_new_match(request.current_user_id, target_user_id)
         
         return jsonify({

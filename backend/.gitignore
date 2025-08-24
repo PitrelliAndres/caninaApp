@@ -1,0 +1,86 @@
+# ==========================================
+# 🎯 BACKEND (PYTHON/FLASK) - REGLAS ESPECÍFICAS
+# ==========================================
+# Solo reglas específicas de Python y Flask
+# Las reglas generales están en el .gitignore de la raíz
+
+# === PYTHON ESPECÍFICO ===
+*.py[cod]
+*$py.class
+*.so
+__pycache__/
+.Python
+build/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# === FLASK ESPECÍFICO ===
+instance/
+.webassets-cache
+.flaskenv
+
+# === VIRTUAL ENVIRONMENTS (Python) ===
+venv/
+env/
+ENV/
+.venv/
+.ENV/
+pipenv/
+.pipenv/
+
+# === PYTHON TESTING ===
+.pytest_cache/
+.tox/
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+htmlcov/
+
+# === PYTHON PROFILING ===
+.prof
+
+# === ALEMBIC/DATABASE MIGRATIONS ===
+migrations/versions/*
+!migrations/versions/.gitkeep
+alembic.ini.bak
+
+# === JUPYTER NOTEBOOK ===
+.ipynb_checkpoints/
+*.ipynb
+
+# === PYTHON PACKAGING ===
+.pypirc
+
+# === FLASK SESSION FILES ===
+flask_session/
+
+# === UWSGI ===
+uwsgi.ini
+uwsgi.log
+
+# === GUNICORN ===
+gunicorn.conf.py
+gunicorn.log
+
+# === CELERY ===
+celerybeat-schedule
+celerybeat.pid
+
+# === MYPY ===
+.mypy_cache/
+.dmypy.json
+dmypy.json

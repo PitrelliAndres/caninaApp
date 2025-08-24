@@ -6,7 +6,7 @@ from app.models.dog import Dog
 from app.models.park import Park
 from app.models.visit import Visit
 from app.models.match import Match
-from app.models.message import Message, Conversation
+from app.models.message import Message, Conversation, MessageRead, UserBlock
 from app.models.notification import Notification, NotificationPreference
 
 __all__ = [
@@ -19,6 +19,8 @@ __all__ = [
     'Match',
     'Message',
     'Conversation',
+    'MessageRead',
+    'UserBlock',
     'Notification',
     'NotificationPreference'
 ]

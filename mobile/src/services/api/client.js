@@ -1,7 +1,53 @@
 import * as SecureStore from 'expo-secure-store'
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5000/api'
-const WS_URL = process.env.EXPO_PUBLIC_WS_URL || 'http://localhost:5000'
+// Detectar plataforma y configurar URLs apropiadas
+const getBaseURL = () => {
+  // En desarrollo, detectar si estamos en emulador/simulator
+  const isDev = __DEV__
+  
+  if (isDev) {
+    // Para Android emulador: usar 10.0.2.2
+    // Para iOS simulator: usar localhost
+    // Para dispositivo físico: necesita IP real de la máquina host
+    const Platform = require('react-native').Platform
+    
+    if (Platform.OS === 'android') {
+      // Android: detectar si es emulador o dispositivo físico
+      const isEmulator = require('expo-device').isDevice === false
+      if (isEmulator) {
+        // Android emulator
+        return {
+          api: 'http://10.0.2.2:5000/api',
+          ws: 'http://10.0.2.2:5000'
+        }
+      } else {
+        // Android dispositivo físico - usar IP de la máquina host
+        return {
+          api: 'http://192.168.0.243:5000/api',
+          ws: 'http://192.168.0.243:5000'
+        }
+      }
+    } else if (Platform.OS === 'ios') {
+      // iOS simulator
+      return {
+        api: 'http://localhost:5000/api', 
+        ws: 'http://localhost:5000'
+      }
+    }
+  }
+  
+  // Fallback a variables de entorno o localhost
+  return {
+    api: process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5000/api',
+    ws: process.env.EXPO_PUBLIC_WS_URL || 'http://localhost:5000'
+  }
+}
+
+const { api: API_URL, ws: WS_URL } = getBaseURL()
+
+// Configuración de API móvil inicializada
+
+// Device details disponibles para debugging si es necesario
 
 class ApiClient {
   constructor() {
@@ -52,6 +98,10 @@ class ApiClient {
         if (data.tokens?.refresh_token) {
           await SecureStore.setItemAsync('refresh_token', data.tokens.refresh_token)
         }
+        // Store realtime token for WebSocket connections
+        if (data.tokens?.realtime_token) {
+          await SecureStore.setItemAsync('realtime_token', data.tokens.realtime_token)
+        }
         return data.jwt
       }
       
@@ -60,6 +110,7 @@ class ApiClient {
       // Si falla el refresh, limpiar tokens
       await SecureStore.deleteItemAsync('jwt_token')
       await SecureStore.deleteItemAsync('refresh_token')
+      await SecureStore.deleteItemAsync('realtime_token')
       throw error
     }
   }

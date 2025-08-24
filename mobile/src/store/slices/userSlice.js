@@ -14,6 +14,10 @@ export const loginWithGoogle = createAsyncThunk(
       if (response.tokens?.refresh_token) {
         await SecureStore.setItemAsync('refresh_token', response.tokens.refresh_token)
       }
+      // Store realtime token for WebSocket connections
+      if (response.tokens?.realtime_token) {
+        await SecureStore.setItemAsync('realtime_token', response.tokens.realtime_token)
+      }
     }
     return response
   }
@@ -54,6 +58,7 @@ export const userSlice = createSlice({
       // Limpiar tokens
       SecureStore.deleteItemAsync('jwt_token')
       SecureStore.deleteItemAsync('refresh_token')
+      SecureStore.deleteItemAsync('realtime_token')
     },
     clearError: (state) => {
       state.error = null

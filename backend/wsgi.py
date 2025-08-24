@@ -27,10 +27,6 @@ with app.app_context():
             from app.models import User
             if User.query.count() == 0:
                 print("Inicializando datos...")
-                from scripts.seed_data import seed_parks, seed_admin
-                seed_parks()
-                seed_admin()
-                print("✓ Datos iniciales creados")
         else:
             print("⚠ Las tablas no existen aún")
     except Exception as e:

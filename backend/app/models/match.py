@@ -59,13 +59,18 @@ class Match(db.Model):
             matched_user_id=user_id
         ).first()
         
+        conversation = None
         if reverse_match:
             match.is_mutual = True
             match.mutual_at = datetime.utcnow()
             reverse_match.is_mutual = True
             reverse_match.mutual_at = datetime.utcnow()
+            
+            # Create conversation automatically on mutual match
+            from app.models.message import Conversation
+            conversation = Conversation.get_or_create_conversation(user_id, matched_user_id)
         
         db.session.add(match)
         db.session.commit()
         
-        return match, match.is_mutual
+        return match, match.is_mutual, conversation

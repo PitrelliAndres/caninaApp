@@ -15,7 +15,6 @@ def websocket_rate_limit(events_per_minute: int = 30):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             from flask_socketio import session
-            
             user_id = session.get('user_id')
             if not user_id:
                 logger.warning("WebSocket event without valid user session")
@@ -50,7 +49,6 @@ def websocket_auth_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         from flask_socketio import session
-        
         user_id = session.get('user_id')
         if not user_id:
             correlation_id = generate_correlation_id()
@@ -74,7 +72,6 @@ def websocket_input_validation(required_fields: list = None):
         @wraps(f)
         def decorated_function(data, *args, **kwargs):
             from flask_socketio import session
-            
             user_id = session.get('user_id')
             correlation_id = generate_correlation_id()
             
@@ -116,7 +113,7 @@ def websocket_error_handler(f):
     """Error handling decorator for WebSocket events."""
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        from flask_socketio import session, emit
+        from flask_socketio import emit, session
         
         user_id = session.get('user_id')
         correlation_id = generate_correlation_id()

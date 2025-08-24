@@ -38,6 +38,7 @@ class ApiClient {
   clearTokens() {
     localStorage.removeItem('jwt_token')
     localStorage.removeItem('refresh_token')
+    localStorage.removeItem('realtime_token')
   }
 
   // Manejar cola de requests durante refresh
@@ -75,6 +76,10 @@ class ApiClient {
         localStorage.setItem('jwt_token', data.jwt)
         if (data.tokens?.refresh_token) {
           localStorage.setItem('refresh_token', data.tokens.refresh_token)
+        }
+        // Store realtime token for WebSocket connections
+        if (data.tokens?.realtime_token) {
+          localStorage.setItem('realtime_token', data.tokens.realtime_token)
         }
         return data.jwt
       }

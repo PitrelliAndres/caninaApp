@@ -19,7 +19,7 @@ pip install -r requirements.txt
 flask db init
 flask db migrate -m "Initial migration with notifications"
 flask db upgrade
-python scripts/seed_data.py
+# Scripts de seed removidos - sistema más funcional
 cd ..
 
 # Frontend

@@ -78,25 +78,80 @@ def validate_websocket_token(token: str) -> Optional[Dict[str, Any]]:
     """
     Validate WebSocket handshake token with strict security.
     As per CLAUDE.md: enforce WSS and short-lived JWTs for Socket.IO.
+    Expects 'realtime' token type with aud=realtime.
     """
     try:
-        payload = decode_token(token, 'access')
+        # Use custom decode for realtime tokens
+        is_production = getattr(current_app.config, 'IS_PRODUCTION', False) or os.environ.get('FLASK_ENV') == 'production'
+        is_dev = os.environ.get('FLASK_ENV', 'development') == 'development'
+        
+        options = {
+            'verify_signature': True,
+            'verify_exp': True,
+            'verify_nbf': True,
+            'verify_iat': True,
+            'verify_aud': is_production,  # Strict audience validation in PROD
+            'verify_iss': is_production,  # Strict issuer validation in PROD
+        }
+        
+        # Decode with realtime-specific audience
+        payload = jwt.decode(
+            token,
+            current_app.config['JWT_SECRET_KEY'],
+            algorithms=['HS256'],
+            options=options,
+            audience=os.environ.get('WS_AUDIENCE', 'realtime') if is_production else None,
+            issuer=os.environ.get('JWT_ISSUER', 'parkdog-api') if is_production else None
+        )
+        
+        # Must be realtime token type
+        if payload.get('type') != 'realtime':
+            logger.warning(f"WebSocket expects realtime token, got: {payload.get('type')}")
+            return None
         
         # Additional WebSocket-specific validations
         current_time = time.time()
         token_age = current_time - payload.get('iat', current_time)
         
-        # Use config-based token age limits
-        is_dev = getattr(current_app.config, 'IS_DEVELOPMENT', True)
-        max_age = 3600 if is_dev else 900  # 1 hour DEV, 15 min PROD
+        # Use environment-based token age limits
+        max_age_minutes = int(os.environ.get('WS_JWT_TTL_MIN', 60 if is_dev else 10))
+        max_age = max_age_minutes * 60
         if token_age > max_age:
-            logger.warning(f"WebSocket token too old: {token_age}s")
+            logger.warning(f"WebSocket token too old: {token_age}s (max: {max_age}s)")
             return None
+        
+        # Check user_id exists and is valid
+        user_id = payload.get('user_id')
+        if not user_id or not isinstance(user_id, int):
+            logger.warning("Invalid user_id in WebSocket token")
+            return None
+        
+        # Check token blacklist if enabled
+        if current_app.config.get('ENABLE_TOKEN_BLACKLIST', False):
+            jti = payload.get('jti')
+            if jti and is_token_blacklisted(jti):
+                logger.warning(f"Blacklisted WebSocket token attempted: {jti}")
+                return None
         
         return payload
         
+    except jwt.ExpiredSignatureError:
+        logger.warning("Expired WebSocket token attempted")
+        return None
+    except jwt.InvalidAudienceError:
+        logger.warning(f"Invalid audience in WebSocket token (expected: realtime)")
+        return None
+    except jwt.InvalidIssuerError:
+        logger.warning("Invalid issuer in WebSocket token")
+        return None
+    except jwt.ImmatureSignatureError:
+        logger.warning("WebSocket token used before nbf time")
+        return None
+    except jwt.InvalidTokenError as e:
+        logger.warning(f"Invalid WebSocket token: {str(e)}")
+        return None
     except Exception as e:
-        logger.warning(f"WebSocket token validation failed: {str(e)}")
+        logger.error(f"Unexpected error validating WebSocket token: {str(e)}")
         return None
 
 def is_token_blacklisted(jti: str) -> bool:
