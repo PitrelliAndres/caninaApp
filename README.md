@@ -170,7 +170,7 @@ Si ejecutaste los seeds, puedes usar estos usuarios demo:
 
 ### Frontend en Vercel
 
-1. Instalar Vercel CLI: `pnpm i -g vercel`
+1. Instalar Vercel CLI: `pnpm add -g vercel`
 2. En la carpeta frontend: `vercel`
 3. Seguir las instrucciones
 4. Configurar variables de entorno en Vercel Dashboard
@@ -259,7 +259,7 @@ createdb parkdog
 # Backend
 pip install -r requirements.txt
 
-# Frontend
+# Frontend  
 pnpm install
 ```
 

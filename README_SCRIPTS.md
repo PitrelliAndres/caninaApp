@@ -107,7 +107,7 @@ Agrega estas líneas al final de tu `CLAUDE.md`:
 
 ### Docker First Policy
 - ALWAYS use Docker containers instead of running services directly
-- NEVER run `npm run dev`, `python run.py`, or similar commands directly
+- NEVER run `pnpm dev`, `python run.py`, or similar commands directly
 - ALWAYS use `docker-compose up` for development
 - Use the provided scripts: `build-deploy.bat/sh` and `mobile-build.bat/sh`
 ```

@@ -50,9 +50,9 @@ if exist node_modules (
     echo node_modules encontrado
 ) else (
     echo Instalando dependencias...
-    call npm install --legacy-peer-deps
+    call pnpm install
 )
-start cmd /k "npm run dev"
+start cmd /k "pnpm dev"
 cd ..
 
 echo.

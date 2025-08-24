@@ -24,7 +24,7 @@ cd mobile
 case $COMMAND in
     "dev")
         echo "Starting Expo dev server..."
-        npm start
+        pnpm start
         ;;
     
     "android")
@@ -66,15 +66,15 @@ case $COMMAND in
     
     "install")
         echo "Installing dependencies..."
-        npm install
+        pnpm install
         echo "Installing EAS CLI..."
-        npm install -g @expo/cli eas-cli
+        pnpm add -g @expo/cli eas-cli
         ;;
     
     "clean")
         echo "Cleaning and reinstalling..."
         rm -rf node_modules package-lock.json
-        npm install
+        pnpm install
         echo "Clean completed!"
         ;;
     

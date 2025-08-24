@@ -33,7 +33,7 @@ exit /b 1
 
 :DEV
 echo Starting Expo dev server...
-npm start
+pnpm start
 goto END
 
 :ANDROID
@@ -70,9 +70,9 @@ goto END
 
 :INSTALL
 echo Installing dependencies...
-npm install
+pnpm install
 echo Installing EAS CLI...
-npm install -g @expo/cli eas-cli
+pnpm add -g @expo/cli eas-cli
 goto END
 
 :CLEAN
@@ -83,7 +83,7 @@ if exist node_modules (
 if exist package-lock.json (
     del package-lock.json
 )
-npm install
+pnpm install
 echo Clean completed!
 goto END
 

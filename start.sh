@@ -54,9 +54,9 @@ else
     echo -e "${BLUE}Iniciando Frontend...${NC}"
     cd frontend
     if [ ! -d "node_modules" ]; then
-        npm install
+        pnpm install
     fi
-    npm run dev &
+    pnpm dev &
     FRONTEND_PID=$!
     cd ..
     
