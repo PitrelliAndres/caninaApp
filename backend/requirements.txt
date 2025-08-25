@@ -31,8 +31,7 @@ marshmallow-sqlalchemy==0.29.0
 python-dateutil==2.8.2
 
 # Redis for Pub/Sub and caching
-# TODO: PRODUCTION - Install Redis: pip install redis==4.6.0
-# redis==4.6.0
+redis==5.0.1
 
 # ULID for message IDs
 python-ulid==3.0.0

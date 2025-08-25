@@ -39,34 +39,47 @@ def create_app(config_name=None):
          supports_credentials=True,
          allow_headers=['Content-Type', 'Authorization'])
     
-    # Inicializar SocketIO con configuración más permisiva para desarrollo
-    # Permitir conexiones desde dispositivos móviles en la red local
-    cors_origins = app.config['CORS_ORIGINS']
-    if app.debug:
-        # Development: include local network and mobile IPs
-        # TODO: Production - remove local IPs, use only CORS_ORIGINS from env
-        additional_origins = [
-            "http://localhost:3000",       # Frontend web
-            "http://192.168.0.243:8081",  # Mobile device
-            "http://10.0.2.2:8081",      # Android emulator
-            "http://localhost:8081"       # Local mobile dev
-        ]
-        if isinstance(cors_origins, list):
-            cors_origins = cors_origins + additional_origins
+    # Configurar SocketIO con Redis para escalabilidad
+    redis_url = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
+    
+    try:
+        import socketio as sio
+        
+        # Configurar Redis Manager para escalabilidad horizontal
+        if redis_url and 'redis://' in redis_url:
+            redis_parts = redis_url.replace('redis://', '').split(':')
+            redis_host = redis_parts[0] if redis_parts else 'redis'
+            redis_port = int(redis_parts[1].split('/')[0]) if len(redis_parts) > 1 else 6379
+            
+            redis_manager = sio.RedisManager(redis_host, redis_port)
+            
+            socketio.init_app(app, 
+                              client_manager=redis_manager,
+                              cors_allowed_origins="*",
+                              logger=True,
+                              engineio_logger=True,
+                              async_mode='threading',
+                              ping_timeout=20,        # Más agresivo para detectar desconexiones
+                              ping_interval=10,       # Heartbeat más frecuente
+                              max_http_buffer_size=4096,  # 4KB límite de mensaje
+                              compression=True)       # Comprimir mensajes automáticamente
+            app.logger.info(f"✅ Socket.IO optimizado con Redis en {redis_host}:{redis_port}")
         else:
-            cors_origins = cors_origins.split(',') + additional_origins
-    
-    # TODO: Production - use only cors_origins without "*"
-    # Development: allow connections from any origin for testing
-    socketio_cors_origins = cors_origins if not app.debug else "*"
-    
-    socketio.init_app(app, 
-                      cors_allowed_origins=socketio_cors_origins,
-                      logger=True,
-                      engineio_logger=True,
-                      async_mode='threading',
-                      ping_timeout=60,
-                      ping_interval=25)
+            raise Exception("Redis URL no válida")
+            
+    except Exception as e:
+        app.logger.warning(f"⚠️ Redis no disponible ({e}), usando configuración en memoria")
+        # Fallback sin Redis pero con optimizaciones
+        socketio.init_app(app, 
+                          cors_allowed_origins="*",
+                          logger=True,
+                          engineio_logger=True,
+                          async_mode='threading',
+                          ping_timeout=30,
+                          ping_interval=15,
+                          max_http_buffer_size=4096,
+                          compression=True)
+        app.logger.info("✅ Socket.IO optimizado en modo memoria")
     
     # Registrar blueprints
     from app.routes.auth import auth_bp

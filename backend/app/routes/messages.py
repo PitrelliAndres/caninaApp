@@ -921,3 +921,46 @@ def handle_dm_typing(data):
         'isTyping': is_typing,
         'timestamp': datetime.utcnow().isoformat()
     }, room=f'user_{other_user_id}')
+
+@socketio.on('dm:leave')
+def handle_dm_leave(data):
+    """Handle user leaving conversation - trigger push notifications"""
+    socket_id = request.sid
+    user_id = redis_client.get_socket_user(socket_id)
+    
+    try:
+        conversation_id = int(data['conversationId'])
+    except (ValueError, TypeError):
+        emit('error', {'code': 'INVALID_DATA', 'message': 'Invalid conversation ID'})
+        return
+    
+    # Verify conversation and access
+    conversation = Conversation.query.get(conversation_id)
+    if not conversation or conversation.is_deleted or not conversation.has_user(user_id):
+        return
+    
+    # Leave conversation room
+    leave_room(f'conversation_{conversation_id}')
+    leave_room(f'user_{user_id}')
+    
+    current_app.logger.info(f"User {user_id} left conversation {conversation_id}")
+    
+    # TODO: Enable push notifications for offline users
+    # When user leaves chat, any new messages should trigger push notifications
+    # until they return to the conversation
+    
+    # Mark user as "away from conversation" in Redis
+    redis_client.publish('user_left_conversation', {
+        'user_id': user_id,
+        'conversation_id': conversation_id,
+        'timestamp': datetime.utcnow().isoformat(),
+        'should_push_notify': True  # Flag for push notification service
+    })
+    
+    # Notify other user that this user left (for UI updates)
+    other_user_id = conversation.get_other_user_id(user_id)
+    emit('dm:user-left', {
+        'conversationId': conversation_id,
+        'userId': user_id,
+        'timestamp': datetime.utcnow().isoformat()
+    }, room=f'user_{other_user_id}')

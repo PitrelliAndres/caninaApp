@@ -18,6 +18,20 @@ services:
       timeout: 5s
       retries: 5
 
+  # Redis para Socket.IO y caché
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
   # Backend Flask
   backend:
     build:
@@ -35,8 +49,11 @@ services:
       - CORS_ORIGINS=http://localhost:3000,http://192.168.0.243:8081,http://localhost:8081
       - FRONTEND_URL=http://localhost:3000
       - BACKEND_URL=http://localhost:5000
+      - REDIS_URL=redis://redis:6379/0
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     volumes:
       - ./backend:/app
@@ -67,3 +84,4 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:

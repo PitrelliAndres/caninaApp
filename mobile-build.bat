@@ -38,12 +38,12 @@ goto END
 
 :ANDROID
 echo Building and running on Android...
-npx expo run:android
+pnpm run android
 goto END
 
 :IOS
 echo Building and running on iOS...
-npx expo run:ios
+pnpm run ios
 goto END
 
 :BUILD
@@ -65,7 +65,7 @@ goto END
 
 :PREBUILD
 echo Generating native code...
-npx expo prebuild --clean
+pnpm run prebuild --clean
 goto END
 
 :INSTALL
