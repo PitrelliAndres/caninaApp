@@ -57,7 +57,7 @@ pnpm build
 #### 1. Vercel (Recommended)
 ```bash
 # Install Vercel CLI
-npm install -g vercel
+pnpm add -g vercel
 
 # Deploy from frontend directory
 cd frontend
@@ -105,7 +105,7 @@ docker run -d \
 #### 1. Railway
 ```bash
 # Install Railway CLI
-npm install -g @railway/cli
+pnpm add -g @railway/cli
 
 # Login and deploy
 railway login
@@ -328,7 +328,7 @@ NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-production-client-id
 npx expo start --clear
 
 # Reset node_modules  
-rm -rf node_modules && npm install
+rm -rf node_modules && pnpm install
 
 # Check Android SDK setup
 npx expo doctor
