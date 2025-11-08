@@ -1,59 +1,111 @@
 import { apiClient } from './client'
+import { handleApiCall, handleFetch, handleCreate, handleUpdate, handleDelete } from '../../utils/apiErrorHandler'
 
 export const parkService = {
   async getParks(params = {}) {
-    return apiClient.get('/parks', params)
+    return handleFetch(
+      () => apiClient.get('/parks', params),
+      'parques'
+    )
   },
 
   async getPark(parkId) {
-    return apiClient.get(`/parks/${parkId}`)
+    return handleFetch(
+      () => apiClient.get(`/parks/${parkId}`),
+      'parque'
+    )
   },
 
   async searchParks(query, filters = {}) {
-    return apiClient.get('/parks/search', { q: query, ...filters })
+    return handleFetch(
+      () => apiClient.get('/parks/search', { q: query, ...filters }),
+      'parques'
+    )
   },
 
   async getNearbyParks(latitude, longitude, radius = 5000) {
-    return apiClient.get('/parks/nearby', {
-      lat: latitude,
-      lng: longitude,
-      radius
-    })
+    return handleFetch(
+      () => apiClient.get('/parks/nearby', {
+        lat: latitude,
+        lng: longitude,
+        radius
+      }),
+      'parques cercanos'
+    )
   },
 
   async getParkVisits(parkId) {
-    return apiClient.get(`/parks/${parkId}/visits`)
+    return handleFetch(
+      () => apiClient.get(`/parks/${parkId}/visits`),
+      'visitas del parque'
+    )
   },
 
   async getParkReviews(parkId) {
-    return apiClient.get(`/parks/${parkId}/reviews`)
+    return handleFetch(
+      () => apiClient.get(`/parks/${parkId}/reviews`),
+      'reseñas del parque'
+    )
   },
 
   async addParkReview(parkId, reviewData) {
-    return apiClient.post(`/parks/${parkId}/reviews`, reviewData)
+    return handleCreate(
+      () => apiClient.post(`/parks/${parkId}/reviews`, reviewData),
+      'reseña'
+    )
   },
 
   async updateParkReview(parkId, reviewId, reviewData) {
-    return apiClient.put(`/parks/${parkId}/reviews/${reviewId}`, reviewData)
+    return handleUpdate(
+      () => apiClient.put(`/parks/${parkId}/reviews/${reviewId}`, reviewData),
+      'reseña'
+    )
   },
 
   async deleteParkReview(parkId, reviewId) {
-    return apiClient.delete(`/parks/${parkId}/reviews/${reviewId}`)
+    return handleDelete(
+      () => apiClient.delete(`/parks/${parkId}/reviews/${reviewId}`),
+      'reseña'
+    )
   },
 
   async reportPark(parkId, reason) {
-    return apiClient.post(`/parks/${parkId}/report`, { reason })
+    return handleApiCall(
+      () => apiClient.post(`/parks/${parkId}/report`, { reason }),
+      {
+        errorTitle: 'Error al reportar parque',
+        successMessage: 'Parque reportado exitosamente',
+        showSuccessToast: true,
+      }
+    )
   },
 
   async favoritePark(parkId) {
-    return apiClient.post(`/parks/${parkId}/favorite`)
+    return handleApiCall(
+      () => apiClient.post(`/parks/${parkId}/favorite`),
+      {
+        errorTitle: 'Error al agregar favorito',
+        successMessage: 'Parque agregado a favoritos',
+        showSuccessToast: true,
+      }
+    )
   },
 
   async unfavoritePark(parkId) {
-    return apiClient.delete(`/parks/${parkId}/favorite`)
+    return handleApiCall(
+      () => apiClient.delete(`/parks/${parkId}/favorite`),
+      {
+        errorTitle: 'Error al quitar favorito',
+        successMessage: 'Parque removido de favoritos',
+        showSuccessToast: true,
+      }
+    )
   },
 
   async getFavoriteParks() {
-    return apiClient.get('/parks/favorites')
+    return handleFetch(
+      () => apiClient.get('/parks/favorites'),
+      'parques favoritos'
+    )
   }
 }

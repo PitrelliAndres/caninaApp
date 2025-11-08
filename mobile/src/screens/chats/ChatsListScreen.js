@@ -15,10 +15,11 @@ import {
 } from 'react-native-paper'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useTranslation } from 'react-i18next'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import Toast from 'react-native-toast-message'
 import { formatDistanceToNow } from 'date-fns'
-import { es, enUS } from 'date-fns/locale'
+import es from 'date-fns/locale/es'
+import enUS from 'date-fns/locale/en-US'
 
 import { messageService } from '../../services/api/messages'
 
@@ -83,18 +84,18 @@ export function ChatsListScreen({ navigation }) {
               {item.user.nickname}
             </Text>
             <Text variant="bodySmall" style={styles.time}>
-              {item.last_message_time ? 
-                formatDistanceToNow(new Date(item.last_message_time), { 
-                  addSuffix: true, 
-                  locale: dateLocale 
+              {item.last_message_time ?
+                formatDistanceToNow(new Date(item.last_message_time), {
+                  addSuffix: true,
+                  locale: dateLocale
                 }) : ''
               }
             </Text>
           </View>
 
           <View style={styles.messageRow}>
-            <Text 
-              variant="bodyMedium" 
+            <Text
+              variant="bodyMedium"
               style={styles.lastMessage}
               numberOfLines={1}
             >

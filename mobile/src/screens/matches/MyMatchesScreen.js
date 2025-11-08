@@ -110,12 +110,12 @@ export function MyMatchesScreen({ navigation }) {
   }
 
   const handleChatPress = (match) => {
-    navigation.navigate('ChatsTab', { 
-      screen: 'Chat', 
-      params: { 
+    navigation.navigate('ChatsTab', {
+      screen: 'Chat',
+      params: {
         user: match.user,
-        matchId: match.id 
-      } 
+        matchId: match.id
+      }
     })
   }
 
@@ -124,19 +124,19 @@ export function MyMatchesScreen({ navigation }) {
       <Card.Content style={styles.cardContent}>
         <View style={styles.matchInfo}>
           {item.user.avatar_url ? (
-            <Avatar.Image 
-              size={50} 
-              source={{ uri: item.user.avatar_url }} 
+            <Avatar.Image
+              size={50}
+              source={{ uri: item.user.avatar_url }}
               style={styles.avatar}
             />
           ) : (
-            <Avatar.Text 
-              size={50} 
-              label={item.user.name.charAt(0)} 
+            <Avatar.Text
+              size={50}
+              label={item.user.name.charAt(0)}
               style={styles.avatar}
             />
           )}
-          
+
           <View style={styles.textContainer}>
             <Text variant="titleMedium" style={styles.userName}>
               {item.user.name}, {item.user.age}
@@ -158,7 +158,7 @@ export function MyMatchesScreen({ navigation }) {
             )}
           </View>
         </View>
-        
+
         <View style={styles.buttonsContainer}>
           <Button
             mode="outlined"

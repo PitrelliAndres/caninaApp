@@ -13,25 +13,25 @@ export function HomeNavigator() {
 
   return (
     <Stack.Navigator>
-      <Stack.Screen 
-        name="Parks" 
+      <Stack.Screen
+        name="Parks"
         component={ParksScreen}
-        options={{ 
+        options={{
           title: t('parks.title'),
-          headerShown: false 
+          headerShown: false
         }}
       />
-      <Stack.Screen 
-        name="ParkDetail" 
+      <Stack.Screen
+        name="ParkDetail"
         component={ParkDetailScreen}
-        options={({ route }) => ({ 
+        options={({ route }) => ({
           title: route.params?.park?.name || t('parks.title')
         })}
       />
-      <Stack.Screen 
-        name="RegisterVisit" 
+      <Stack.Screen
+        name="RegisterVisit"
         component={RegisterVisitScreen}
-        options={{ 
+        options={{
           title: t('visits.registerTitle', { parkName: '' }),
           presentation: 'modal'
         }}

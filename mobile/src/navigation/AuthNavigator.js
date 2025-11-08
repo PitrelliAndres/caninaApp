@@ -11,3 +11,4 @@ export function AuthNavigator() {
     </Stack.Navigator>
   )
 }
+

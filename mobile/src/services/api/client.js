@@ -1,49 +1,8 @@
-import * as SecureStore from 'expo-secure-store'
+import Config from '../../config/Config'
+import { secureStorage } from '../storage/secureStorage'
 
-// Detectar plataforma y configurar URLs apropiadas
-const getBaseURL = () => {
-  // En desarrollo, detectar si estamos en emulador/simulator
-  const isDev = __DEV__
-  
-  if (isDev) {
-    // Para Android emulador: usar 10.0.2.2
-    // Para iOS simulator: usar localhost
-    // Para dispositivo físico: necesita IP real de la máquina host
-    const Platform = require('react-native').Platform
-    
-    if (Platform.OS === 'android') {
-      // Android: detectar si es emulador o dispositivo físico
-      const isEmulator = require('expo-device').isDevice === false
-      if (isEmulator) {
-        // Android emulator
-        return {
-          api: 'http://10.0.2.2:5000/api',
-          ws: 'http://10.0.2.2:5000'
-        }
-      } else {
-        // Android dispositivo físico - usar IP de la máquina host
-        return {
-          api: 'http://192.168.0.243:5000/api',
-          ws: 'http://192.168.0.243:5000'
-        }
-      }
-    } else if (Platform.OS === 'ios') {
-      // iOS simulator
-      return {
-        api: 'http://localhost:5000/api', 
-        ws: 'http://localhost:5000'
-      }
-    }
-  }
-  
-  // Fallback a variables de entorno o localhost
-  return {
-    api: process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5000/api',
-    ws: process.env.EXPO_PUBLIC_WS_URL || 'http://localhost:5000'
-  }
-}
-
-const { api: API_URL, ws: WS_URL } = getBaseURL()
+const API_URL = Config.API_URL
+const WS_URL = Config.WS_URL
 
 // Configuración de API móvil inicializada
 
@@ -58,7 +17,7 @@ class ApiClient {
   }
 
   async getAuthHeaders() {
-    const token = await SecureStore.getItemAsync('jwt_token')
+    const token = await secureStorage.getItemAsync('jwt_token')
     return token ? { 'Authorization': `Bearer ${token}` } : {}
   }
 
@@ -74,7 +33,7 @@ class ApiClient {
 
   async refreshAccessToken() {
     try {
-      const refreshToken = await SecureStore.getItemAsync('refresh_token')
+      const refreshToken = await secureStorage.getItemAsync('refresh_token')
       if (!refreshToken) {
         throw new Error('No refresh token available')
       }
@@ -92,25 +51,25 @@ class ApiClient {
       }
 
       const data = await response.json()
-      
+
       if (data.jwt) {
-        await SecureStore.setItemAsync('jwt_token', data.jwt)
+        await secureStorage.setItemAsync('jwt_token', data.jwt)
         if (data.tokens?.refresh_token) {
-          await SecureStore.setItemAsync('refresh_token', data.tokens.refresh_token)
+          await secureStorage.setItemAsync('refresh_token', data.tokens.refresh_token)
         }
         // Store realtime token for WebSocket connections
         if (data.tokens?.realtime_token) {
-          await SecureStore.setItemAsync('realtime_token', data.tokens.realtime_token)
+          await secureStorage.setItemAsync('realtime_token', data.tokens.realtime_token)
         }
         return data.jwt
       }
-      
+
       throw new Error('No token in refresh response')
     } catch (error) {
       // Si falla el refresh, limpiar tokens
-      await SecureStore.deleteItemAsync('jwt_token')
-      await SecureStore.deleteItemAsync('refresh_token')
-      await SecureStore.deleteItemAsync('realtime_token')
+      await secureStorage.deleteItemAsync('jwt_token')
+      await secureStorage.deleteItemAsync('refresh_token')
+      await secureStorage.deleteItemAsync('realtime_token')
       throw error
     }
   }
@@ -118,7 +77,13 @@ class ApiClient {
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`
     const authHeaders = await this.getAuthHeaders()
-    
+
+    // Log request
+    console.log(`[API] ${options.method || 'GET'} ${endpoint}`, {
+      headers: options.headers,
+      body: options.body ? JSON.parse(options.body) : undefined
+    })
+
     const makeRequest = async (token = null) => {
       const config = {
         ...options,
@@ -129,26 +94,43 @@ class ApiClient {
         },
       }
 
-      const response = await fetch(url, config)
-      
+      let response
+      try {
+        response = await fetch(url, config)
+      } catch (networkError) {
+        console.error(`[API] Network Error on ${endpoint}:`, networkError)
+        throw new Error('No se pudo conectar al servidor. Verifica tu conexión a internet.')
+      }
+
       // Manejar respuesta vacía
       if (response.status === 204 || response.headers.get('content-length') === '0') {
+        console.log(`[API] ${response.status} ${endpoint} - No content`)
         return { success: true }
       }
-      
+
       const text = await response.text()
-      const data = text ? JSON.parse(text) : {}
-      
+      let data
+      try {
+        data = text ? JSON.parse(text) : {}
+      } catch (parseError) {
+        console.error(`[API] Failed to parse response for ${endpoint}:`, text)
+        throw new Error('Respuesta inválida del servidor')
+      }
+
+      // Log response
+      console.log(`[API] ${response.status} ${endpoint}`, data)
+
       return { response, data }
     }
 
     try {
       const { response, data } = await makeRequest()
-      
+
       if (!response.ok) {
         // Token expirado, intentar refresh
         if (response.status === 401) {
-          const refreshToken = await SecureStore.getItemAsync('refresh_token')
+          console.log('[API] 401 Unauthorized - Attempting token refresh')
+          const refreshToken = await secureStorage.getItemAsync('refresh_token')
           if (refreshToken) {
             // Si ya estamos refreshing, esperar
             if (this.isRefreshing) {
@@ -157,7 +139,7 @@ class ApiClient {
                   makeRequest(token)
                     .then(({ response, data }) => {
                       if (!response.ok) {
-                        reject(new Error(data.error || `HTTP error! status: ${response.status}`))
+                        reject(new Error(data.error || data.message || `HTTP error! status: ${response.status}`))
                       } else {
                         resolve(data)
                       }
@@ -166,36 +148,58 @@ class ApiClient {
                 })
               })
             }
-            
+
             // Iniciar refresh
             this.isRefreshing = true
-            
+
             try {
               const newToken = await this.refreshAccessToken()
+              console.log('[API] Token refreshed successfully')
               this.isRefreshing = false
               this.onTokenRefreshed(newToken)
-              
+
               // Reintentar request original
               const { response: retryResponse, data: retryData } = await makeRequest(newToken)
-              
+
               if (!retryResponse.ok) {
-                throw new Error(retryData.error || `HTTP error! status: ${retryResponse.status}`)
+                throw new Error(retryData.error || retryData.message || `HTTP error! status: ${retryResponse.status}`)
               }
-              
+
               return retryData
             } catch (error) {
+              console.error('[API] Token refresh failed:', error)
               this.isRefreshing = false
               throw error
             }
           }
         }
-        
-        throw new Error(data.error || `HTTP error! status: ${response.status}`)
+
+        // Crear mensaje de error descriptivo basado en el código de estado
+        let errorMessage = data.error || data.message || `Error del servidor (${response.status})`
+
+        if (response.status === 400) {
+          errorMessage = data.error || 'Solicitud inválida'
+        } else if (response.status === 403) {
+          errorMessage = 'No tienes permisos para realizar esta acción'
+        } else if (response.status === 404) {
+          errorMessage = 'Recurso no encontrado'
+        } else if (response.status === 500) {
+          errorMessage = 'Error interno del servidor'
+        }
+
+        const error = new Error(errorMessage)
+        error.status = response.status
+        error.data = data
+        throw error
       }
-      
+
       return data
     } catch (error) {
-      console.error('API Error:', error)
+      console.error(`[API] Error on ${endpoint}:`, {
+        message: error.message,
+        status: error.status,
+        data: error.data
+      })
       throw error
     }
   }

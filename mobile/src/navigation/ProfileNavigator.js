@@ -14,32 +14,32 @@ export function ProfileNavigator() {
 
   return (
     <Stack.Navigator>
-      <Stack.Screen 
-        name="Profile" 
+      <Stack.Screen
+        name="Profile"
         component={ProfileScreen}
-        options={{ 
+        options={{
           title: t('profile.title'),
           headerShown: false
         }}
       />
-      <Stack.Screen 
-        name="EditProfile" 
+      <Stack.Screen
+        name="EditProfile"
         component={EditProfileScreen}
-        options={{ 
+        options={{
           title: t('profile.editProfile')
         }}
       />
-      <Stack.Screen 
-        name="PrivacySettings" 
+      <Stack.Screen
+        name="PrivacySettings"
         component={PrivacySettingsScreen}
-        options={{ 
+        options={{
           title: t('profile.privacySettings')
         }}
       />
-      <Stack.Screen 
-        name="AdminPanel" 
+      <Stack.Screen
+        name="AdminPanel"
         component={AdminPanelScreen}
-        options={{ 
+        options={{
           title: t('admin.title')
         }}
       />

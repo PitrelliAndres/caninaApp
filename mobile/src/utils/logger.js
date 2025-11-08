@@ -9,7 +9,7 @@ class MobileLogger {
 
   static logError(error, context = {}, component = 'Unknown') {
     const errorId = this.generateId()
-    
+
     const errorData = {
       errorId,
       timestamp: new Date().toISOString(),
@@ -104,7 +104,7 @@ class MobileLogger {
     }
 
     const statusEmoji = statusCode >= 400 ? '🔴' : statusCode >= 300 ? '🟡' : '🟢'
-    
+
     console.group(`${statusEmoji} Mobile API ${method} ${url} (${statusCode})`)
     console.log('Request Data:', context)
     console.groupEnd()
@@ -138,7 +138,7 @@ export function withErrorLogging(fn, context = {}, component = 'Unknown') {
         ...context,
         functionArgs: args
       }, component)
-      
+
       // Re-throw with error ID
       error.errorId = errorId
       throw error
@@ -151,7 +151,7 @@ export function withApiErrorLogging(apiCall, context = {}, component = 'API') {
   return withErrorLogging(apiCall, context, component)
 }
 
-// WebSocket event wrapper  
+// WebSocket event wrapper
 export function withWebSocketErrorLogging(handler, context = {}, component = 'WebSocket') {
   return (data) => {
     try {

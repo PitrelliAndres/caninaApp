@@ -18,6 +18,7 @@ import { useTranslation } from 'react-i18next'
 import { useDispatch } from 'react-redux'
 import { GoogleSignin } from '@react-native-google-signin/google-signin'
 import Toast from 'react-native-toast-message'
+import Config from '../../config/Config'
 
 import { loginWithGoogle } from '../../store/slices/userSlice'
 import { PawIcon } from '../../components/icons/PawIcon'
@@ -27,8 +28,10 @@ const { width } = Dimensions.get('window')
 
 // Configurar Google Sign In
 GoogleSignin.configure({
-  webClientId: '301209986798-fuk4h414g85ljkaho0b4hgn6qgb4o16p.apps.googleusercontent.com',
+  webClientId: Config.GOOGLE_WEB_CLIENT_ID,
   offlineAccess: true,
+  scopes: ['profile', 'email'],
+  forceCodeForRefreshToken: true,
 })
 
 export function LoginScreen({ navigation }) {
@@ -47,30 +50,31 @@ export function LoginScreen({ navigation }) {
   const handleGoogleLogin = async () => {
     try {
       setLoading(true)
-      
+
       // Verificar servicios de Google Play
       await GoogleSignin.hasPlayServices()
-      
+
       // Realizar login
       const userInfo = await GoogleSignin.signIn()
-      console.log('Google Sign-In successful:', userInfo)
-      
-      // Verificar que tenemos la información necesaria
-      if (!userInfo?.data?.idToken && !userInfo?.data?.accessToken) {
+      console.log('Google Sign-In successful:', JSON.stringify(userInfo, null, 2))
+
+      // En @react-native-google-signin/google-signin v16+, el token está en data.idToken
+      const googleToken = userInfo?.data?.idToken || userInfo?.idToken
+      console.log('Token structure:', {
+        hasData: !!userInfo?.data,
+        hasIdToken: !!userInfo?.idToken,
+        hasDataIdToken: !!userInfo?.data?.idToken,
+        tokenAvailable: !!googleToken
+      })
+
+      if (!googleToken) {
+        console.error('Token not found in userInfo:', JSON.stringify(userInfo, null, 2))
         throw new Error('No se pudo obtener el token de Google')
       }
-      
-      // Usar el token que esté disponible (idToken es preferido para autenticación)
-      const googleToken = userInfo.data.idToken || userInfo.data.accessToken
-      console.log('Using Google token:', googleToken ? 'Token available' : 'No token')
-      
-      if (!googleToken) {
-        throw new Error('Google token required')
-      }
-      
+
       // Enviar al backend
       const result = await dispatch(loginWithGoogle(googleToken)).unwrap()
-      
+
       if (result.user.onboarded) {
         navigation.replace('Main')
       } else {
@@ -78,6 +82,17 @@ export function LoginScreen({ navigation }) {
       }
     } catch (error) {
       console.error('Login error:', error)
+
+      // Manejar cancelación del usuario
+      if (error.code === 'SIGN_IN_CANCELLED') {
+        Toast.show({
+          type: 'info',
+          text1: t('auth.loginCancelled'),
+          text2: t('auth.tryAgain'),
+        })
+        return
+      }
+
       Toast.show({
         type: 'error',
         text1: t('auth.loginError'),

@@ -1,6 +1,10 @@
-// mobile/src/components/parks/ParkFilterModal.js
-import React, { useState, useEffect } from 'react'
-import { View, StyleSheet } from 'react-native'
+/**
+ * ParkFilterModal Component
+ * Pure React Native implementation
+ */
+
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet } from 'react-native';
 import {
   Modal,
   Portal,
@@ -10,22 +14,22 @@ import {
   Switch,
   Divider,
   useTheme,
-} from 'react-native-paper'
-import { useTranslation } from 'react-i18next'
+} from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 
 export function ParkFilterModal({ visible, onDismiss, filters, onApplyFilters }) {
-  const { t } = useTranslation()
-  const theme = useTheme()
-  
-  const [localFilters, setLocalFilters] = useState(filters)
+  const { t } = useTranslation();
+  const theme = useTheme();
+
+  const [localFilters, setLocalFilters] = useState(filters);
 
   useEffect(() => {
-    setLocalFilters(filters)
-  }, [filters])
+    setLocalFilters(filters);
+  }, [filters]);
 
   const handleApply = () => {
-    onApplyFilters(localFilters)
-  }
+    onApplyFilters(localFilters);
+  };
 
   const handleReset = () => {
     const resetFilters = {
@@ -33,31 +37,34 @@ export function ParkFilterModal({ visible, onDismiss, filters, onApplyFilters })
       hasArea: false,
       isFenced: false,
       hasWater: false,
-    }
-    setLocalFilters(resetFilters)
-  }
+    };
+    setLocalFilters(resetFilters);
+  };
 
   const toggleFilter = (key) => {
-    setLocalFilters(prev => ({
+    setLocalFilters((prev) => ({
       ...prev,
-      [key]: !prev[key]
-    }))
-  }
+      [key]: !prev[key],
+    }));
+  };
 
   return (
     <Portal>
       <Modal
         visible={visible}
         onDismiss={onDismiss}
-        contentContainerStyle={[styles.modal, { backgroundColor: theme.colors.surface }]}
+        contentContainerStyle={[
+          styles.modal,
+          { backgroundColor: theme.colors.surface },
+        ]}
       >
         <Surface style={styles.surface} elevation={4}>
           <Text variant="headlineSmall" style={styles.title}>
             {t('parks.filters.title', 'Filtros')}
           </Text>
-          
+
           <Divider style={styles.divider} />
-          
+
           <View style={styles.filterSection}>
             <View style={styles.filterRow}>
               <Text variant="bodyLarge">
@@ -68,7 +75,7 @@ export function ParkFilterModal({ visible, onDismiss, filters, onApplyFilters })
                 onValueChange={() => toggleFilter('hasArea')}
               />
             </View>
-            
+
             <View style={styles.filterRow}>
               <Text variant="bodyLarge">
                 {t('parks.filters.isFenced', 'Cercado')}
@@ -78,7 +85,7 @@ export function ParkFilterModal({ visible, onDismiss, filters, onApplyFilters })
                 onValueChange={() => toggleFilter('isFenced')}
               />
             </View>
-            
+
             <View style={styles.filterRow}>
               <Text variant="bodyLarge">
                 {t('parks.filters.hasWater', 'Fuente de agua')}
@@ -89,9 +96,9 @@ export function ParkFilterModal({ visible, onDismiss, filters, onApplyFilters })
               />
             </View>
           </View>
-          
+
           <Divider style={styles.divider} />
-          
+
           <View style={styles.buttonRow}>
             <Button
               mode="outlined"
@@ -100,7 +107,7 @@ export function ParkFilterModal({ visible, onDismiss, filters, onApplyFilters })
             >
               {t('common.reset', 'Limpiar')}
             </Button>
-            
+
             <Button
               mode="contained"
               onPress={handleApply}
@@ -112,7 +119,7 @@ export function ParkFilterModal({ visible, onDismiss, filters, onApplyFilters })
         </Surface>
       </Modal>
     </Portal>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -149,4 +156,4 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 4,
   },
-})
+});

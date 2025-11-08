@@ -12,18 +12,18 @@ export function VisitsNavigator() {
 
   return (
     <Stack.Navigator>
-      <Stack.Screen 
-        name="MyVisits" 
+      <Stack.Screen
+        name="MyVisits"
         component={MyVisitsScreen}
-        options={{ 
+        options={{
           title: t('visits.myVisits'),
           headerShown: false
         }}
       />
-      <Stack.Screen 
-        name="VisitDetail" 
+      <Stack.Screen
+        name="VisitDetail"
         component={VisitDetailScreen}
-        options={{ 
+        options={{
           title: t('visits.myVisits')
         }}
       />

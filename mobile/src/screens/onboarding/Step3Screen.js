@@ -77,19 +77,17 @@ export function Step3Screen({ navigation, route }) {
       })
       
       // Actualizar estado del usuario
-      await dispatch(fetchCurrentUser())
-      
+      await dispatch(fetchCurrentUser()).unwrap()
+
       Toast.show({
         type: 'success',
-        text1: t('auth.loginTitle'),
-        text2: t('profile.updateSuccess'),
+        text1: t('onboarding.complete'),
+        text2: t('onboarding.welcomeMessage'),
       })
-      
-      // Navegar a la app principal
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Main' }],
-      })
+
+      // No necesitamos navegar manualmente
+      // AppNavigator detectará que user.onboarded === true
+      // y automáticamente mostrará MainNavigator
     } catch (error) {
       Toast.show({
         type: 'error',

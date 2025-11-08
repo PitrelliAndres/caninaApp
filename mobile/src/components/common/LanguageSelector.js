@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { View, StyleSheet } from 'react-native'
 import { Menu, IconButton, useTheme } from 'react-native-paper'
 import { useTranslation } from 'react-i18next'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 
 export function LanguageSelector() {
   const { i18n } = useTranslation()

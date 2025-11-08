@@ -1,217 +1,97 @@
-# ParkDog Mobile App
+This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
-React Native app for ParkDog - connecting dog owners through park visits.
+# Getting Started
 
-## Setup Instructions
+> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
 
-### Prerequisites
+## Step 1: Start Metro
 
-1. **Node.js** (v18+)
-2. **Android Studio** with:
-   - Android SDK 35
-   - Android Build Tools 35.0.0
-   - Android Emulator or physical device
-3. **Java JDK 17** (for Android builds)
+First, you will need to run **Metro**, the JavaScript build tool for React Native.
 
-### Installation
+To start the Metro dev server, run the following command from the root of your React Native project:
 
-```bash
-cd mobile
-npm install
-```
-
-### Environment Variables
-
-Copy `.env.example` to `.env` and configure:
-
-```bash
-EXPO_PUBLIC_API_URL=http://10.0.2.2:5000/api  # For Android emulator
-EXPO_PUBLIC_WS_URL=http://10.0.2.2:5000       # For Android emulator
-EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=your-web-client-id
-```
-
-Note: Use `10.0.2.2` instead of `localhost` for Android emulator.
-
-### Running the App
-
-#### Development Mode
-
-```bash
-# Start Metro bundler
+```sh
+# Using npm
 npm start
 
-# Run on Android emulator
-npm run android
-
-# Run on iOS simulator (Mac only)
-npm run ios
+# OR using Yarn
+yarn start
 ```
 
-#### Using Android Studio
+## Step 2: Build and run your app
 
-1. Open Android Studio
-2. Open the `android` folder in the project
-3. Wait for Gradle sync to complete
-4. Click "Run" button or press Shift+F10
-
-#### Building APK
-
-```bash
-# Debug APK
-cd android
-./gradlew assembleDebug
-
-# The APK will be in: android/app/build/outputs/apk/debug/app-debug.apk
-```
-
-#### Installing on Device
-
-```bash
-# Connect device via USB with debugging enabled
-adb devices  # Verify device is connected
-adb install android/app/build/outputs/apk/debug/app-debug.apk
-```
-
-### Troubleshooting
-
-#### Build Errors
-
-1. **Clean and rebuild:**
-```bash
-cd android
-./gradlew clean
-cd ..
-npx expo prebuild --clean
-```
-
-2. **Reset Metro cache:**
-```bash
-npx expo start -c
-```
-
-3. **Clear all caches:**
-```bash
-cd android
-./gradlew clean
-cd ..
-rm -rf node_modules
-npm install
-npx expo prebuild --clean
-```
-
-#### Android Studio Issues
-
-1. **Gradle sync failed:**
-   - File → Invalidate Caches and Restart
-   - Build → Clean Project
-   - Build → Rebuild Project
-
-2. **SDK not found:**
-   - File → Project Structure → SDK Location
-   - Set Android SDK path
-
-3. **Emulator not starting:**
-   - AVD Manager → Create new virtual device
-   - Choose device with Google Play Services
-
-#### Environment Variables Not Loading
-
-Ensure you're using `EXPO_PUBLIC_` prefix for client-side variables:
-```javascript
-process.env.EXPO_PUBLIC_API_URL  // ✅ Correct
-process.env.API_URL              // ❌ Won't work
-```
-
-### Features Implemented
-
-- ✅ Google Authentication
-- ✅ User profiles and onboarding
-- ✅ Park discovery and search
-- ✅ Visit scheduling
-- ✅ Matching system
-- ✅ Real-time chat
-- ✅ Push notifications setup
-- ✅ Internationalization (ES/EN)
-- ✅ Dark mode support
-- ✅ Offline mode with Redux persist
-
-### API Services
-
-All API services are in `src/services/api/`:
-- `auth.js` - Authentication
-- `users.js` - User management
-- `parks.js` - Park operations
-- `visits.js` - Visit scheduling
-- `matches.js` - Matching system
-- `messages.js` - Chat messaging
-
-### State Management
-
-Redux Toolkit with slices:
-- `userSlice` - Authentication and user state
-- `chatSlice` - Chat messages and rooms
-
-### Navigation Structure
-
-```
-AppNavigator
-├── AuthNavigator (not logged in)
-│   └── LoginScreen
-├── OnboardingNavigator (new users)
-│   ├── Step1Screen
-│   ├── Step2Screen
-│   └── Step3Screen
-└── MainNavigator (authenticated)
-    ├── HomeNavigator
-    ├── VisitsNavigator
-    ├── MatchesNavigator
-    ├── ChatsNavigator
-    └── ProfileNavigator
-```
-
-## Production Build
+With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
 
 ### Android
 
-1. **Generate release keystore:**
-```bash
-keytool -genkeypair -v -keystore release.keystore -alias parkdog -keyalg RSA -keysize 2048 -validity 10000
+```sh
+# Using npm
+npm run android
+
+# OR using Yarn
+yarn android
 ```
 
-2. **Configure signing in `android/app/build.gradle`**
+### iOS
 
-3. **Build release APK:**
-```bash
-cd android
-./gradlew assembleRelease
+For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+
+The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+
+```sh
+bundle install
 ```
 
-### Using EAS Build
+Then, and every time you update your native dependencies, run:
 
-```bash
-# Install EAS CLI
-npm install -g eas-cli
-
-# Login to Expo account
-eas login
-
-# Build for Android
-eas build --platform android
-
-# Build for iOS
-eas build --platform ios
+```sh
+bundle exec pod install
 ```
 
-## Testing
+For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
 
-```bash
-# Run tests
-npm test
+```sh
+# Using npm
+npm run ios
 
-# Run with coverage
-npm test -- --coverage
+# OR using Yarn
+yarn ios
 ```
 
-## License
+If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
 
-MIT
+This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+
+## Step 3: Modify your app
+
+Now that you have successfully run the app, let's make changes!
+
+Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+
+When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+
+- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
+- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+
+## Congratulations! :tada:
+
+You've successfully run and modified your React Native App. :partying_face:
+
+### Now what?
+
+- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
+- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+
+# Troubleshooting
+
+If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+
+# Learn More
+
+To learn more about React Native, take a look at the following resources:
+
+- [React Native Website](https://reactnative.dev) - learn more about React Native.
+- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
+- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
+- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
+- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.

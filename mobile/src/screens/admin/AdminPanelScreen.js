@@ -115,7 +115,7 @@ export function AdminPanelScreen({ navigation }) {
             <Text variant="titleMedium" style={styles.sectionTitle}>
               {t('admin.systemOverview')}
             </Text>
-            
+
             <View style={styles.statsGrid}>
               <View style={styles.statItem}>
                 <Text variant="headlineSmall" style={styles.statNumber}>
@@ -125,7 +125,7 @@ export function AdminPanelScreen({ navigation }) {
                   {t('admin.totalUsers')}
                 </Text>
               </View>
-              
+
               <View style={styles.statItem}>
                 <Text variant="headlineSmall" style={styles.statNumber}>
                   {stats.activeUsers}
@@ -134,7 +134,7 @@ export function AdminPanelScreen({ navigation }) {
                   {t('admin.activeUsers')}
                 </Text>
               </View>
-              
+
               <View style={styles.statItem}>
                 <Text variant="headlineSmall" style={styles.statNumber}>
                   {stats.totalParks}
@@ -143,7 +143,7 @@ export function AdminPanelScreen({ navigation }) {
                   {t('admin.totalParks')}
                 </Text>
               </View>
-              
+
               <View style={styles.statItem}>
                 <Text variant="headlineSmall" style={styles.statNumber}>
                   {stats.totalVisits}
@@ -152,7 +152,7 @@ export function AdminPanelScreen({ navigation }) {
                   {t('admin.totalVisits')}
                 </Text>
               </View>
-              
+
               <View style={styles.statItem}>
                 <Text variant="headlineSmall" style={styles.statNumber}>
                   {stats.totalMatches}
@@ -161,7 +161,7 @@ export function AdminPanelScreen({ navigation }) {
                   {t('admin.totalMatches')}
                 </Text>
               </View>
-              
+
               <View style={styles.statItem}>
                 <View style={styles.statWithBadge}>
                   <Text variant="headlineSmall" style={[styles.statNumber, { color: theme.colors.error }]}>
@@ -185,7 +185,7 @@ export function AdminPanelScreen({ navigation }) {
             <Text variant="titleMedium" style={styles.sectionTitle}>
               {t('admin.management')}
             </Text>
-            
+
             <List.Item
               title={t('admin.userManagement')}
               description={t('admin.userManagementDescription')}
@@ -193,7 +193,7 @@ export function AdminPanelScreen({ navigation }) {
               right={props => <List.Icon {...props} icon="chevron-right" />}
               onPress={handleUserManagement}
             />
-            
+
             <List.Item
               title={t('admin.parkManagement')}
               description={t('admin.parkManagementDescription')}
@@ -201,7 +201,7 @@ export function AdminPanelScreen({ navigation }) {
               right={props => <List.Icon {...props} icon="chevron-right" />}
               onPress={handleParkManagement}
             />
-            
+
             <List.Item
               title={t('admin.reportManagement')}
               description={t('admin.reportManagementDescription')}
@@ -225,7 +225,7 @@ export function AdminPanelScreen({ navigation }) {
             <Text variant="titleMedium" style={styles.sectionTitle}>
               {t('admin.system')}
             </Text>
-            
+
             <List.Item
               title={t('admin.analytics')}
               description={t('admin.analyticsDescription')}
@@ -233,7 +233,7 @@ export function AdminPanelScreen({ navigation }) {
               right={props => <List.Icon {...props} icon="chevron-right" />}
               onPress={handleAnalytics}
             />
-            
+
             <List.Item
               title={t('admin.systemSettings')}
               description={t('admin.systemSettingsDescription')}
@@ -241,7 +241,7 @@ export function AdminPanelScreen({ navigation }) {
               right={props => <List.Icon {...props} icon="chevron-right" />}
               onPress={handleSystemSettings}
             />
-            
+
             <List.Item
               title={t('admin.backup')}
               description={t('admin.backupDescription')}
@@ -263,7 +263,7 @@ export function AdminPanelScreen({ navigation }) {
           >
             {t('admin.refreshStats')}
           </Button>
-          
+
           <Button
             mode="outlined"
             onPress={() => navigation.goBack()}

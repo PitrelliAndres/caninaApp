@@ -1,63 +1,132 @@
 import { apiClient } from './client'
+import { handleApiCall, handleFetch, handleUpdate, handleDelete } from '../../utils/apiErrorHandler'
 
 export const matchService = {
   async getMatches(params = {}) {
-    return apiClient.get('/matches', params)
+    return handleFetch(
+      () => apiClient.get('/matches', params),
+      'matches'
+    )
   },
 
   async getMatch(matchId) {
-    return apiClient.get(`/matches/${matchId}`)
+    return handleFetch(
+      () => apiClient.get(`/matches/${matchId}`),
+      'match'
+    )
   },
 
   async getPotentialMatches() {
-    return apiClient.get('/matches/discover')
+    return handleFetch(
+      () => apiClient.get('/matches/discover'),
+      'matches sugeridos'
+    )
   },
 
   async likeUser(userId) {
-    return apiClient.post('/matches/like', { user_id: userId })
+    return handleApiCall(
+      () => apiClient.post('/matches/like', { user_id: userId }),
+      {
+        errorTitle: 'Error al dar like',
+        successMessage: '¡Match enviado!',
+        showSuccessToast: true,
+      }
+    )
   },
 
   async passUser(userId) {
-    return apiClient.post('/matches/pass', { user_id: userId })
+    return handleApiCall(
+      () => apiClient.post('/matches/pass', { user_id: userId }),
+      {
+        errorTitle: 'Error al pasar',
+        showSuccessToast: false,
+      }
+    )
   },
 
   async unmatch(matchId) {
-    return apiClient.delete(`/matches/${matchId}`)
+    return handleDelete(
+      () => apiClient.delete(`/matches/${matchId}`),
+      'match'
+    )
   },
 
   async getMatchRequests() {
-    return apiClient.get('/matches/requests')
+    return handleFetch(
+      () => apiClient.get('/matches/requests'),
+      'solicitudes de match'
+    )
   },
 
   async acceptMatchRequest(requestId) {
-    return apiClient.post(`/matches/requests/${requestId}/accept`)
+    return handleApiCall(
+      () => apiClient.post(`/matches/requests/${requestId}/accept`),
+      {
+        errorTitle: 'Error al aceptar solicitud',
+        successMessage: '¡Match aceptado!',
+        showSuccessToast: true,
+      }
+    )
   },
 
   async rejectMatchRequest(requestId) {
-    return apiClient.post(`/matches/requests/${requestId}/reject`)
+    return handleApiCall(
+      () => apiClient.post(`/matches/requests/${requestId}/reject`),
+      {
+        errorTitle: 'Error al rechazar solicitud',
+        successMessage: 'Solicitud rechazada',
+        showSuccessToast: true,
+      }
+    )
   },
 
   async getMatchHistory() {
-    return apiClient.get('/matches/history')
+    return handleFetch(
+      () => apiClient.get('/matches/history'),
+      'historial de matches'
+    )
   },
 
   async reportMatch(matchId, reason) {
-    return apiClient.post(`/matches/${matchId}/report`, { reason })
+    return handleApiCall(
+      () => apiClient.post(`/matches/${matchId}/report`, { reason }),
+      {
+        errorTitle: 'Error al reportar',
+        successMessage: 'Match reportado exitosamente',
+        showSuccessToast: true,
+      }
+    )
   },
 
   async getMatchPreferences() {
-    return apiClient.get('/matches/preferences')
+    return handleFetch(
+      () => apiClient.get('/matches/preferences'),
+      'preferencias de match'
+    )
   },
 
   async updateMatchPreferences(preferences) {
-    return apiClient.put('/matches/preferences', preferences)
+    return handleUpdate(
+      () => apiClient.put('/matches/preferences', preferences),
+      'preferencias'
+    )
   },
 
   async getSuggestedMatches() {
-    return apiClient.get('/matches/suggestions')
+    return handleFetch(
+      () => apiClient.get('/matches/suggestions'),
+      'sugerencias'
+    )
   },
 
   async createMatch(userId, action) {
-    return apiClient.post('/matches', { user_id: userId, action })
+    return handleApiCall(
+      () => apiClient.post('/matches', { user_id: userId, action }),
+      {
+        errorTitle: 'Error al crear match',
+        successMessage: 'Match creado',
+        showSuccessToast: true,
+      }
+    )
   }
 }

@@ -1,61 +1,83 @@
-import { useState, useEffect } from 'react'
-import * as Location from 'expo-location'
-import { useTranslation } from 'react-i18next'
-import Toast from 'react-native-toast-message'
+/**
+ * useLocation Hook
+ * Pure React Native implementation using locationService
+ * Replaces expo-location
+ */
+
+import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import Toast from 'react-native-toast-message';
+import locationService from '../services/location/locationService';
 
 export function useLocation() {
-  const { t } = useTranslation()
-  const [location, setLocation] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const { t } = useTranslation();
+  const [location, setLocation] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const requestPermission = async () => {
     try {
-      setLoading(true)
-      setError(null)
-      
-      const { status } = await Location.requestForegroundPermissionsAsync()
-      
-      if (status !== 'granted') {
-        setError(t('permissions.location.message'))
+      setLoading(true);
+      setError(null);
+
+      const granted = await locationService.requestLocationPermission();
+
+      if (!granted) {
+        const errorMsg = t('permissions.location.message');
+        setError(errorMsg);
         Toast.show({
           type: 'info',
           text1: t('permissions.location.title'),
-          text2: t('permissions.location.message'),
-        })
-        return false
+          text2: errorMsg,
+        });
+        return false;
       }
 
-      const currentLocation = await Location.getCurrentPositionAsync({})
+      const currentLocation = await locationService.getCurrentPosition();
       setLocation({
-        latitude: currentLocation.coords.latitude,
-        longitude: currentLocation.coords.longitude,
-      })
-      
-      return true
+        latitude: currentLocation.latitude,
+        longitude: currentLocation.longitude,
+      });
+
+      return true;
     } catch (error) {
-      setError(error.message)
+      setError(error.message);
       Toast.show({
         type: 'error',
         text1: t('errors.generic'),
         text2: error.message,
-      })
-      return false
+      });
+      return false;
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const watchLocation = (callback) => {
-    return Location.watchPositionAsync(
-      {
-        accuracy: Location.Accuracy.Balanced,
-        timeInterval: 10000,
-        distanceInterval: 10,
+    return locationService.watchPosition(
+      (position) => {
+        callback({
+          coords: {
+            latitude: position.latitude,
+            longitude: position.longitude,
+            accuracy: position.accuracy,
+            altitude: position.altitude,
+            heading: position.heading,
+            speed: position.speed,
+          },
+          timestamp: position.timestamp,
+        });
       },
-      callback
-    )
-  }
+      (error) => {
+        setError(error.message);
+      },
+      {
+        enableHighAccuracy: true,
+        distanceFilter: 10, // meters
+        interval: 10000, // ms
+      }
+    );
+  };
 
   return {
     location,
@@ -63,5 +85,5 @@ export function useLocation() {
     error,
     requestPermission,
     watchLocation,
-  }
+  };
 }

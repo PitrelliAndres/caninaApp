@@ -207,7 +207,10 @@ def step3_preferences():
                 preferred_age_max=min(user.age + 10, 100) if user.age else 100
             )
             db.session.add(preferences)
-            
+
+            # 5. Marcar usuario como onboarded
+            user.onboarded = True
+
             # Commit todo
             db.session.commit()
             
@@ -263,7 +266,10 @@ def skip_onboarding():
             preferred_age_max=99
         )
         db.session.add(preferences)
-        
+
+        # Marcar como onboarded
+        user.onboarded = True
+
         db.session.commit()
         
         return jsonify({

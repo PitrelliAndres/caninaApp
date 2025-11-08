@@ -1,31 +1,36 @@
-import React, { useState } from 'react'
+/**
+ * ParkDetailScreen
+ * Pure React Native implementation with react-native-maps
+ */
+
+import React, { useState } from 'react';
 import {
   View,
   StyleSheet,
   ScrollView,
   Dimensions,
-} from 'react-native'
+} from 'react-native';
 import {
   Text,
   Card,
   Button,
   Chip,
   useTheme,
-} from 'react-native-paper'
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { useTranslation } from 'react-i18next'
+} from 'react-native-paper';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 
-const { width } = Dimensions.get('window')
+const { width } = Dimensions.get('window');
 
 export function ParkDetailScreen({ route, navigation }) {
-  const { park } = route.params
-  const { t } = useTranslation()
-  const theme = useTheme()
+  const { park } = route.params;
+  const { t } = useTranslation();
+  const theme = useTheme();
 
   const handleRegisterVisit = () => {
-    navigation.navigate('RegisterVisit', { park })
-  }
+    navigation.navigate('RegisterVisit', { park });
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -55,7 +60,7 @@ export function ParkDetailScreen({ route, navigation }) {
             <Text variant="headlineSmall" style={styles.parkName}>
               {park.name}
             </Text>
-            
+
             <Text variant="bodyMedium" style={styles.neighborhood}>
               {park.neighborhood}
             </Text>
@@ -98,7 +103,7 @@ export function ParkDetailScreen({ route, navigation }) {
         </View>
       </ScrollView>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -144,4 +149,4 @@ const styles = StyleSheet.create({
   buttonContent: {
     paddingVertical: 8,
   },
-})
+});

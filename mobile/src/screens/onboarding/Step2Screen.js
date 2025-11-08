@@ -17,11 +17,11 @@ import {
 } from 'react-native-paper'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useTranslation } from 'react-i18next'
-import * as ImagePicker from 'expo-image-picker'
 import Toast from 'react-native-toast-message'
 import { Picker } from '@react-native-picker/picker'
 
 import { OnboardingHeader } from '../../components/onboarding/OnboardingHeader'
+import { imageService } from '../../services/media/imageService'
 import { onboardingService } from '../../services/api/onboarding'
 
 // Lista de razas de perros
@@ -66,14 +66,12 @@ export function Step2Screen({ navigation, route }) {
 
   const handlePickImage = async () => {
     try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
+      const result = await imageService.pickImageAsync({
+        mediaType: 'photo',
         quality: 0.8,
       })
 
-      if (!result.canceled) {
+      if (!result.cancelled && result.assets && result.assets[0]) {
         setFormData({ ...formData, avatar: result.assets[0].uri })
       }
     } catch (error) {

@@ -19,23 +19,24 @@ import {
 } from 'react-native-paper'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useTranslation } from 'react-i18next'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import Toast from 'react-native-toast-message'
 import { formatDistanceToNow } from 'date-fns'
-import { es, enUS } from 'date-fns/locale'
+import es from 'date-fns/locale/es'
+import enUS from 'date-fns/locale/en-US'
 
 import { messageService } from '../../services/api/messages'
 import { useSelector } from 'react-redux'
 import MobileLogger from '../../utils/logger'
-import * as SecureStore from 'expo-secure-store'
+import Keychain from 'react-native-keychain'
 
 export function DMChatScreen({ navigation, route }) {
   const { t, i18n } = useTranslation()
   const theme = useTheme()
   const { user } = useSelector((state) => state.user)
   const { conversationId, chatId, user: chatUser } = route.params
-  const actualConversationId = conversationId || chatId  // Aceptar ambos nombres
-  
+  const actualConversationId = conversationId || chatId  // Accept both names
+
   const [messages, setMessages] = useState([])
   const [newMessage, setNewMessage] = useState('')
   const [loading, setLoading] = useState(true)
@@ -44,10 +45,10 @@ export function DMChatScreen({ navigation, route }) {
   const [connectionStatus, setConnectionStatus] = useState('connecting')
   const [hasMatch, setHasMatch] = useState(true)
   const [error, setError] = useState(null)
-  
+
   const flatListRef = useRef(null)
   const socketRef = useRef(null)
-  
+
   // Auth status validation
   useEffect(() => {
     if (!user?.id) {
@@ -60,7 +61,7 @@ export function DMChatScreen({ navigation, route }) {
 
   useEffect(() => {
     setupDMChat()
-    
+
     return () => {
       cleanup()
     }
@@ -78,15 +79,19 @@ export function DMChatScreen({ navigation, route }) {
   }
 
   const setupDMChat = async () => {
-    // Iniciando configuración del chat DM
+    // Starting DM chat setup
     try {
       setLoading(true)
       setConnectionStatus('connecting')
-      
+
       // Check for realtime token first
-      let realtimeToken = await SecureStore.getItemAsync('realtime_token')
-      // Verificación de token de tiempo real
-      
+      let realtimeToken = null
+      const credentials = await Keychain.getGenericPassword({ service: 'realtime_token' })
+      if (credentials) {
+        realtimeToken = credentials.password
+      }
+      // Realtime token verification
+
       if (!realtimeToken) {
         console.warn('No realtime token found, attempting to get new WebSocket token...')
         // Try to get a fresh WebSocket token
@@ -95,16 +100,16 @@ export function DMChatScreen({ navigation, route }) {
           const authHeaders = await apiClient.getAuthHeaders()
           const wsTokenResponse = await fetch(`${apiClient.baseURL}/auth/ws-token`, {
             method: 'POST',
-            headers: { 
+            headers: {
               'Content-Type': 'application/json',
               ...authHeaders
             }
           })
-          
+
           if (wsTokenResponse.ok) {
             const wsTokenData = await wsTokenResponse.json()
             realtimeToken = wsTokenData.realtime_token
-            await SecureStore.setItemAsync('realtime_token', realtimeToken)
+            await Keychain.setGenericPassword('realtime_token', realtimeToken, { service: 'realtime_token' })
             console.log('Mobile WebSocket token obtained successfully')
           } else {
             console.error('Failed to get mobile WebSocket token:', await wsTokenResponse.text())
@@ -113,32 +118,32 @@ export function DMChatScreen({ navigation, route }) {
           console.error('Mobile token acquisition failed:', tokenError)
         }
       }
-      
+
       // Connect to WebSocket
       socketRef.current = await messageService.connectWebSocket()
-      
+
       if (!socketRef.current) {
         throw new Error('Could not establish WebSocket connection')
       }
 
       // Set up DM event listeners
       setupDMEventListeners()
-      
+
       // Join the conversation
       const response = await messageService.joinConversation(actualConversationId)
-      
+
       if (response && response.messages) {
         setMessages(response.messages)
         setConnectionStatus('connected')
         scrollToBottom()
-        
+
         // Mark latest message as read if exists
         if (response.messages.length > 0) {
           const latestMessage = response.messages[response.messages.length - 1]
           messageService.markAsReadDM(actualConversationId, latestMessage.id)
         }
       }
-      
+
     } catch (error) {
       MobileLogger.logError(error, { conversationId: actualConversationId }, 'DMChatScreen')
       handleDMError(error)
@@ -152,16 +157,16 @@ export function DMChatScreen({ navigation, route }) {
     messageService.onNewDMMessage((data) => {
       if (data.conversationId === actualConversationId) {
         const newMsg = data.message
-        
+
         // Processing incoming message
-        
+
         setMessages(prev => {
           // Check if message already exists (pending from outbox)
-          const existingIndex = prev.findIndex(msg => 
-            msg.id === newMsg.id || 
+          const existingIndex = prev.findIndex(msg =>
+            msg.id === newMsg.id ||
             (msg.temp_id && msg.sender_id === newMsg.sender_id && msg.text === newMsg.text)
           )
-          
+
           if (existingIndex !== -1) {
             // Update existing pending message with server data
             const updated = [...prev]
@@ -178,7 +183,7 @@ export function DMChatScreen({ navigation, route }) {
             return [...prev, newMsg]
           }
         })
-        
+
         // Auto-mark as read if we're viewing the chat
         messageService.markAsReadDM(actualConversationId, newMsg.id)
         scrollToBottom()
@@ -189,12 +194,12 @@ export function DMChatScreen({ navigation, route }) {
     messageService.onDMTyping((data) => {
       if (data.conversationId === actualConversationId && data.userId !== user?.id) {
         setOtherUserTyping(data.isTyping)
-        
+
         if (data.isTyping) {
           if (typingTimeoutRef.current) {
             clearTimeout(typingTimeoutRef.current)
           }
-          
+
           typingTimeoutRef.current = setTimeout(() => {
             setOtherUserTyping(false)
           }, 3000)
@@ -205,7 +210,7 @@ export function DMChatScreen({ navigation, route }) {
     // Listen for read receipts
     messageService.onDMReadReceipt((data) => {
       if (data.conversationId === actualConversationId) {
-        setMessages(prev => 
+        setMessages(prev =>
           prev.map(msg => {
             if (msg.id <= data.upToMessageId && msg.sender_id === user?.id) {
               return { ...msg, is_read: true }
@@ -237,7 +242,7 @@ export function DMChatScreen({ navigation, route }) {
       conversationId: actualConversationId,
       errorCode: error.code
     }, 'DMChatScreen')
-    
+
     if (error.code === 'NO_MATCH') {
       setHasMatch(false)
       setError(t('chat.dm.noMutualMatch'))
@@ -255,7 +260,7 @@ export function DMChatScreen({ navigation, route }) {
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current)
     }
-    
+
     reconnectTimeoutRef.current = setTimeout(() => {
       setupDMChat()
     }, 2000)
@@ -269,20 +274,20 @@ export function DMChatScreen({ navigation, route }) {
 
   const sendMessage = async () => {
     if (!newMessage.trim() || sending || !hasMatch) return
-    
+
     const messageText = newMessage.trim()
     setNewMessage('')
     setSending(true)
-    
+
     // Stop typing indicator
     messageService.sendTypingDM(actualConversationId, false)
-    
+
     try {
       const response = await messageService.sendDMMessage(actualConversationId, messageText)
-      
+
       // Message will be added via dm:new event from server
       scrollToBottom()
-      
+
     } catch (error) {
       console.error('Send message error:', error)
       // Restore message text for retry
@@ -295,7 +300,7 @@ export function DMChatScreen({ navigation, route }) {
 
   const handleTextChange = (text) => {
     setNewMessage(text)
-    
+
     // Send typing indicator
     if (text.length > 0 && hasMatch) {
       messageService.sendTypingDM(actualConversationId, true)
@@ -306,9 +311,9 @@ export function DMChatScreen({ navigation, route }) {
 
   const renderMessage = ({ item: message }) => {
     const isOwnMessage = message.sender_id === user?.id
-    
+
     // Message ownership check
-    
+
     const timeText = formatDistanceToNow(new Date(message.created_at), {
       addSuffix: true,
       locale: dateLocale
@@ -321,7 +326,7 @@ export function DMChatScreen({ navigation, route }) {
       ]}>
         <Surface style={[
           styles.messageBubble,
-          isOwnMessage 
+          isOwnMessage
             ? { backgroundColor: theme.colors.primary }
             : { backgroundColor: theme.colors.surface }
         ]}>
@@ -371,8 +376,8 @@ export function DMChatScreen({ navigation, route }) {
 
     return (
       <View style={styles.statusContainer}>
-        <Chip 
-          icon="wifi" 
+        <Chip
+          icon="wifi"
           textStyle={{ color: config.color }}
           style={{ backgroundColor: theme.colors.background }}
         >
@@ -462,7 +467,7 @@ export function DMChatScreen({ navigation, route }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >

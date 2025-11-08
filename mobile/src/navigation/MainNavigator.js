@@ -1,10 +1,10 @@
-// mobile/src/navigation/MainNavigator.js
 import React from 'react'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { useTranslation } from 'react-i18next'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 
 import { HomeNavigator } from './HomeNavigator'
+import { ParksNavigator } from './ParksNavigator'
 import { VisitsNavigator } from './VisitsNavigator'
 import { DiscoverScreen } from '../screens/matches/DiscoverScreen'
 import { MyMatchesScreen } from '../screens/matches/MyMatchesScreen'
@@ -39,6 +39,16 @@ export function MainNavigator() {
           tabBarLabel: t('common.home'),
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="home" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="ParksTab"
+        component={ParksNavigator}
+        options={{
+          tabBarLabel: t('parks.title'),
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="map-marker-multiple" color={color} size={size} />
           ),
         }}
       />

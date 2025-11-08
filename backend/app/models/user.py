@@ -41,7 +41,8 @@ class User(db.Model):
     
     is_active = db.Column(db.Boolean, default=True)
     is_online = db.Column(db.Boolean, default=False)
-    
+    onboarded = db.Column(db.Boolean, default=False)
+
     # Relaciones
     dog = db.relationship('Dog', backref='owner', uselist=False, cascade='all, delete-orphan')
     visits = db.relationship('Visit', backref='user', lazy='dynamic', cascade='all, delete-orphan')
@@ -64,6 +65,7 @@ class User(db.Model):
                 'email': self.email,
                 'allow_matching': self.allow_matching,
                 'allow_proximity': self.allow_proximity,
+                'onboarded': self.onboarded,
             })
         
         if self.dog:

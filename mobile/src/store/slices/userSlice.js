@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { authService } from '../../services/api/auth'
 import { userService } from '../../services/api/users'
-import * as SecureStore from 'expo-secure-store'
+import { secureStorage } from '../../services/storage/secureStorage'
 
 // Async thunks
 export const loginWithGoogle = createAsyncThunk(
@@ -10,13 +10,13 @@ export const loginWithGoogle = createAsyncThunk(
     const response = await authService.googleLogin(googleToken)
     // Guardar token en secure store
     if (response.jwt) {
-      await SecureStore.setItemAsync('jwt_token', response.jwt)
+      await secureStorage.setItemAsync('jwt_token', response.jwt)
       if (response.tokens?.refresh_token) {
-        await SecureStore.setItemAsync('refresh_token', response.tokens.refresh_token)
+        await secureStorage.setItemAsync('refresh_token', response.tokens.refresh_token)
       }
       // Store realtime token for WebSocket connections
       if (response.tokens?.realtime_token) {
-        await SecureStore.setItemAsync('realtime_token', response.tokens.realtime_token)
+        await secureStorage.setItemAsync('realtime_token', response.tokens.realtime_token)
       }
     }
     return response
@@ -56,9 +56,9 @@ export const userSlice = createSlice({
       state.user = null
       state.error = null
       // Limpiar tokens
-      SecureStore.deleteItemAsync('jwt_token')
-      SecureStore.deleteItemAsync('refresh_token')
-      SecureStore.deleteItemAsync('realtime_token')
+      secureStorage.deleteItemAsync('jwt_token')
+      secureStorage.deleteItemAsync('refresh_token')
+      secureStorage.deleteItemAsync('realtime_token')
     },
     clearError: (state) => {
       state.error = null
@@ -97,3 +97,4 @@ export const userSlice = createSlice({
 
 export const { logout, clearError } = userSlice.actions
 export default userSlice.reducer
+

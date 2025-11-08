@@ -1,12 +1,17 @@
-// mobile/src/screens/parks/ParksScreen.js
-import React, { useState, useEffect, useRef, useMemo } from 'react'
+/**
+ * ParksScreen
+ * Pure React Native implementation with react-native-maps
+ * Replaces expo-location with locationService
+ */
+
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   View,
   StyleSheet,
   FlatList,
   Dimensions,
   Platform,
-} from 'react-native'
+} from 'react-native';
 import {
   Searchbar,
   SegmentedButtons,
@@ -14,51 +19,59 @@ import {
   Portal,
   Text,
   useTheme,
-} from 'react-native-paper'
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { useTranslation } from 'react-i18next'
-import * as Location from 'expo-location'
-import Toast from 'react-native-toast-message'
+} from 'react-native-paper';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
+import Toast from 'react-native-toast-message';
 
-import { ParkCard } from '../../components/parks/ParkCard'
-import { ParkFilterModal } from '../../components/parks/ParkFilterModal'
-import { useParks } from '../../hooks/useParks'
-import { useLocation } from '../../hooks/useLocation'
+import { ParkCard } from '../../components/parks/ParkCard';
+import { ParkFilterModal } from '../../components/parks/ParkFilterModal';
+import { useParks } from '../../hooks/useParks';
+import { useLocation } from '../../hooks/useLocation';
 
-const { width, height } = Dimensions.get('window')
+const { width, height } = Dimensions.get('window');
 
 export function ParksScreen({ navigation }) {
-  const { t } = useTranslation()
-  const theme = useTheme()
-  const mapRef = useRef(null)
-  
-  const [viewMode, setViewMode] = useState('list') // 'list' or 'map'
-  const [searchQuery, setSearchQuery] = useState('')
+  const { t } = useTranslation();
+  const theme = useTheme();
+  const mapRef = useRef(null);
+
+  const [viewMode, setViewMode] = useState('list'); // 'list' or 'map'
+  const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState({
     neighborhood: 'all',
     hasArea: false,
     isFenced: false,
     hasWater: false,
-  })
-  const [showFilters, setShowFilters] = useState(false)
-  
+  });
+  const [showFilters, setShowFilters] = useState(false);
+
   // Memorizar filtros para evitar re-renders infinitos
-  const memoizedFilters = useMemo(() => ({
-    ...filters,
-    search: searchQuery
-  }), [filters.neighborhood, filters.hasArea, filters.isFenced, filters.hasWater, searchQuery])
-  
-  const { parks, loading, error, refetch } = useParks(memoizedFilters)
-  const { location, requestPermission } = useLocation()
+  const memoizedFilters = useMemo(
+    () => ({
+      ...filters,
+      search: searchQuery,
+    }),
+    [
+      filters.neighborhood,
+      filters.hasArea,
+      filters.isFenced,
+      filters.hasWater,
+      searchQuery,
+    ]
+  );
+
+  const { parks, loading, error, refetch } = useParks(memoizedFilters);
+  const { location, requestPermission } = useLocation();
 
   useEffect(() => {
-    requestPermission()
-  }, [])
+    requestPermission();
+  }, []);
 
   const handleParkPress = (park) => {
-    navigation.navigate('ParkDetail', { park })
-  }
+    navigation.navigate('ParkDetail', { park });
+  };
 
   const handleMapReady = () => {
     if (location && mapRef.current) {
@@ -67,9 +80,9 @@ export function ParksScreen({ navigation }) {
         longitude: location.longitude,
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
-      })
+      });
     }
-  }
+  };
 
   const renderParkCard = ({ item }) => (
     <ParkCard
@@ -77,7 +90,7 @@ export function ParksScreen({ navigation }) {
       onPress={() => handleParkPress(item)}
       onRegisterVisit={() => navigation.navigate('RegisterVisit', { park: item })}
     />
-  )
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -88,7 +101,7 @@ export function ParksScreen({ navigation }) {
           value={searchQuery}
           style={styles.searchbar}
         />
-        
+
         <SegmentedButtons
           value={viewMode}
           onValueChange={setViewMode}
@@ -168,12 +181,12 @@ export function ParksScreen({ navigation }) {
         onDismiss={() => setShowFilters(false)}
         filters={filters}
         onApplyFilters={(newFilters) => {
-          setFilters(newFilters)
-          setShowFilters(false)
+          setFilters(newFilters);
+          setShowFilters(false);
         }}
       />
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -219,4 +232,4 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
-})
+});

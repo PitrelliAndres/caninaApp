@@ -55,7 +55,7 @@ export function PrivacySettingsScreen({ navigation }) {
       const newSettings = { ...settings, [key]: value }
       setSettings(newSettings)
       await AsyncStorage.setItem('privacySettings', JSON.stringify(newSettings))
-      
+
       // TODO: Sync with backend API
       console.log('Privacy setting updated:', key, value)
     } catch (error) {
@@ -103,13 +103,13 @@ export function PrivacySettingsScreen({ navigation }) {
     try {
       // TODO: Implement actual account deletion API call
       console.log('Deleting user account...')
-      
+
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 2000))
-      
+
       // Clear all local data
       await AsyncStorage.clear()
-      
+
       Alert.alert(
         t('profile.accountDeleted'),
         t('profile.accountDeletedMessage'),
@@ -158,7 +158,7 @@ export function PrivacySettingsScreen({ navigation }) {
             <Text variant="titleMedium" style={styles.sectionTitle}>
               {t('profile.profilePrivacy')}
             </Text>
-            
+
             <List.Item
               title={t('profile.profileVisibility')}
               description={t('profile.profileVisibilityDescription')}
@@ -170,9 +170,9 @@ export function PrivacySettingsScreen({ navigation }) {
                 />
               )}
             />
-            
+
             <Divider />
-            
+
             <List.Item
               title={t('profile.showLocation')}
               description={t('profile.showLocationDescription')}
@@ -184,9 +184,9 @@ export function PrivacySettingsScreen({ navigation }) {
                 />
               )}
             />
-            
+
             <Divider />
-            
+
             <List.Item
               title={t('profile.showLastSeen')}
               description={t('profile.showLastSeenDescription')}
@@ -207,7 +207,7 @@ export function PrivacySettingsScreen({ navigation }) {
             <Text variant="titleMedium" style={styles.sectionTitle}>
               {t('profile.communicationPrivacy')}
             </Text>
-            
+
             <List.Item
               title={t('profile.allowMessages')}
               description={t('profile.allowMessagesDescription')}
@@ -219,9 +219,9 @@ export function PrivacySettingsScreen({ navigation }) {
                 />
               )}
             />
-            
+
             <Divider />
-            
+
             <List.Item
               title={t('profile.showInDiscovery')}
               description={t('profile.showInDiscoveryDescription')}
@@ -242,7 +242,7 @@ export function PrivacySettingsScreen({ navigation }) {
             <Text variant="titleMedium" style={styles.sectionTitle}>
               {t('profile.dataPrivacy')}
             </Text>
-            
+
             <List.Item
               title={t('profile.dataCollection')}
               description={t('profile.dataCollectionDescription')}
@@ -254,9 +254,9 @@ export function PrivacySettingsScreen({ navigation }) {
                 />
               )}
             />
-            
+
             <Divider />
-            
+
             <List.Item
               title={t('profile.locationSharing')}
               description={t('profile.locationSharingDescription')}
@@ -277,7 +277,7 @@ export function PrivacySettingsScreen({ navigation }) {
             <Text variant="titleMedium" style={styles.sectionTitle}>
               {t('profile.dataManagement')}
             </Text>
-            
+
             <List.Item
               title={t('profile.exportData')}
               description={t('profile.exportDataDescription')}
@@ -285,9 +285,9 @@ export function PrivacySettingsScreen({ navigation }) {
               right={props => <List.Icon {...props} icon="chevron-right" />}
               onPress={exportData}
             />
-            
+
             <Divider />
-            
+
             <List.Item
               title={t('profile.deleteAccount')}
               description={t('profile.deleteAccountDescription')}

@@ -2,7 +2,7 @@ import React from 'react'
 import { View, StyleSheet } from 'react-native'
 import { Text, ProgressBar } from 'react-native-paper'
 import { useTranslation } from 'react-i18next'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 
 export function OnboardingHeader({ title, subtitle, currentStep, totalSteps }) {
   const { t } = useTranslation()

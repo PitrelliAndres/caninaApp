@@ -12,18 +12,18 @@ export function ChatsNavigator() {
 
   return (
     <Stack.Navigator>
-      <Stack.Screen 
-        name="ChatsList" 
+      <Stack.Screen
+        name="ChatsList"
         component={ChatsListScreen}
-        options={{ 
+        options={{
           title: t('chat.messages'),
           headerShown: false
         }}
       />
-      <Stack.Screen 
-        name="Chat" 
+      <Stack.Screen
+        name="Chat"
         component={DMChatScreen}
-        options={({ route }) => ({ 
+        options={({ route }) => ({
           title: route.params?.user?.nickname || t('chat.messages'),
           headerShown: false
         })}

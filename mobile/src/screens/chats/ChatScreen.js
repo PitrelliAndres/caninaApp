@@ -18,10 +18,11 @@ import {
 } from 'react-native-paper'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useTranslation } from 'react-i18next'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import Toast from 'react-native-toast-message'
 import { formatDistanceToNow } from 'date-fns'
-import { es, enUS } from 'date-fns/locale'
+import es from 'date-fns/locale/es'
+import enUS from 'date-fns/locale/en-US'
 
 import { messageService } from '../../services/api/messages'
 import { useAuth } from '../../hooks/useAuth'

@@ -66,7 +66,7 @@ export function ProfileScreen({ navigation }) {
     try {
       const darkModeValue = await AsyncStorage.getItem('darkMode')
       const notificationsValue = await AsyncStorage.getItem('notifications')
-      
+
       if (darkModeValue !== null) {
         setDarkMode(JSON.parse(darkModeValue))
       }
@@ -142,9 +142,9 @@ export function ProfileScreen({ navigation }) {
         {/* Profile Header */}
         <Card style={styles.profileCard}>
           <Card.Content style={styles.profileContent}>
-            <Avatar.Text 
-              size={80} 
-              label={user.name?.charAt(0) || 'U'} 
+            <Avatar.Text
+              size={80}
+              label={user.name?.charAt(0) || 'U'}
               style={styles.avatar}
             />
             <View style={styles.userInfo}>
@@ -210,7 +210,7 @@ export function ProfileScreen({ navigation }) {
             <Text variant="titleMedium" style={styles.sectionTitle}>
               {t('profile.settings')}
             </Text>
-            
+
             <List.Item
               title={t('profile.darkMode')}
               description={t('profile.darkModeDescription')}
@@ -222,9 +222,9 @@ export function ProfileScreen({ navigation }) {
                 />
               )}
             />
-            
+
             <Divider />
-            
+
             <List.Item
               title={t('profile.notifications')}
               description={t('profile.notificationsDescription')}
@@ -236,9 +236,9 @@ export function ProfileScreen({ navigation }) {
                 />
               )}
             />
-            
+
             <Divider />
-            
+
             <List.Item
               title={t('profile.privacy')}
               description={t('profile.privacyDescription')}
@@ -259,7 +259,7 @@ export function ProfileScreen({ navigation }) {
           >
             {t('profile.myVisits')}
           </Button>
-          
+
           <Button
             mode="outlined"
             onPress={() => navigation.navigate('MyMatches')}
@@ -268,7 +268,7 @@ export function ProfileScreen({ navigation }) {
           >
             {t('profile.myMatches')}
           </Button>
-          
+
           <Button
             mode="outlined"
             onPress={handleLogout}

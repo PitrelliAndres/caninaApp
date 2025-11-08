@@ -24,7 +24,7 @@
 
 import { apiClient } from './client'
 import { io } from 'socket.io-client'
-import * as SecureStore from 'expo-secure-store'
+import { secureStorage } from '../storage/secureStorage'
 import MobileLogger from '../../utils/logger'
 
 let socket = null
@@ -319,12 +319,12 @@ export const messageService = {
   },
 
   async _ensureWebSocketToken() {
-    const token = await SecureStore.getItemAsync('realtime_token')
+    const token = await secureStorage.getItemAsync('realtime_token')
     if (token) {
       console.log('🔑 TOKEN: Using existing WebSocket token')
       return token
     }
-    
+
     console.log('🔑 TOKEN: No token found, requesting new one')
     return this._refreshWebSocketToken()
   },
@@ -342,7 +342,7 @@ export const messageService = {
       
       if (response.ok) {
         const { realtime_token } = await response.json()
-        await SecureStore.setItemAsync('realtime_token', realtime_token)
+        await secureStorage.setItemAsync('realtime_token', realtime_token)
         console.log('🔑 TOKEN REFRESH: ✅ New token obtained and stored')
         MobileLogger.logInfo('TOKEN REFRESH: Success', {}, 'MessageService')
         return realtime_token

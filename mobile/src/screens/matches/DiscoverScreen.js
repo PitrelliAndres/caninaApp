@@ -1,4 +1,4 @@
-// mobile/src/screens/matches/DiscoverScreen.js
+// ParkDogNew/src/screens/matches/DiscoverScreen.js
 import React, { useState, useRef } from 'react'
 import {
   View,
@@ -75,7 +75,7 @@ export function DiscoverScreen({ navigation }) {
   const [suggestions] = useState(DUMMY_SUGGESTIONS)
   const [loading] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
-  
+
   const position = useRef(new Animated.ValueXY()).current
   const currentSuggestion = suggestions[currentIndex]
 
@@ -147,7 +147,7 @@ export function DiscoverScreen({ navigation }) {
 
   const onSwipeComplete = async (direction) => {
     const action = direction === 'right' ? 'like' : 'pass'
-    
+
     // Simular match con 30% de probabilidad en likes
     if (action === 'like' && Math.random() < 0.3) {
       Toast.show({
@@ -162,7 +162,7 @@ export function DiscoverScreen({ navigation }) {
         text2: t('matches.waitingForResponse'),
       })
     }
-    
+
     position.setValue({ x: 0, y: 0 })
     setCurrentIndex(currentIndex + 1)
   }
@@ -268,7 +268,7 @@ export function DiscoverScreen({ navigation }) {
         >
           {t('matches.pass')}
         </Button>
-        
+
         <Button
           mode="contained"
           onPress={() => forceSwipe('right')}
@@ -285,10 +285,10 @@ export function DiscoverScreen({ navigation }) {
 
 function MatchCard({ profile }) {
   const { t } = useTranslation()
-  
+
   return (
     <Card style={styles.card}>
-      <Card.Cover 
+      <Card.Cover
         source={{ uri: profile.user?.avatar_url || 'https://via.placeholder.com/400' }}
         style={styles.cardImage}
       />
@@ -298,11 +298,11 @@ function MatchCard({ profile }) {
             {t('matches.compatibility', { percent: profile.compatibility })}
           </Text>
         </View>
-        
+
         <Text variant="headlineSmall" style={styles.userName}>
           {profile.nickname}, {profile.user?.age || '?'}
         </Text>
-        
+
         {profile.dog && (
           <Text variant="bodyLarge" style={styles.dogInfo}>
             {t('matches.withDog', { dogName: profile.dog.name })}
@@ -310,13 +310,13 @@ function MatchCard({ profile }) {
             {profile.dog.breed}, {t('matches.yearsOld', { age: profile.dog.age })}
           </Text>
         )}
-        
+
         {profile.park_name && (
           <Text variant="bodyMedium" style={styles.parkInfo}>
             📍 {t('matches.lastSeenAt', { parkName: profile.park_name })}
           </Text>
         )}
-        
+
         {profile.shared_interests?.length > 0 && (
           <View style={styles.interestsContainer}>
             {profile.shared_interests.map((interest, index) => (

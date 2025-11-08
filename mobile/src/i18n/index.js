@@ -1,29 +1,48 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
-import * as Localization from "expo-localization";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { localizationService } from "../services/i18n/localizationService";
+
 // Importar traducciones
 import es from "../locales/es.json";
 import en from "../locales/en.json";
+
 const resources = {
   es: { translation: es },
   en: { translation: en },
 };
+
+const supportedLanguages = ['es', 'en'];
+
 const languageDetector = {
   type: "languageDetector",
   async: true,
   detect: async (callback) => {
-    const savedLanguage = await AsyncStorage.getItem("language");
-    if (savedLanguage) {
-      callback(savedLanguage);
-    } else {
-      const deviceLanguage = Localization.locale.split("-")[0];
-      callback(resources[deviceLanguage] ? deviceLanguage : "es");
+    try {
+      // Check for saved language first
+      const savedLanguage = await AsyncStorage.getItem("language");
+      if (savedLanguage && supportedLanguages.includes(savedLanguage)) {
+        callback(savedLanguage);
+        return;
+      }
+
+      // Get device language using our localization service
+      const deviceLanguage = localizationService.getLanguageCode();
+      const fallbackLanguage = supportedLanguages.includes(deviceLanguage) ? deviceLanguage : "es";
+      
+      callback(fallbackLanguage);
+    } catch (error) {
+      console.warn('Error detecting language:', error);
+      callback("es"); // Fallback to Spanish
     }
   },
   init: () => {},
   cacheUserLanguage: async (language) => {
-    await AsyncStorage.setItem("language", language);
+    try {
+      await AsyncStorage.setItem("language", language);
+    } catch (error) {
+      console.warn('Error caching user language:', error);
+    }
   },
 };
 i18n
@@ -39,3 +58,4 @@ i18n
     compatibilityJSON: "v3",
   });
 export default i18n;
+

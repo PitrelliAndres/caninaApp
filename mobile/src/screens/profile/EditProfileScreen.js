@@ -16,7 +16,7 @@ import {
 } from 'react-native-paper'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useTranslation } from 'react-i18next'
-import * as ImagePicker from 'expo-image-picker'
+import { imageService } from '../../services/media/imageService'
 
 export function EditProfileScreen({ navigation, route }) {
   const { t } = useTranslation()
@@ -57,21 +57,14 @@ export function EditProfileScreen({ navigation, route }) {
   }
 
   const handleImagePicker = async () => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
-    
-    if (permissionResult.granted === false) {
-      Alert.alert(t('common.error'), t('profile.cameraPermissionRequired'))
-      return
-    }
-
     const options = [
       { text: t('common.cancel'), style: 'cancel' },
-      { 
-        text: t('profile.takePhoto'), 
+      {
+        text: t('profile.takePhoto'),
         onPress: () => openCamera()
       },
-      { 
-        text: t('profile.chooseFromLibrary'), 
+      {
+        text: t('profile.chooseFromLibrary'),
         onPress: () => openImageLibrary()
       },
     ]
@@ -80,40 +73,35 @@ export function EditProfileScreen({ navigation, route }) {
   }
 
   const openCamera = async () => {
-    const permissionResult = await ImagePicker.requestCameraPermissionsAsync()
-    
-    if (permissionResult.granted === false) {
-      Alert.alert(t('common.error'), t('profile.cameraPermissionRequired'))
-      return
-    }
-
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
+    const result = await imageService.takePhotoAsync({
+      mediaType: 'photo',
+      includeBase64: false,
+      maxHeight: 1000,
+      maxWidth: 1000,
       quality: 0.8,
     })
 
-    if (!result.canceled) {
+    if (!result.cancelled && result.uri) {
       setProfileData(prev => ({
         ...prev,
-        profilePicture: result.assets[0].uri
+        profilePicture: result.uri
       }))
     }
   }
 
   const openImageLibrary = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
+    const result = await imageService.pickImageAsync({
+      mediaType: 'photo',
+      includeBase64: false,
+      maxHeight: 1000,
+      maxWidth: 1000,
       quality: 0.8,
     })
 
-    if (!result.canceled) {
+    if (!result.cancelled && result.uri) {
       setProfileData(prev => ({
         ...prev,
-        profilePicture: result.assets[0].uri
+        profilePicture: result.uri
       }))
     }
   }
@@ -133,10 +121,10 @@ export function EditProfileScreen({ navigation, route }) {
     try {
       // TODO: Replace with real API call
       console.log('Saving profile data:', profileData)
-      
+
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 1000))
-      
+
       Alert.alert(
         t('common.success'),
         t('profile.profileUpdated'),
@@ -166,22 +154,22 @@ export function EditProfileScreen({ navigation, route }) {
             <View style={styles.avatarContainer}>
               <TouchableOpacity onPress={handleImagePicker}>
                 {profileData.profilePicture ? (
-                  <Avatar.Image 
-                    size={100} 
+                  <Avatar.Image
+                    size={100}
                     source={{ uri: profileData.profilePicture }}
                     style={styles.avatar}
                   />
                 ) : (
-                  <Avatar.Text 
-                    size={100} 
-                    label={profileData.name?.charAt(0) || 'U'} 
+                  <Avatar.Text
+                    size={100}
+                    label={profileData.name?.charAt(0) || 'U'}
                     style={styles.avatar}
                   />
                 )}
                 <View style={styles.cameraIcon}>
-                  <Avatar.Icon 
-                    size={30} 
-                    icon="camera" 
+                  <Avatar.Icon
+                    size={30}
+                    icon="camera"
                     style={styles.cameraButton}
                   />
                 </View>
@@ -253,7 +241,7 @@ export function EditProfileScreen({ navigation, route }) {
           >
             {t('profile.saveChanges')}
           </Button>
-          
+
           <Button
             mode="outlined"
             onPress={() => navigation.goBack()}

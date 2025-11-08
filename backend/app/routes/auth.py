@@ -66,7 +66,7 @@ def google_login():
                 'name': user.name,
                 'nickname': user.nickname,
                 'avatar': user.avatar_url,
-                'onboarded': user.nickname is not None
+                'onboarded': user.onboarded
             },
             'is_new': is_new
         }), 200
@@ -91,7 +91,7 @@ def get_current_user():
             'name': user.name,
             'nickname': user.nickname,
             'avatar': user.avatar_url,
-            'onboarded': user.nickname is not None,
+            'onboarded': user.onboarded,
             'role': user.role.value
         }), 200
         
