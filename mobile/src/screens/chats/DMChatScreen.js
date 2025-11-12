@@ -33,6 +33,7 @@ import Keychain from 'react-native-keychain'
 export function DMChatScreen({ navigation, route }) {
   const { t, i18n } = useTranslation()
   const theme = useTheme()
+  const dynamicStyles = styles(theme)
   const { user } = useSelector((state) => state.user)
   const { conversationId, chatId, user: chatUser } = route.params
   const actualConversationId = conversationId || chatId  // Accept both names
@@ -528,7 +529,7 @@ export function DMChatScreen({ navigation, route }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
   },
@@ -537,7 +538,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: theme.colors.outline,
   },
   avatar: {
     marginRight: 12,
@@ -610,7 +611,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     padding: 16,
     borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
+    borderTopColor: theme.colors.outline,
   },
   textInput: {
     flex: 1,

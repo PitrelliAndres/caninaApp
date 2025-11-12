@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { StatusBar } from 'react-native'
-import { Provider as PaperProvider } from 'react-native-paper'
 import { Provider as ReduxProvider } from 'react-redux'
 import { NavigationContainer } from '@react-navigation/native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
@@ -8,7 +7,7 @@ import Toast from 'react-native-toast-message'
 import { I18nextProvider } from 'react-i18next'
 
 import { store } from './src/store'
-import { theme } from './src/theme'
+import { AppThemeProvider, useAppTheme } from './src/theme'
 import i18n from './src/i18n'
 import { AppNavigator } from './src/navigation/AppNavigator'
 import { toastConfig } from './src/utils/toastConfig'
@@ -56,20 +55,30 @@ export default function App() {
   return (
     <ReduxProvider store={store}>
       <I18nextProvider i18n={i18n}>
-        <PaperProvider theme={theme}>
+        <AppThemeProvider>
           <SafeAreaProvider>
-            <StatusBar
-              barStyle={theme.dark ? 'light-content' : 'dark-content'}
-              backgroundColor={theme.colors.surface}
-              translucent={false}
-            />
-            <NavigationContainer>
-              <AppNavigator />
-              <Toast config={toastConfig} />
-            </NavigationContainer>
+            <AppContent />
           </SafeAreaProvider>
-        </PaperProvider>
+        </AppThemeProvider>
       </I18nextProvider>
     </ReduxProvider>
+  )
+}
+
+function AppContent() {
+  const { theme } = useAppTheme()
+
+  return (
+    <>
+      <StatusBar
+        barStyle={theme.dark ? 'light-content' : 'dark-content'}
+        backgroundColor={theme.colors.background}
+        translucent={false}
+      />
+      <NavigationContainer>
+        <AppNavigator />
+        <Toast config={toastConfig} />
+      </NavigationContainer>
+    </>
   )
 }

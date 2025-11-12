@@ -39,6 +39,7 @@ export function LoginScreen({ navigation }) {
   const theme = useTheme()
   const dispatch = useDispatch()
   const [loading, setLoading] = useState(false)
+  const dynamicStyles = styles(theme)
 
   const features = [
     t('auth.features.registerVisits'),
@@ -104,58 +105,58 @@ export function LoginScreen({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.languageSelector}>
+    <SafeAreaView style={dynamicStyles.container}>
+      <View style={dynamicStyles.languageSelector}>
         <LanguageSelector />
       </View>
-      
-      <ScrollView 
-        contentContainerStyle={styles.scrollContent}
+
+      <ScrollView
+        contentContainerStyle={dynamicStyles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
-          <Surface style={styles.iconContainer} elevation={2}>
+        <View style={dynamicStyles.header}>
+          <Surface style={dynamicStyles.iconContainer} elevation={2}>
             <PawIcon size={60} color={theme.colors.primary} />
           </Surface>
-          
-          <Text variant="headlineLarge" style={styles.title}>
+
+          <Text variant="headlineLarge" style={dynamicStyles.title}>
             {t('auth.loginTitle')}
           </Text>
-          
-          <Text variant="bodyLarge" style={styles.subtitle}>
+
+          <Text variant="bodyLarge" style={dynamicStyles.subtitle}>
             {t('auth.loginSubtitle')}
           </Text>
         </View>
 
-        <Surface style={styles.featuresCard} elevation={1}>
-          <Text variant="titleMedium" style={styles.featuresTitle}>
+        <Surface style={dynamicStyles.featuresCard} elevation={1}>
+          <Text variant="titleMedium" style={dynamicStyles.featuresTitle}>
             {t('auth.whatCanYouDo')}
           </Text>
-          
+
           {features.map((feature, index) => (
-            <View key={index} style={styles.featureItem}>
-              <Text style={styles.featureBullet}>✓</Text>
-              <Text variant="bodyMedium" style={styles.featureText}>
+            <View key={index} style={dynamicStyles.featureItem}>
+              <Text style={dynamicStyles.featureBullet}>✓</Text>
+              <Text variant="bodyMedium" style={dynamicStyles.featureText}>
                 {feature}
               </Text>
             </View>
           ))}
         </Surface>
 
-        <View style={styles.loginSection}>
+        <View style={dynamicStyles.loginSection}>
           <Button
             mode="contained"
             onPress={handleGoogleLogin}
             loading={loading}
             disabled={loading}
-            style={styles.loginButton}
-            contentStyle={styles.loginButtonContent}
+            style={dynamicStyles.loginButton}
+            contentStyle={dynamicStyles.loginButtonContent}
             icon="google"
           >
             {loading ? t('auth.loggingIn') : t('auth.loginWithGoogle')}
           </Button>
-          
-          <Text variant="bodySmall" style={styles.termsText}>
+
+          <Text variant="bodySmall" style={dynamicStyles.termsText}>
             {t('auth.termsAccept')}
           </Text>
         </View>
@@ -164,10 +165,10 @@ export function LoginScreen({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.background,
   },
   languageSelector: {
     position: 'absolute',
@@ -188,7 +189,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#e3f2fd',
+    backgroundColor: theme.colors.primaryContainer,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 24,
@@ -200,13 +201,13 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     textAlign: 'center',
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
     paddingHorizontal: 32,
   },
   featuresCard: {
     padding: 24,
     borderRadius: 12,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.surface,
     marginBottom: 32,
   },
   featuresTitle: {
@@ -220,14 +221,14 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   featureBullet: {
-    color: '#4caf50',
+    color: theme.colors.primary,
     fontSize: 18,
     marginRight: 12,
     fontWeight: 'bold',
   },
   featureText: {
     flex: 1,
-    color: '#333',
+    color: theme.colors.onSurface,
   },
   loginSection: {
     alignItems: 'center',
@@ -242,6 +243,6 @@ const styles = StyleSheet.create({
   termsText: {
     marginTop: 16,
     textAlign: 'center',
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
   },
 })

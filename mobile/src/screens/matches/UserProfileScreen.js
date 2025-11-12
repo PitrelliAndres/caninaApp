@@ -23,6 +23,7 @@ export function UserProfileScreen({ route, navigation }) {
   const { user } = route.params || {}
   const { t } = useTranslation()
   const theme = useTheme()
+  const dynamicStyles = styles(theme)
   const [isLiked, setIsLiked] = useState(false)
 
   // Mock user data if not provided
@@ -56,46 +57,46 @@ export function UserProfileScreen({ route, navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={dynamicStyles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
+        <View style={dynamicStyles.header}>
           {profileUser.profilePicture ? (
-            <Image 
-              source={{ uri: profileUser.profilePicture }} 
-              style={styles.profileImage}
+            <Image
+              source={{ uri: profileUser.profilePicture }}
+              style={dynamicStyles.profileImage}
             />
           ) : (
-            <Avatar.Text 
-              size={120} 
-              label={profileUser.name?.charAt(0) || 'U'} 
-              style={styles.avatar}
+            <Avatar.Text
+              size={120}
+              label={profileUser.name?.charAt(0) || 'U'}
+              style={dynamicStyles.avatar}
             />
           )}
-          
-          <Text variant="headlineMedium" style={styles.userName}>
+
+          <Text variant="headlineMedium" style={dynamicStyles.userName}>
             {profileUser.name}
           </Text>
-          
+
           {profileUser.age && (
-            <Text variant="bodyLarge" style={styles.userAge}>
+            <Text variant="bodyLarge" style={dynamicStyles.userAge}>
               {profileUser.age} años
             </Text>
           )}
-          
+
           {profileUser.location && (
-            <Text variant="bodyMedium" style={styles.location}>
+            <Text variant="bodyMedium" style={dynamicStyles.location}>
               📍 {profileUser.location}
             </Text>
           )}
         </View>
 
         {profileUser.bio && (
-          <Card style={styles.card}>
+          <Card style={dynamicStyles.card}>
             <Card.Content>
-              <Text variant="titleMedium" style={styles.sectionTitle}>
+              <Text variant="titleMedium" style={dynamicStyles.sectionTitle}>
                 {t('profile.about')}
               </Text>
-              <Text variant="bodyMedium" style={styles.bio}>
+              <Text variant="bodyMedium" style={dynamicStyles.bio}>
                 {profileUser.bio}
               </Text>
             </Card.Content>
@@ -103,18 +104,18 @@ export function UserProfileScreen({ route, navigation }) {
         )}
 
         {profileUser.dogs && profileUser.dogs.length > 0 && (
-          <Card style={styles.card}>
+          <Card style={dynamicStyles.card}>
             <Card.Content>
-              <Text variant="titleMedium" style={styles.sectionTitle}>
+              <Text variant="titleMedium" style={dynamicStyles.sectionTitle}>
                 {t('profile.dogs')}
               </Text>
               {profileUser.dogs.map((dog) => (
-                <View key={dog.id} style={styles.dogItem}>
-                  <View style={styles.dogInfo}>
-                    <Text variant="bodyLarge" style={styles.dogName}>
+                <View key={dog.id} style={dynamicStyles.dogItem}>
+                  <View style={dynamicStyles.dogInfo}>
+                    <Text variant="bodyLarge" style={dynamicStyles.dogName}>
                       {dog.name}
                     </Text>
-                    <Text variant="bodyMedium" style={styles.dogDetails}>
+                    <Text variant="bodyMedium" style={dynamicStyles.dogDetails}>
                       {dog.breed} • {dog.age} años
                     </Text>
                   </View>
@@ -125,14 +126,14 @@ export function UserProfileScreen({ route, navigation }) {
         )}
 
         {profileUser.interests && profileUser.interests.length > 0 && (
-          <Card style={styles.card}>
+          <Card style={dynamicStyles.card}>
             <Card.Content>
-              <Text variant="titleMedium" style={styles.sectionTitle}>
+              <Text variant="titleMedium" style={dynamicStyles.sectionTitle}>
                 {t('profile.interests')}
               </Text>
-              <View style={styles.interestsContainer}>
+              <View style={dynamicStyles.interestsContainer}>
                 {profileUser.interests.map((interest, index) => (
-                  <Chip key={index} style={styles.interestChip}>
+                  <Chip key={index} style={dynamicStyles.interestChip}>
                     {interest}
                   </Chip>
                 ))}
@@ -141,21 +142,21 @@ export function UserProfileScreen({ route, navigation }) {
           </Card>
         )}
 
-        <View style={styles.buttonContainer}>
+        <View style={dynamicStyles.buttonContainer}>
           <Button
             mode={isLiked ? "contained" : "outlined"}
             onPress={handleLike}
             icon={isLiked ? "heart" : "heart-outline"}
-            style={[styles.actionButton, isLiked && { backgroundColor: theme.colors.error }]}
+            style={[dynamicStyles.actionButton, isLiked && { backgroundColor: theme.colors.error }]}
           >
             {isLiked ? t('matches.liked') : t('matches.like')}
           </Button>
-          
+
           <Button
             mode="contained"
             onPress={handleMessage}
             icon="message"
-            style={styles.actionButton}
+            style={dynamicStyles.actionButton}
           >
             {t('matches.message')}
           </Button>
@@ -165,15 +166,15 @@ export function UserProfileScreen({ route, navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.surface,
   },
   header: {
     alignItems: 'center',
     padding: 24,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.background,
     marginBottom: 16,
   },
   profileImage: {
@@ -190,11 +191,11 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   userAge: {
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
     marginBottom: 8,
   },
   location: {
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
   },
   card: {
     marginHorizontal: 16,
@@ -221,7 +222,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   dogDetails: {
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
   },
   interestsContainer: {
     flexDirection: 'row',

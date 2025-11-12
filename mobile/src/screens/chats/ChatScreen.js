@@ -30,6 +30,7 @@ import { useAuth } from '../../hooks/useAuth'
 export function ChatScreen({ navigation, route }) {
   const { t, i18n } = useTranslation()
   const theme = useTheme()
+  const dynamicStyles = styles(theme)
   const { user } = useAuth()
   const { chatId, user: chatUser } = route.params
   
@@ -316,7 +317,7 @@ export function ChatScreen({ navigation, route }) {
           <View style={styles.statusContainer}>
             <View style={[
               styles.statusDot,
-              { backgroundColor: isOnline ? '#4caf50' : '#999' }
+              { backgroundColor: isOnline ? theme.colors.primary : theme.colors.onSurfaceVariant }
             ]} />
             <Text variant="bodySmall" style={styles.statusText}>
               {isOnline ? t('chat.online') : t('chat.offline')}
@@ -369,10 +370,10 @@ export function ChatScreen({ navigation, route }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.background,
   },
   header: {
     flexDirection: 'row',
@@ -380,7 +381,7 @@ const styles = StyleSheet.create({
     padding: 8,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: theme.colors.outline,
   },
   headerInfo: {
     flex: 1,
@@ -398,7 +399,7 @@ const styles = StyleSheet.create({
     marginRight: 6,
   },
   statusText: {
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
   },
   loadingContainer: {
     flex: 1,
@@ -420,7 +421,7 @@ const styles = StyleSheet.create({
   timeLabel: {
     textAlign: 'center',
     fontSize: 12,
-    color: '#999',
+    color: theme.colors.onSurfaceVariant,
     marginBottom: 8,
   },
   messageBubbleContainer: {
@@ -438,11 +439,11 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   ownMessage: {
-    backgroundColor: '#2563eb',
+    backgroundColor: theme.colors.primary,
     borderBottomRightRadius: 4,
   },
   otherMessage: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.surface,
     borderBottomLeftRadius: 4,
   },
   messageText: {
@@ -450,10 +451,10 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   ownMessageText: {
-    color: '#fff',
+    color: theme.colors.background,
   },
   otherMessageText: {
-    color: '#333',
+    color: theme.colors.onSurface,
   },
   messageFooter: {
     flexDirection: 'row',
@@ -469,7 +470,7 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.7)',
   },
   otherMessageTime: {
-    color: '#999',
+    color: theme.colors.onSurfaceVariant,
   },
   typingContainer: {
     flexDirection: 'row',
@@ -478,7 +479,7 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   typingBubble: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.surface,
     borderRadius: 18,
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -491,12 +492,12 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#999',
+    backgroundColor: theme.colors.onSurfaceVariant,
     marginHorizontal: 2,
   },
   typingText: {
     fontSize: 12,
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
     fontStyle: 'italic',
   },
   inputContainer: {
@@ -505,7 +506,7 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderTopColor: theme.colors.outline,
   },
   textInput: {
     flex: 1,

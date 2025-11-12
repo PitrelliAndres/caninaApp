@@ -35,6 +35,7 @@ const { width, height } = Dimensions.get('window');
 export function ParksScreen({ navigation }) {
   const { t } = useTranslation();
   const theme = useTheme();
+  const dynamicStyles = styles(theme);
   const mapRef = useRef(null);
 
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'map'
@@ -93,13 +94,13 @@ export function ParksScreen({ navigation }) {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView style={dynamicStyles.container}>
+      <View style={dynamicStyles.header}>
         <Searchbar
           placeholder={t('parks.searchPlaceholder')}
           onChangeText={setSearchQuery}
           value={searchQuery}
-          style={styles.searchbar}
+          style={dynamicStyles.searchbar}
         />
 
         <SegmentedButtons
@@ -117,7 +118,7 @@ export function ParksScreen({ navigation }) {
               icon: 'map',
             },
           ]}
-          style={styles.segmentedButtons}
+          style={dynamicStyles.segmentedButtons}
         />
       </View>
 
@@ -126,13 +127,13 @@ export function ParksScreen({ navigation }) {
           data={parks}
           renderItem={renderParkCard}
           keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={dynamicStyles.listContent}
           showsVerticalScrollIndicator={false}
           refreshing={loading}
           onRefresh={refetch}
           ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Text variant="bodyLarge" style={styles.emptyText}>
+            <View style={dynamicStyles.emptyContainer}>
+              <Text variant="bodyLarge" style={dynamicStyles.emptyText}>
                 {t('parks.noParksFound')}
               </Text>
             </View>
@@ -141,7 +142,7 @@ export function ParksScreen({ navigation }) {
       ) : (
         <MapView
           ref={mapRef}
-          style={styles.map}
+          style={dynamicStyles.map}
           provider={PROVIDER_GOOGLE}
           showsUserLocation
           showsMyLocationButton
@@ -171,7 +172,7 @@ export function ParksScreen({ navigation }) {
       <Portal>
         <FAB
           icon="filter"
-          style={[styles.fab, { backgroundColor: theme.colors.primary }]}
+          style={[dynamicStyles.fab, { backgroundColor: theme.colors.primary }]}
           onPress={() => setShowFilters(true)}
         />
       </Portal>
@@ -189,16 +190,16 @@ export function ParksScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.background,
   },
   header: {
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.background,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: theme.colors.onSurface,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -223,7 +224,7 @@ const styles = StyleSheet.create({
     paddingVertical: 48,
   },
   emptyText: {
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
     textAlign: 'center',
   },
   fab: {

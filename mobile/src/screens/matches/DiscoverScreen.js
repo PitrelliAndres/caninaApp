@@ -72,6 +72,7 @@ const DUMMY_SUGGESTIONS = [
 export function DiscoverScreen({ navigation }) {
   const { t } = useTranslation()
   const theme = useTheme()
+  const dynamicStyles = styles(theme)
   const [suggestions] = useState(DUMMY_SUGGESTIONS)
   const [loading] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -177,8 +178,8 @@ export function DiscoverScreen({ navigation }) {
 
   if (loading || !currentSuggestion) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.centerContainer}>
+      <SafeAreaView style={dynamicStyles.container}>
+        <View style={dynamicStyles.centerContainer}>
           <Text variant="bodyLarge">{t('common.loading')}</Text>
         </View>
       </SafeAreaView>
@@ -187,9 +188,9 @@ export function DiscoverScreen({ navigation }) {
 
   if (currentIndex >= suggestions.length) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.centerContainer}>
-          <Text variant="headlineSmall" style={styles.noMoreText}>
+      <SafeAreaView style={dynamicStyles.container}>
+        <View style={dynamicStyles.centerContainer}>
+          <Text variant="headlineSmall" style={dynamicStyles.noMoreText}>
             {t('matches.noMoreSuggestions')}
           </Text>
           <Button
@@ -198,7 +199,7 @@ export function DiscoverScreen({ navigation }) {
               setCurrentIndex(0)
               // Reiniciar con datos dummy
             }}
-            style={styles.refreshButton}
+            style={dynamicStyles.refreshButton}
           >
             {t('common.refresh')}
           </Button>
@@ -208,16 +209,16 @@ export function DiscoverScreen({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView style={dynamicStyles.container}>
+      <View style={dynamicStyles.header}>
         <Text variant="headlineMedium">{t('matches.tabs.discover')}</Text>
       </View>
 
-      <View style={styles.cardContainer}>
+      <View style={dynamicStyles.cardContainer}>
         {suggestions[currentIndex + 1] && (
           <Animated.View
             style={[
-              styles.cardStyle,
+              dynamicStyles.cardStyle,
               {
                 opacity: nextCardOpacity,
                 transform: [{ scale: nextCardScale }],
@@ -230,40 +231,40 @@ export function DiscoverScreen({ navigation }) {
 
         <Animated.View
           {...panResponder.panHandlers}
-          style={[rotateAndTranslate, styles.cardStyle]}
+          style={[rotateAndTranslate, dynamicStyles.cardStyle]}
         >
           <Animated.View
             style={[
-              styles.likeLabel,
+              dynamicStyles.likeLabel,
               {
                 opacity: likeOpacity,
               },
             ]}
           >
-            <Text style={styles.likeText}>{t('matches.likeButton')}</Text>
+            <Text style={dynamicStyles.likeText}>{t('matches.likeButton')}</Text>
           </Animated.View>
 
           <Animated.View
             style={[
-              styles.nopeLabel,
+              dynamicStyles.nopeLabel,
               {
                 opacity: nopeOpacity,
               },
             ]}
           >
-            <Text style={styles.nopeText}>{t('matches.nopeButton')}</Text>
+            <Text style={dynamicStyles.nopeText}>{t('matches.nopeButton')}</Text>
           </Animated.View>
 
           <MatchCard profile={currentSuggestion} />
         </Animated.View>
       </View>
 
-      <View style={styles.buttonsContainer}>
+      <View style={dynamicStyles.buttonsContainer}>
         <Button
           mode="contained-tonal"
           onPress={() => forceSwipe('left')}
-          style={[styles.button, styles.passButton]}
-          contentStyle={styles.buttonContent}
+          style={[dynamicStyles.button, dynamicStyles.passButton]}
+          contentStyle={dynamicStyles.buttonContent}
           icon="close"
         >
           {t('matches.pass')}
@@ -272,8 +273,8 @@ export function DiscoverScreen({ navigation }) {
         <Button
           mode="contained"
           onPress={() => forceSwipe('right')}
-          style={[styles.button, styles.likeButton]}
-          contentStyle={styles.buttonContent}
+          style={[dynamicStyles.button, dynamicStyles.likeButton]}
+          contentStyle={dynamicStyles.buttonContent}
           icon="heart"
         >
           {t('matches.like')}
@@ -285,26 +286,28 @@ export function DiscoverScreen({ navigation }) {
 
 function MatchCard({ profile }) {
   const { t } = useTranslation()
+  const theme = useTheme()
+  const dynamicStyles = styles(theme)
 
   return (
-    <Card style={styles.card}>
+    <Card style={dynamicStyles.card}>
       <Card.Cover
         source={{ uri: profile.user?.avatar_url || 'https://via.placeholder.com/400' }}
-        style={styles.cardImage}
+        style={dynamicStyles.cardImage}
       />
-      <Card.Content style={styles.cardContent}>
-        <View style={styles.compatibilityBadge}>
-          <Text style={styles.compatibilityText}>
+      <Card.Content style={dynamicStyles.cardContent}>
+        <View style={dynamicStyles.compatibilityBadge}>
+          <Text style={dynamicStyles.compatibilityText}>
             {t('matches.compatibility', { percent: profile.compatibility })}
           </Text>
         </View>
 
-        <Text variant="headlineSmall" style={styles.userName}>
+        <Text variant="headlineSmall" style={dynamicStyles.userName}>
           {profile.nickname}, {profile.user?.age || '?'}
         </Text>
 
         {profile.dog && (
-          <Text variant="bodyLarge" style={styles.dogInfo}>
+          <Text variant="bodyLarge" style={dynamicStyles.dogInfo}>
             {t('matches.withDog', { dogName: profile.dog.name })}
             {'\n'}
             {profile.dog.breed}, {t('matches.yearsOld', { age: profile.dog.age })}
@@ -312,15 +315,15 @@ function MatchCard({ profile }) {
         )}
 
         {profile.park_name && (
-          <Text variant="bodyMedium" style={styles.parkInfo}>
+          <Text variant="bodyMedium" style={dynamicStyles.parkInfo}>
             📍 {t('matches.lastSeenAt', { parkName: profile.park_name })}
           </Text>
         )}
 
         {profile.shared_interests?.length > 0 && (
-          <View style={styles.interestsContainer}>
+          <View style={dynamicStyles.interestsContainer}>
             {profile.shared_interests.map((interest, index) => (
-              <Chip key={index} style={styles.interestChip}>
+              <Chip key={index} style={dynamicStyles.interestChip}>
                 {interest}
               </Chip>
             ))}
@@ -331,14 +334,14 @@ function MatchCard({ profile }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.surface,
   },
   header: {
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.background,
     elevation: 2,
   },
   centerContainer: {
@@ -380,13 +383,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -20,
     right: 16,
-    backgroundColor: '#ff4458',
+    backgroundColor: theme.colors.error,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
   },
   compatibilityText: {
-    color: '#fff',
+    color: theme.colors.background,
     fontWeight: 'bold',
   },
   userName: {
@@ -395,11 +398,11 @@ const styles = StyleSheet.create({
   },
   dogInfo: {
     marginTop: 4,
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
   },
   parkInfo: {
     marginTop: 8,
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
   },
   interestsContainer: {
     flexDirection: 'row',
@@ -408,7 +411,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   interestChip: {
-    backgroundColor: '#e3f2fd',
+    backgroundColor: theme.colors.primaryContainer,
   },
   likeLabel: {
     position: 'absolute',
@@ -419,8 +422,8 @@ const styles = StyleSheet.create({
   },
   likeText: {
     borderWidth: 3,
-    borderColor: '#4caf50',
-    color: '#4caf50',
+    borderColor: theme.colors.primary,
+    color: theme.colors.primary,
     fontSize: 32,
     fontWeight: '800',
     padding: 10,
@@ -434,8 +437,8 @@ const styles = StyleSheet.create({
   },
   nopeText: {
     borderWidth: 3,
-    borderColor: '#ff4458',
-    color: '#ff4458',
+    borderColor: theme.colors.error,
+    color: theme.colors.error,
     fontSize: 32,
     fontWeight: '800',
     padding: 10,
@@ -455,9 +458,9 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   passButton: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.surface,
   },
   likeButton: {
-    backgroundColor: '#4caf50',
+    backgroundColor: theme.colors.primary,
   },
 })

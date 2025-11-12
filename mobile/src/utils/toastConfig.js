@@ -1,38 +1,43 @@
 import React from 'react'
 import { View, Text, StyleSheet } from 'react-native'
+import { useTheme } from 'react-native-paper'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 
-export const toastConfig = {
-  success: ({ text1, text2 }) => (
-    <View style={[styles.container, styles.success]}>
-      <MaterialCommunityIcons name="check-circle" size={24} color="#fff" />
-      <View style={styles.textContainer}>
-        <Text style={styles.title}>{text1}</Text>
-        {text2 && <Text style={styles.subtitle}>{text2}</Text>}
+const ToastContent = ({ text1, text2, type, icon }) => {
+  const theme = useTheme()
+  const dynamicStyles = styles(theme)
+
+  const getBackgroundColor = () => {
+    switch (type) {
+      case 'success':
+        return theme.colors.success || theme.colors.primary
+      case 'error':
+        return theme.colors.error
+      case 'info':
+        return theme.colors.primary
+      default:
+        return theme.colors.primary
+    }
+  }
+
+  return (
+    <View style={[dynamicStyles.container, { backgroundColor: getBackgroundColor() }]}>
+      <MaterialCommunityIcons name={icon} size={24} color={theme.colors.onPrimary} />
+      <View style={dynamicStyles.textContainer}>
+        <Text style={dynamicStyles.title}>{text1}</Text>
+        {text2 && <Text style={dynamicStyles.subtitle}>{text2}</Text>}
       </View>
     </View>
-  ),
-  error: ({ text1, text2 }) => (
-    <View style={[styles.container, styles.error]}>
-      <MaterialCommunityIcons name="close-circle" size={24} color="#fff" />
-      <View style={styles.textContainer}>
-        <Text style={styles.title}>{text1}</Text>
-        {text2 && <Text style={styles.subtitle}>{text2}</Text>}
-      </View>
-    </View>
-  ),
-  info: ({ text1, text2 }) => (
-    <View style={[styles.container, styles.info]}>
-      <MaterialCommunityIcons name="information" size={24} color="#fff" />
-      <View style={styles.textContainer}>
-        <Text style={styles.title}>{text1}</Text>
-        {text2 && <Text style={styles.subtitle}>{text2}</Text>}
-      </View>
-    </View>
-  ),
+  )
 }
 
-const styles = StyleSheet.create({
+export const toastConfig = {
+  success: (props) => <ToastContent {...props} type="success" icon="check-circle" />,
+  error: (props) => <ToastContent {...props} type="error" icon="close-circle" />,
+  info: (props) => <ToastContent {...props} type="info" icon="information" />,
+}
+
+const styles = (theme) => StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -41,25 +46,16 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     gap: 12,
   },
-  success: {
-    backgroundColor: '#10b981',
-  },
-  error: {
-    backgroundColor: '#ef4444',
-  },
-  info: {
-    backgroundColor: '#3b82f6',
-  },
   textContainer: {
     flex: 1,
   },
   title: {
-    color: '#fff',
+    color: theme.colors.onPrimary,
     fontSize: 16,
     fontWeight: '600',
   },
   subtitle: {
-    color: '#fff',
+    color: theme.colors.onPrimary,
     fontSize: 14,
     marginTop: 4,
   },

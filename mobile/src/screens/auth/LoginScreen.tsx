@@ -9,6 +9,7 @@ import {
   Alert,
   SafeAreaView,
 } from 'react-native';
+import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
@@ -20,7 +21,9 @@ GoogleSignin.configure({
 
 export function LoginScreen() {
   const { t } = useTranslation();
+  const theme = useTheme();
   const [loading, setLoading] = useState(false);
+  const dynamicStyles = styles(theme);
 
   const features = [
     t('auth.features.registerVisits'),
@@ -63,62 +66,62 @@ export function LoginScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={dynamicStyles.container}>
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={dynamicStyles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
-          <View style={styles.iconContainer}>
-            <Text style={styles.iconText}>🐕</Text>
+        <View style={dynamicStyles.header}>
+          <View style={dynamicStyles.iconContainer}>
+            <Text style={dynamicStyles.iconText}>🐕</Text>
           </View>
 
-          <Text style={styles.title}>
+          <Text style={dynamicStyles.title}>
             {t('auth.loginTitle')}
           </Text>
 
-          <Text style={styles.subtitle}>
+          <Text style={dynamicStyles.subtitle}>
             {t('auth.loginSubtitle')}
           </Text>
         </View>
 
-        <View style={styles.featuresCard}>
-          <Text style={styles.featuresTitle}>
+        <View style={dynamicStyles.featuresCard}>
+          <Text style={dynamicStyles.featuresTitle}>
             {t('auth.whatCanYouDo')}
           </Text>
 
           {features.map((feature, index) => (
-            <View key={index} style={styles.featureItem}>
-              <Text style={styles.featureBullet}>✓</Text>
-              <Text style={styles.featureText}>
+            <View key={index} style={dynamicStyles.featureItem}>
+              <Text style={dynamicStyles.featureBullet}>✓</Text>
+              <Text style={dynamicStyles.featureText}>
                 {feature}
               </Text>
             </View>
           ))}
         </View>
 
-        <View style={styles.loginSection}>
+        <View style={dynamicStyles.loginSection}>
           <TouchableOpacity
             style={[
-              styles.loginButton,
-              loading && styles.loginButtonDisabled
+              dynamicStyles.loginButton,
+              loading && dynamicStyles.loginButtonDisabled
             ]}
             onPress={handleGoogleLogin}
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={theme.colors.background} />
             ) : (
               <>
-                <Text style={styles.loginButtonIcon}>G</Text>
-                <Text style={styles.loginButtonText}>
+                <Text style={dynamicStyles.loginButtonIcon}>G</Text>
+                <Text style={dynamicStyles.loginButtonText}>
                   {t('auth.loginWithGoogle')}
                 </Text>
               </>
             )}
           </TouchableOpacity>
 
-          <Text style={styles.termsText}>
+          <Text style={dynamicStyles.termsText}>
             {t('auth.termsAccept')}
           </Text>
         </View>
@@ -127,10 +130,10 @@ export function LoginScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = (theme: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.background,
   },
   scrollContent: {
     flexGrow: 1,
@@ -145,7 +148,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#e3f2fd',
+    backgroundColor: theme.colors.primaryContainer,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 24,
@@ -158,18 +161,18 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 8,
-    color: '#333',
+    color: theme.colors.onSurface,
   },
   subtitle: {
     fontSize: 16,
     textAlign: 'center',
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
     paddingHorizontal: 32,
   },
   featuresCard: {
     padding: 24,
     borderRadius: 12,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.surface,
     marginBottom: 32,
   },
   featuresTitle: {
@@ -177,7 +180,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 16,
     fontWeight: '600',
-    color: '#333',
+    color: theme.colors.onSurface,
   },
   featureItem: {
     flexDirection: 'row',
@@ -185,7 +188,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   featureBullet: {
-    color: '#4caf50',
+    color: theme.colors.primary,
     fontSize: 18,
     marginRight: 12,
     fontWeight: 'bold',
@@ -193,14 +196,14 @@ const styles = StyleSheet.create({
   featureText: {
     flex: 1,
     fontSize: 14,
-    color: '#333',
+    color: theme.colors.onSurface,
   },
   loginSection: {
     alignItems: 'center',
   },
   loginButton: {
     width: '100%',
-    backgroundColor: '#4285F4',
+    backgroundColor: theme.colors.primary,
     borderRadius: 8,
     paddingVertical: 16,
     flexDirection: 'row',
@@ -213,16 +216,16 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
   },
   loginButtonDisabled: {
-    backgroundColor: '#999',
+    backgroundColor: theme.colors.onSurfaceVariant,
   },
   loginButtonIcon: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#fff',
+    color: theme.colors.background,
     marginRight: 8,
   },
   loginButtonText: {
-    color: '#fff',
+    color: theme.colors.background,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -230,6 +233,6 @@ const styles = StyleSheet.create({
     marginTop: 16,
     fontSize: 12,
     textAlign: 'center',
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
   },
 });

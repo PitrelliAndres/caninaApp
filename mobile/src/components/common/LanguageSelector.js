@@ -8,6 +8,7 @@ export function LanguageSelector() {
   const { i18n } = useTranslation()
   const theme = useTheme()
   const [visible, setVisible] = useState(false)
+  const dynamicStyles = styles(theme)
 
   const languages = [
     { code: 'es', name: 'Español', flag: '🇪🇸' },
@@ -30,7 +31,7 @@ export function LanguageSelector() {
           icon="web"
           size={24}
           onPress={() => setVisible(true)}
-          style={styles.button}
+          style={dynamicStyles.button}
         />
       }
     >
@@ -39,18 +40,18 @@ export function LanguageSelector() {
           key={lang.code}
           onPress={() => handleLanguageChange(lang.code)}
           title={`${lang.flag} ${lang.name}`}
-          style={i18n.language === lang.code ? styles.activeItem : null}
+          style={i18n.language === lang.code ? dynamicStyles.activeItem : null}
         />
       ))}
     </Menu>
   )
 }
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
   button: {
     margin: 0,
   },
   activeItem: {
-    backgroundColor: '#e3f2fd',
+    backgroundColor: theme.colors.primaryContainer,
   },
 })

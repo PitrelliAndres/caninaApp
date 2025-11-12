@@ -18,7 +18,9 @@
     "no": "No",
     "home": "Home",
     "refresh": "Refresh",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "close": "Close",
+    "skip": "Skip"
   },
   "auth": {
     "loginTitle": "Welcome to ParkDog!",
@@ -39,42 +41,217 @@
   },
   "onboarding": {
     "step1": {
-      "title": "Your profile",
-      "subtitle": "Tell us about yourself. This information will help us find the best matches for you.",
-      "nameLabel": "Name",
-      "nameDisabled": "This name comes from your Google account",
-      "nicknameLabel": "Nickname or preferred name *",
-      "nicknameHelp": "This is the name other users will see",
-      "nicknameTaken": "This nickname is already taken",
-      "nicknameAvailable": "Nickname available",
-      "ageLabel": "Age *",
-      "photoLabel": "Profile photo (optional)",
-      "uploadPhoto": "Upload photo",
-      "requiredFields": "Please complete your nickname and age"
+      "title": "What's your name?",
+      "subtitle": "This is how it will appear on your profile",
+      "nameLabel": "Your name *",
+      "nameHelp": "This is how it will appear on your profile. Once registration is complete, you won't be able to change it.",
+      "nameMinLength": "Name must be at least 2 characters",
+      "nameMaxLength": "Name cannot exceed 30 characters"
     },
     "step2": {
-      "title": "Your pet",
-      "subtitle": "Tell us about your dog. Help us get to know your furry companion.",
-      "dogNameLabel": "Your dog's name *",
-      "dogAgeLabel": "Your dog's age *",
-      "dogAgeHelp": "If it's a puppy, you can put 0",
-      "breedLabel": "Breed *",
-      "breedPlaceholder": "Select a breed",
-      "dogPhotoLabel": "Your dog's photo (optional)",
-      "requiredFields": "Please complete all your dog's information"
+      "title": "Your date of birth",
+      "subtitle": "Your age will be public. Your date of birth will not be shown.",
+      "selectDate": "Select your date of birth",
+      "showZodiacSign": "Show my zodiac sign on my profile",
+      "confirmTitle": "You're {{age}} years old?",
+      "confirmMessage": "You won't be able to change this later.",
+      "confirmButton": "That's my age",
+      "modifyButton": "Modify date",
+      "mustBe18": "You must be 18 years or older to use ParkDog"
     },
     "step3": {
-      "title": "Preferences",
-      "subtitle": "Customize your ParkDog experience",
-      "privacySection": "Privacy",
-      "publicProfile": "Public profile",
-      "publicProfileDesc": "Other users can see your profile",
-      "allowMatching": "Allow matches",
-      "allowMatchingDesc": "Participate in the matching system",
-      "allowProximity": "Proximity discovery",
-      "allowProximityDesc": "Find nearby users",
-      "interestsSection": "Your interests",
-      "note": "You can change these preferences anytime from your profile"
+      "title": "Your gender",
+      "subtitle": "Select up to 3 options",
+      "showOnProfile": "Show gender on my profile",
+      "maxGendersReached": "You can select up to 3 options",
+      "genderRequired": "Select at least one option",
+      "genders": {
+        "male": "Male",
+        "female": "Female",
+        "nonBinary": "Non-binary / Extrabinary",
+        "preferNotToSay": "Prefer not to say"
+      }
+    },
+    "step4": {
+      "title": "Your sexual orientation",
+      "subtitle": "This won't be shown on your profile unless you decide to",
+      "showOnProfile": "Show orientation on my profile",
+      "orientationRequired": "Select at least one option",
+      "orientations": {
+        "heterosexual": {
+          "label": "Heterosexual",
+          "description": "Person attracted exclusively to people of the opposite gender"
+        },
+        "gay": {
+          "label": "Gay",
+          "description": "Man attracted exclusively to other men"
+        },
+        "lesbian": {
+          "label": "Lesbian",
+          "description": "Woman attracted exclusively to other women"
+        },
+        "bisexual": {
+          "label": "Bisexual",
+          "description": "Person attracted to both men and women"
+        },
+        "pansexual": {
+          "label": "Pansexual",
+          "description": "Person attracted regardless of gender"
+        },
+        "asexual": {
+          "label": "Asexual",
+          "description": "Person who experiences no or little sexual attraction"
+        },
+        "queer": {
+          "label": "Queer",
+          "description": "Broad term encompassing various non-heterosexual identities"
+        },
+        "questioning": {
+          "label": "Questioning",
+          "description": "Person exploring or unsure about their orientation"
+        }
+      }
+    },
+    "step5": {
+      "title": "What are you looking for on ParkDog?",
+      "subtitle": "Others will be able to see this",
+      "lookingForRequired": "Select an option",
+      "options": {
+        "seriousRelationship": "Serious relationship",
+        "relationshipOrCasual": "Relationship or something casual",
+        "casualOrRelationship": "Something casual or serious",
+        "casual": "Something casual",
+        "makeFriends": "Make friends",
+        "notSure": "I'm not sure yet what I want"
+      }
+    },
+    "step6": {
+      "title": "Distance preference",
+      "subtitle": "We'll show you people within this radius",
+      "kmAway": "Up to {{distance}} km away",
+      "locationNote": "You can change this anytime"
+    },
+    "step7": {
+      "title": "Enable your location",
+      "subtitle": "To connect with people nearby",
+      "whyNeeded": "Why do we need your location?",
+      "reason1": "Show you parks close to you",
+      "reason2": "Connect you with nearby people",
+      "reason3": "Calculate distance to matches",
+      "permissionDenied": "Location permission denied",
+      "permissionDeniedMessage": "To use ParkDog you need to enable location. You can enable it in your device settings.",
+      "goToSettings": "Go to settings",
+      "enableLocation": "Enable location",
+      "obtainingLocation": "Getting your location...",
+      "locationObtained": "Location obtained successfully",
+      "locationError": "Couldn't get your location. Please try again."
+    },
+    "step8": {
+      "title": "Habits with your dog",
+      "subtitle": "This helps us find compatible people",
+      "sectionsAnswered": "{{count}} of 4 sections answered",
+      "sections": {
+        "walkFrequency": {
+          "title": "How often do you walk your dog?",
+          "options": {
+            "multiple": "Multiple times a day",
+            "daily": "Once a day",
+            "fewTimes": "A few times a week",
+            "onceWeek": "Once a week or less"
+          }
+        },
+        "walkTypes": {
+          "title": "What kind of walks do you prefer?",
+          "options": {
+            "short": "Short walks (15-30 min)",
+            "medium": "Medium walks (30-60 min)",
+            "long": "Long walks (more than 1 hour)",
+            "running": "Running or jogging",
+            "offLeash": "Off-leash walks"
+          }
+        },
+        "dogSociability": {
+          "title": "How is your dog with other dogs?",
+          "options": {
+            "veryFriendly": "Very friendly, loves playing",
+            "selective": "Selective, prefers familiar dogs",
+            "calm": "Calm, doesn't interact much",
+            "training": "In socialization training",
+            "needsSpace": "Needs their space"
+          }
+        },
+        "otherPets": {
+          "title": "Do you have other pets at home?",
+          "options": {
+            "noPets": "No, only my dog",
+            "cats": "Yes, cats",
+            "dogs": "Yes, more dogs",
+            "other": "Other pets"
+          }
+        }
+      }
+    },
+    "step9": {
+      "title": "Interests with your dog",
+      "subtitle": "Select what you like to do with your furry friend (optional)",
+      "maxInterestsReached": "You can select up to {{max}} interests",
+      "interestsSelected": "interests selected",
+      "categories": {
+        "outdoor": {
+          "title": "🏕 Outdoors and adventure",
+          "interests": {
+            "longWalks": "Long walks",
+            "hikingWithDog": "Hiking with dog",
+            "mountains": "Going to the mountains",
+            "camping": "Camping",
+            "roadTrips": "Road trips with dog",
+            "dogBeaches": "Dog-friendly beaches",
+            "bigParks": "Large parks",
+            "agility": "Agility / dog sports"
+          }
+        },
+        "social": {
+          "title": "☕ Social and city",
+          "interests": {
+            "dogFriendlyCafes": "Dog-friendly cafés",
+            "groupWalks": "Group walks",
+            "neighborhoodParks": "Neighborhood parks",
+            "dogDates": "Dog dates (dogs with dogs)",
+            "dogEvents": "Dog events",
+            "afterOffice": "After work with dogs"
+          }
+        },
+        "wellness": {
+          "title": "🌱 Wellness and lifestyle",
+          "interests": {
+            "positiveTraining": "Positive training",
+            "volunteering": "Volunteering / shelters",
+            "adoption": "Adoptions and rescue",
+            "dogPhotography": "Dog photography",
+            "diyPetStuff": "DIY pet stuff",
+            "slowWalks": "Slow walks / calm walks"
+          }
+        }
+      }
+    },
+    "step10": {
+      "title": "Add your photos",
+      "subtitle": "Show who you are (minimum 2, maximum 6)",
+      "photosAdded": "photos added",
+      "addPhoto": "Add photo",
+      "takePhoto": "Take a photo",
+      "chooseFromGallery": "Choose from gallery",
+      "photoTips": "Tips for good photos",
+      "tipsTitle": "Photo tips",
+      "tip1": "Use recent photos where your face is clearly visible",
+      "tip2": "You can add photos of yourself and your dog",
+      "tip3": "Tap the icon on each photo to indicate if it's of you or your dog",
+      "tip4": "Natural photos work best",
+      "minPhotosRequired": "You need at least {{count}} photos",
+      "maxPhotosReached": "Maximum {{count}} photos",
+      "atLeastOneUserPhoto": "You need at least one photo of yourself",
+      "finish": "Complete profile",
+      "success": "Profile completed successfully!"
     },
     "progress": "Step {{current}} of {{total}}"
   },

@@ -21,6 +21,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 export function PrivacySettingsScreen({ navigation }) {
   const { t } = useTranslation()
   const theme = useTheme()
+  const dynamicStyles = styles(theme)
   const [loading, setLoading] = useState(false)
   const [settings, setSettings] = useState({
     profileVisibility: true,
@@ -150,12 +151,12 @@ export function PrivacySettingsScreen({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={dynamicStyles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Profile Privacy */}
-        <Card style={styles.card}>
+        <Card style={dynamicStyles.card}>
           <Card.Content>
-            <Text variant="titleMedium" style={styles.sectionTitle}>
+            <Text variant="titleMedium" style={dynamicStyles.sectionTitle}>
               {t('profile.profilePrivacy')}
             </Text>
 
@@ -202,9 +203,9 @@ export function PrivacySettingsScreen({ navigation }) {
         </Card>
 
         {/* Communication Privacy */}
-        <Card style={styles.card}>
+        <Card style={dynamicStyles.card}>
           <Card.Content>
-            <Text variant="titleMedium" style={styles.sectionTitle}>
+            <Text variant="titleMedium" style={dynamicStyles.sectionTitle}>
               {t('profile.communicationPrivacy')}
             </Text>
 
@@ -237,9 +238,9 @@ export function PrivacySettingsScreen({ navigation }) {
         </Card>
 
         {/* Data Privacy */}
-        <Card style={styles.card}>
+        <Card style={dynamicStyles.card}>
           <Card.Content>
-            <Text variant="titleMedium" style={styles.sectionTitle}>
+            <Text variant="titleMedium" style={dynamicStyles.sectionTitle}>
               {t('profile.dataPrivacy')}
             </Text>
 
@@ -272,9 +273,9 @@ export function PrivacySettingsScreen({ navigation }) {
         </Card>
 
         {/* Data Management */}
-        <Card style={styles.card}>
+        <Card style={dynamicStyles.card}>
           <Card.Content>
-            <Text variant="titleMedium" style={styles.sectionTitle}>
+            <Text variant="titleMedium" style={dynamicStyles.sectionTitle}>
               {t('profile.dataManagement')}
             </Text>
 
@@ -299,8 +300,8 @@ export function PrivacySettingsScreen({ navigation }) {
           </Card.Content>
         </Card>
 
-        <View style={styles.infoContainer}>
-          <Text variant="bodySmall" style={styles.infoText}>
+        <View style={dynamicStyles.infoContainer}>
+          <Text variant="bodySmall" style={dynamicStyles.infoText}>
             {t('profile.privacyNotice')}
           </Text>
         </View>
@@ -309,10 +310,10 @@ export function PrivacySettingsScreen({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.surface,
   },
   card: {
     marginHorizontal: 16,
@@ -328,7 +329,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   infoText: {
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
     textAlign: 'center',
     lineHeight: 18,
   },

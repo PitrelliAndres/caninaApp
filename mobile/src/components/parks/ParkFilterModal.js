@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next';
 export function ParkFilterModal({ visible, onDismiss, filters, onApplyFilters }) {
   const { t } = useTranslation();
   const theme = useTheme();
+  const dynamicStyles = styles(theme);
 
   const [localFilters, setLocalFilters] = useState(filters);
 
@@ -54,19 +55,19 @@ export function ParkFilterModal({ visible, onDismiss, filters, onApplyFilters })
         visible={visible}
         onDismiss={onDismiss}
         contentContainerStyle={[
-          styles.modal,
+          dynamicStyles.modal,
           { backgroundColor: theme.colors.surface },
         ]}
       >
-        <Surface style={styles.surface} elevation={4}>
-          <Text variant="headlineSmall" style={styles.title}>
+        <Surface style={dynamicStyles.surface} elevation={4}>
+          <Text variant="headlineSmall" style={dynamicStyles.title}>
             {t('parks.filters.title', 'Filtros')}
           </Text>
 
-          <Divider style={styles.divider} />
+          <Divider style={dynamicStyles.divider} />
 
-          <View style={styles.filterSection}>
-            <View style={styles.filterRow}>
+          <View style={dynamicStyles.filterSection}>
+            <View style={dynamicStyles.filterRow}>
               <Text variant="bodyLarge">
                 {t('parks.filters.hasArea', 'Área para perros')}
               </Text>
@@ -76,7 +77,7 @@ export function ParkFilterModal({ visible, onDismiss, filters, onApplyFilters })
               />
             </View>
 
-            <View style={styles.filterRow}>
+            <View style={dynamicStyles.filterRow}>
               <Text variant="bodyLarge">
                 {t('parks.filters.isFenced', 'Cercado')}
               </Text>
@@ -86,7 +87,7 @@ export function ParkFilterModal({ visible, onDismiss, filters, onApplyFilters })
               />
             </View>
 
-            <View style={styles.filterRow}>
+            <View style={dynamicStyles.filterRow}>
               <Text variant="bodyLarge">
                 {t('parks.filters.hasWater', 'Fuente de agua')}
               </Text>
@@ -97,13 +98,13 @@ export function ParkFilterModal({ visible, onDismiss, filters, onApplyFilters })
             </View>
           </View>
 
-          <Divider style={styles.divider} />
+          <Divider style={dynamicStyles.divider} />
 
-          <View style={styles.buttonRow}>
+          <View style={dynamicStyles.buttonRow}>
             <Button
               mode="outlined"
               onPress={handleReset}
-              style={styles.button}
+              style={dynamicStyles.button}
             >
               {t('common.reset', 'Limpiar')}
             </Button>
@@ -111,7 +112,7 @@ export function ParkFilterModal({ visible, onDismiss, filters, onApplyFilters })
             <Button
               mode="contained"
               onPress={handleApply}
-              style={styles.button}
+              style={dynamicStyles.button}
             >
               {t('common.apply', 'Aplicar')}
             </Button>
@@ -122,7 +123,7 @@ export function ParkFilterModal({ visible, onDismiss, filters, onApplyFilters })
   );
 }
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
   modal: {
     margin: 20,
   },

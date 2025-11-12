@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { View, Text, ScrollView, Alert } from 'react-native'
-import { Card, Button, Chip, ActivityIndicator } from 'react-native-paper'
+import { View, Text, ScrollView, Alert, StyleSheet } from 'react-native'
+import { Card, Button, Chip, ActivityIndicator, useTheme } from 'react-native-paper'
 import { useSelector, useDispatch } from 'react-redux'
 
 // Nuevos hooks de TanStack Query
@@ -37,44 +37,46 @@ import {
  */
 export default function ArchitectureExample() {
   const dispatch = useDispatch()
-  
+  const theme = useTheme()
+  const dynamicStyles = styles(theme)
+
   // === Redux State ===
   const searchFilters = useSelector(selectSearchFilters)
   const onboardingStep = useSelector(selectOnboardingStep)
   const parkModalVisible = useSelector(selectModal)('parkFilter')
   const conversations = useSelector(selectConversations)
   const currentChat = useSelector(selectCurrentChat)
-  
+
   // === Auth State (TanStack Query) ===
   const { isAuthenticated, user, isLoading: authLoading } = useAuthState()
-  
+
   // === Parks Data (TanStack Query) ===
-  const { 
-    data: parks, 
-    isLoading: parksLoading, 
+  const {
+    data: parks,
+    isLoading: parksLoading,
     error: parksError,
-    refetch: refetchParks 
+    refetch: refetchParks
   } = useParks(searchFilters)
-  
+
   // === Matches Data (TanStack Query) ===
-  const { 
-    users: discoverUsers, 
+  const {
+    users: discoverUsers,
     isLoading: discoverLoading,
     fetchNextPage,
-    hasNextPage 
+    hasNextPage
   } = useDiscoverUsers(searchFilters)
-  
+
   // === Messages Data (TanStack Query) ===
-  const { 
-    data: conversationsList, 
-    isLoading: conversationsLoading 
+  const {
+    data: conversationsList,
+    isLoading: conversationsLoading
   } = useConversations()
-  
+
   // === Mutations (TanStack Query) ===
   const favoritePark = useFavoritePark()
   const likeUser = useLikeUser()
   const sendMessage = useSendMessage()
-  
+
   // === Local State ===
   const [selectedParkId, setSelectedParkId] = useState(null)
   const [messageText, setMessageText] = useState('')
@@ -144,7 +146,7 @@ export default function ArchitectureExample() {
   // === Loading States ===
   if (authLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={dynamicStyles.centerContainer}>
         <ActivityIndicator size="large" />
         <Text>Cargando autenticación...</Text>
       </View>
@@ -153,27 +155,27 @@ export default function ArchitectureExample() {
 
   if (!isAuthenticated) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={dynamicStyles.centerContainer}>
         <Text>Necesitas iniciar sesión</Text>
       </View>
     )
   }
 
   return (
-    <ScrollView style={{ flex: 1, padding: 16 }}>
-      <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 16 }}>
+    <ScrollView style={dynamicStyles.scrollContainer}>
+      <Text style={dynamicStyles.mainTitle}>
         Ejemplo de Nueva Arquitectura
       </Text>
-      
+
       {/* === Redux UI State === */}
-      <Card style={{ marginBottom: 16 }}>
+      <Card style={dynamicStyles.card}>
         <Card.Title title="Redux UI State" />
         <Card.Content>
           <Text>Onboarding Step: {onboardingStep}</Text>
           <Text>Modal Visible: {parkModalVisible ? 'Sí' : 'No'}</Text>
           <Text>Radio de búsqueda: {searchFilters.radius} km</Text>
-          
-          <View style={{ flexDirection: 'row', marginTop: 8, gap: 8 }}>
+
+          <View style={dynamicStyles.buttonRow}>
             <Button mode="outlined" onPress={handleOnboardingNext}>
               Siguiente Onboarding
             </Button>
@@ -188,26 +190,21 @@ export default function ArchitectureExample() {
       </Card>
 
       {/* === TanStack Query Data === */}
-      <Card style={{ marginBottom: 16 }}>
+      <Card style={dynamicStyles.card}>
         <Card.Title title="TanStack Query - Parks" />
         <Card.Content>
           {parksLoading ? (
             <ActivityIndicator />
           ) : parksError ? (
-            <Text style={{ color: 'red' }}>Error: {parksError.message}</Text>
+            <Text style={dynamicStyles.errorText}>Error: {parksError.message}</Text>
           ) : (
             <>
               <Text>Parques encontrados: {parks?.length || 0}</Text>
               {parks?.slice(0, 3).map(park => (
-                <View key={park.id} style={{ 
-                  flexDirection: 'row', 
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginVertical: 4 
-                }}>
+                <View key={park.id} style={dynamicStyles.itemRow}>
                   <Text>{park.name}</Text>
-                  <Button 
-                    mode="outlined" 
+                  <Button
+                    mode="outlined"
                     onPress={() => handleFavoritePark(park.id)}
                     loading={favoritePark.isPending}
                   >
@@ -215,7 +212,7 @@ export default function ArchitectureExample() {
                   </Button>
                 </View>
               ))}
-              <Button mode="outlined" onPress={refetchParks} style={{ marginTop: 8 }}>
+              <Button mode="outlined" onPress={refetchParks} style={dynamicStyles.topMargin}>
                 Refrescar Parques
               </Button>
             </>
@@ -224,7 +221,7 @@ export default function ArchitectureExample() {
       </Card>
 
       {/* === Discover Users === */}
-      <Card style={{ marginBottom: 16 }}>
+      <Card style={dynamicStyles.card}>
         <Card.Title title="TanStack Query - Discover" />
         <Card.Content>
           {discoverLoading ? (
@@ -233,15 +230,10 @@ export default function ArchitectureExample() {
             <>
               <Text>Usuarios para match: {discoverUsers?.length || 0}</Text>
               {discoverUsers?.slice(0, 2).map(user => (
-                <View key={user.id} style={{ 
-                  flexDirection: 'row', 
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginVertical: 4 
-                }}>
+                <View key={user.id} style={dynamicStyles.itemRow}>
                   <Text>{user.name}</Text>
-                  <Button 
-                    mode="outlined" 
+                  <Button
+                    mode="outlined"
                     onPress={() => handleLikeUser(user.id)}
                     loading={likeUser.isPending}
                   >
@@ -250,7 +242,7 @@ export default function ArchitectureExample() {
                 </View>
               ))}
               {hasNextPage && (
-                <Button mode="outlined" onPress={fetchNextPage} style={{ marginTop: 8 }}>
+                <Button mode="outlined" onPress={fetchNextPage} style={dynamicStyles.topMargin}>
                   Cargar Más Usuarios
                 </Button>
               )}
@@ -260,7 +252,7 @@ export default function ArchitectureExample() {
       </Card>
 
       {/* === Messages (Socket.IO + HTTP) === */}
-      <Card style={{ marginBottom: 16 }}>
+      <Card style={dynamicStyles.card}>
         <Card.Title title="Messages - Socket.IO + HTTP" />
         <Card.Content>
           {conversationsLoading ? (
@@ -269,19 +261,19 @@ export default function ArchitectureExample() {
             <>
               <Text>Conversaciones: {conversations?.length || 0}</Text>
               <Text>Chat actual: {currentChat?.user?.name || 'Ninguno'}</Text>
-              
+
               {currentChat && (
-                <View style={{ marginTop: 8 }}>
+                <View style={dynamicStyles.topMargin}>
                   <Text>Enviar mensaje:</Text>
-                  <View style={{ flexDirection: 'row', marginTop: 4, gap: 8 }}>
-                    <Button 
-                      mode="outlined" 
+                  <View style={dynamicStyles.messageRow}>
+                    <Button
+                      mode="outlined"
                       onPress={() => setMessageText('¡Hola!')}
                     >
                       "¡Hola!"
                     </Button>
-                    <Button 
-                      mode="outlined" 
+                    <Button
+                      mode="outlined"
                       onPress={handleSendMessage}
                       loading={sendMessage.isPending}
                     >
@@ -296,14 +288,14 @@ export default function ArchitectureExample() {
       </Card>
 
       {/* === Estado de Usuario === */}
-      <Card style={{ marginBottom: 16 }}>
+      <Card style={dynamicStyles.card}>
         <Card.Title title="Usuario Actual" />
         <Card.Content>
           <Text>ID: {user?.id}</Text>
           <Text>Nombre: {user?.name}</Text>
           <Text>Email: {user?.email}</Text>
-          
-          <View style={{ flexDirection: 'row', marginTop: 8, flexWrap: 'wrap', gap: 4 }}>
+
+          <View style={dynamicStyles.chipContainer}>
             <Chip>Autenticado</Chip>
             {user?.onboarding_completed && <Chip>Onboarding Completo</Chip>}
             {user?.verified && <Chip>Verificado</Chip>}
@@ -311,15 +303,68 @@ export default function ArchitectureExample() {
         </Card.Content>
       </Card>
 
-      <Text style={{ 
-        fontSize: 12, 
-        color: 'gray', 
-        textAlign: 'center',
-        marginTop: 16 
-      }}>
-        Este componente demuestra la integración de TanStack Query (HTTP), 
+      <Text style={dynamicStyles.footerText}>
+        Este componente demuestra la integración de TanStack Query (HTTP),
         Redux (UI state) y Socket.IO (real-time) trabajando juntos.
       </Text>
     </ScrollView>
   )
 }
+
+const styles = (theme) => StyleSheet.create({
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: theme.colors.background,
+  },
+  scrollContainer: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: theme.colors.background,
+  },
+  mainTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    color: theme.colors.onSurface,
+  },
+  card: {
+    marginBottom: 16,
+    backgroundColor: theme.colors.surface,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    marginTop: 8,
+    gap: 8,
+  },
+  errorText: {
+    color: theme.colors.error,
+  },
+  itemRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginVertical: 4,
+  },
+  topMargin: {
+    marginTop: 8,
+  },
+  messageRow: {
+    flexDirection: 'row',
+    marginTop: 4,
+    gap: 8,
+  },
+  chipContainer: {
+    flexDirection: 'row',
+    marginTop: 8,
+    flexWrap: 'wrap',
+    gap: 4,
+  },
+  footerText: {
+    fontSize: 12,
+    color: theme.colors.onSurfaceVariant,
+    textAlign: 'center',
+    marginTop: 16,
+  },
+})

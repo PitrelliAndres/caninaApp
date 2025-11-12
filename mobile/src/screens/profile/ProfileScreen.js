@@ -25,6 +25,7 @@ export function ProfileScreen({ navigation }) {
   const [user, setUser] = useState(null)
   const [darkMode, setDarkMode] = useState(false)
   const [notifications, setNotifications] = useState(true)
+  const dynamicStyles = styles(theme)
 
   // Mock user data - replace with real user data from context/state
   const mockUser = {
@@ -128,8 +129,8 @@ export function ProfileScreen({ navigation }) {
 
   if (!user) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
+      <SafeAreaView style={dynamicStyles.container}>
+        <View style={dynamicStyles.loadingContainer}>
           <Text variant="bodyLarge">{t('common.loading')}</Text>
         </View>
       </SafeAreaView>
@@ -137,31 +138,31 @@ export function ProfileScreen({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={dynamicStyles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Profile Header */}
-        <Card style={styles.profileCard}>
-          <Card.Content style={styles.profileContent}>
+        <Card style={dynamicStyles.profileCard}>
+          <Card.Content style={dynamicStyles.profileContent}>
             <Avatar.Text
               size={80}
               label={user.name?.charAt(0) || 'U'}
-              style={styles.avatar}
+              style={dynamicStyles.avatar}
             />
-            <View style={styles.userInfo}>
-              <Text variant="headlineSmall" style={styles.userName}>
+            <View style={dynamicStyles.userInfo}>
+              <Text variant="headlineSmall" style={dynamicStyles.userName}>
                 {user.name}
               </Text>
-              <Text variant="bodyMedium" style={styles.userEmail}>
+              <Text variant="bodyMedium" style={dynamicStyles.userEmail}>
                 {user.email}
               </Text>
-              <Text variant="bodySmall" style={styles.joinDate}>
+              <Text variant="bodySmall" style={dynamicStyles.joinDate}>
                 {t('profile.memberSince')} {new Date(user.joinDate).toLocaleDateString()}
               </Text>
             </View>
             <Button
               mode="outlined"
               onPress={() => navigation.navigate('EditProfile')}
-              style={styles.editButton}
+              style={dynamicStyles.editButton}
               compact
             >
               {t('profile.edit')}
@@ -170,33 +171,33 @@ export function ProfileScreen({ navigation }) {
         </Card>
 
         {/* Stats */}
-        <Card style={styles.statsCard}>
+        <Card style={dynamicStyles.statsCard}>
           <Card.Content>
-            <Text variant="titleMedium" style={styles.sectionTitle}>
+            <Text variant="titleMedium" style={dynamicStyles.sectionTitle}>
               {t('profile.stats')}
             </Text>
-            <View style={styles.statsContainer}>
-              <View style={styles.statItem}>
-                <Text variant="headlineSmall" style={styles.statNumber}>
+            <View style={dynamicStyles.statsContainer}>
+              <View style={dynamicStyles.statItem}>
+                <Text variant="headlineSmall" style={dynamicStyles.statNumber}>
                   {user.stats.visits}
                 </Text>
-                <Text variant="bodySmall" style={styles.statLabel}>
+                <Text variant="bodySmall" style={dynamicStyles.statLabel}>
                   {t('profile.visits')}
                 </Text>
               </View>
-              <View style={styles.statItem}>
-                <Text variant="headlineSmall" style={styles.statNumber}>
+              <View style={dynamicStyles.statItem}>
+                <Text variant="headlineSmall" style={dynamicStyles.statNumber}>
                   {user.stats.matches}
                 </Text>
-                <Text variant="bodySmall" style={styles.statLabel}>
+                <Text variant="bodySmall" style={dynamicStyles.statLabel}>
                   {t('profile.matches')}
                 </Text>
               </View>
-              <View style={styles.statItem}>
-                <Text variant="headlineSmall" style={styles.statNumber}>
+              <View style={dynamicStyles.statItem}>
+                <Text variant="headlineSmall" style={dynamicStyles.statNumber}>
                   {user.stats.connections}
                 </Text>
-                <Text variant="bodySmall" style={styles.statLabel}>
+                <Text variant="bodySmall" style={dynamicStyles.statLabel}>
                   {t('profile.connections')}
                 </Text>
               </View>
@@ -205,9 +206,9 @@ export function ProfileScreen({ navigation }) {
         </Card>
 
         {/* Settings */}
-        <Card style={styles.settingsCard}>
+        <Card style={dynamicStyles.settingsCard}>
           <Card.Content>
-            <Text variant="titleMedium" style={styles.sectionTitle}>
+            <Text variant="titleMedium" style={dynamicStyles.sectionTitle}>
               {t('profile.settings')}
             </Text>
 
@@ -250,11 +251,11 @@ export function ProfileScreen({ navigation }) {
         </Card>
 
         {/* Actions */}
-        <View style={styles.actionsContainer}>
+        <View style={dynamicStyles.actionsContainer}>
           <Button
             mode="contained"
             onPress={() => navigation.navigate('MyVisits')}
-            style={styles.actionButton}
+            style={dynamicStyles.actionButton}
             icon="calendar"
           >
             {t('profile.myVisits')}
@@ -263,7 +264,7 @@ export function ProfileScreen({ navigation }) {
           <Button
             mode="outlined"
             onPress={() => navigation.navigate('MyMatches')}
-            style={styles.actionButton}
+            style={dynamicStyles.actionButton}
             icon="heart"
           >
             {t('profile.myMatches')}
@@ -272,7 +273,7 @@ export function ProfileScreen({ navigation }) {
           <Button
             mode="outlined"
             onPress={handleLogout}
-            style={[styles.actionButton, styles.logoutButton]}
+            style={[dynamicStyles.actionButton, dynamicStyles.logoutButton]}
             textColor={theme.colors.error}
             icon="logout"
           >
@@ -284,10 +285,10 @@ export function ProfileScreen({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.surface,
   },
   loadingContainer: {
     flex: 1,
@@ -314,11 +315,11 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   userEmail: {
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
     marginBottom: 4,
   },
   joinDate: {
-    color: '#999',
+    color: theme.colors.onSurfaceVariant,
   },
   editButton: {
     borderRadius: 8,
@@ -341,10 +342,10 @@ const styles = StyleSheet.create({
   },
   statNumber: {
     fontWeight: 'bold',
-    color: '#2563eb',
+    color: theme.colors.primary,
   },
   statLabel: {
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
     marginTop: 4,
   },
   settingsCard: {
@@ -360,6 +361,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   logoutButton: {
-    borderColor: '#dc2626',
+    borderColor: theme.colors.error,
   },
 })

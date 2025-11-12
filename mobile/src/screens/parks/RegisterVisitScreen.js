@@ -19,6 +19,7 @@ export function RegisterVisitScreen({ route, navigation }) {
   const { park } = route.params
   const { t } = useTranslation()
   const theme = useTheme()
+  const dynamicStyles = styles(theme)
 
   const [visitData, setVisitData] = useState({
     date: new Date(),
@@ -49,30 +50,30 @@ export function RegisterVisitScreen({ route, navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <Card style={styles.parkCard}>
+    <SafeAreaView style={dynamicStyles.container}>
+      <ScrollView contentContainerStyle={dynamicStyles.content}>
+        <Card style={dynamicStyles.parkCard}>
           <Card.Content>
-            <Text variant="titleMedium" style={styles.parkName}>
+            <Text variant="titleMedium" style={dynamicStyles.parkName}>
               {park.name}
             </Text>
-            <Text variant="bodyMedium" style={styles.neighborhood}>
+            <Text variant="bodyMedium" style={dynamicStyles.neighborhood}>
               {park.neighborhood}
             </Text>
           </Card.Content>
         </Card>
 
-        <Card style={styles.formCard}>
+        <Card style={dynamicStyles.formCard}>
           <Card.Content>
-            <Text variant="titleMedium" style={styles.sectionTitle}>
+            <Text variant="titleMedium" style={dynamicStyles.sectionTitle}>
               {t('visits.details')}
             </Text>
 
             <Button
               mode="outlined"
               onPress={() => setShowDatePicker(true)}
-              style={styles.dateButton}
-              contentStyle={styles.buttonContent}
+              style={dynamicStyles.dateButton}
+              contentStyle={dynamicStyles.buttonContent}
             >
               {t('visits.date')}: {visitData.date.toLocaleDateString()}
             </Button>
@@ -80,8 +81,8 @@ export function RegisterVisitScreen({ route, navigation }) {
             <Button
               mode="outlined"
               onPress={() => setShowTimePicker(true)}
-              style={styles.timeButton}
-              contentStyle={styles.buttonContent}
+              style={dynamicStyles.timeButton}
+              contentStyle={dynamicStyles.buttonContent}
             >
               {t('visits.time')}: {visitData.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </Button>
@@ -92,26 +93,26 @@ export function RegisterVisitScreen({ route, navigation }) {
               onChangeText={(text) => setVisitData(prev => ({ ...prev, notes: text }))}
               multiline
               numberOfLines={3}
-              style={styles.notesInput}
+              style={dynamicStyles.notesInput}
             />
           </Card.Content>
         </Card>
 
-        <View style={styles.buttonContainer}>
+        <View style={dynamicStyles.buttonContainer}>
           <Button
             mode="contained"
             onPress={handleRegisterVisit}
-            style={styles.registerButton}
-            contentStyle={styles.buttonContent}
+            style={dynamicStyles.registerButton}
+            contentStyle={dynamicStyles.buttonContent}
           >
             {t('visits.register')}
           </Button>
-          
+
           <Button
             mode="outlined"
             onPress={() => navigation.goBack()}
-            style={styles.cancelButton}
-            contentStyle={styles.buttonContent}
+            style={dynamicStyles.cancelButton}
+            contentStyle={dynamicStyles.buttonContent}
           >
             {t('common.cancel')}
           </Button>
@@ -140,10 +141,10 @@ export function RegisterVisitScreen({ route, navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.surface,
   },
   content: {
     padding: 16,
@@ -157,7 +158,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   neighborhood: {
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
   },
   formCard: {
     marginBottom: 16,

@@ -21,6 +21,7 @@ import { imageService } from '../../services/media/imageService'
 export function EditProfileScreen({ navigation, route }) {
   const { t } = useTranslation()
   const theme = useTheme()
+  const dynamicStyles = styles(theme)
   const [loading, setLoading] = useState(false)
   const [profileData, setProfileData] = useState({
     name: '',
@@ -146,35 +147,35 @@ export function EditProfileScreen({ navigation, route }) {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={dynamicStyles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Card style={styles.card}>
+        <Card style={dynamicStyles.card}>
           <Card.Content>
             {/* Profile Picture */}
-            <View style={styles.avatarContainer}>
+            <View style={dynamicStyles.avatarContainer}>
               <TouchableOpacity onPress={handleImagePicker}>
                 {profileData.profilePicture ? (
                   <Avatar.Image
                     size={100}
                     source={{ uri: profileData.profilePicture }}
-                    style={styles.avatar}
+                    style={dynamicStyles.avatar}
                   />
                 ) : (
                   <Avatar.Text
                     size={100}
                     label={profileData.name?.charAt(0) || 'U'}
-                    style={styles.avatar}
+                    style={dynamicStyles.avatar}
                   />
                 )}
-                <View style={styles.cameraIcon}>
+                <View style={dynamicStyles.cameraIcon}>
                   <Avatar.Icon
                     size={30}
                     icon="camera"
-                    style={styles.cameraButton}
+                    style={dynamicStyles.cameraButton}
                   />
                 </View>
               </TouchableOpacity>
-              <Text variant="bodySmall" style={styles.avatarHint}>
+              <Text variant="bodySmall" style={dynamicStyles.avatarHint}>
                 {t('profile.tapToChangePhoto')}
               </Text>
             </View>
@@ -184,7 +185,7 @@ export function EditProfileScreen({ navigation, route }) {
               label={t('profile.name')}
               value={profileData.name}
               onChangeText={(text) => updateField('name', text)}
-              style={styles.input}
+              style={dynamicStyles.input}
               mode="outlined"
             />
 
@@ -192,7 +193,7 @@ export function EditProfileScreen({ navigation, route }) {
               label={t('profile.email')}
               value={profileData.email}
               onChangeText={(text) => updateField('email', text)}
-              style={styles.input}
+              style={dynamicStyles.input}
               mode="outlined"
               keyboardType="email-address"
               autoCapitalize="none"
@@ -202,7 +203,7 @@ export function EditProfileScreen({ navigation, route }) {
               label={t('profile.bio')}
               value={profileData.bio}
               onChangeText={(text) => updateField('bio', text)}
-              style={styles.input}
+              style={dynamicStyles.input}
               mode="outlined"
               multiline
               numberOfLines={3}
@@ -213,7 +214,7 @@ export function EditProfileScreen({ navigation, route }) {
               label={t('profile.location')}
               value={profileData.location}
               onChangeText={(text) => updateField('location', text)}
-              style={styles.input}
+              style={dynamicStyles.input}
               mode="outlined"
               placeholder={t('profile.locationPlaceholder')}
             />
@@ -222,7 +223,7 @@ export function EditProfileScreen({ navigation, route }) {
               label={t('profile.phone')}
               value={profileData.phone}
               onChangeText={(text) => updateField('phone', text)}
-              style={styles.input}
+              style={dynamicStyles.input}
               mode="outlined"
               keyboardType="phone-pad"
               placeholder={t('profile.phonePlaceholder')}
@@ -230,14 +231,14 @@ export function EditProfileScreen({ navigation, route }) {
           </Card.Content>
         </Card>
 
-        <View style={styles.buttonContainer}>
+        <View style={dynamicStyles.buttonContainer}>
           <Button
             mode="contained"
             onPress={handleSave}
             loading={loading}
             disabled={loading}
-            style={styles.saveButton}
-            contentStyle={styles.buttonContent}
+            style={dynamicStyles.saveButton}
+            contentStyle={dynamicStyles.buttonContent}
           >
             {t('profile.saveChanges')}
           </Button>
@@ -246,8 +247,8 @@ export function EditProfileScreen({ navigation, route }) {
             mode="outlined"
             onPress={() => navigation.goBack()}
             disabled={loading}
-            style={styles.cancelButton}
-            contentStyle={styles.buttonContent}
+            style={dynamicStyles.cancelButton}
+            contentStyle={dynamicStyles.buttonContent}
           >
             {t('common.cancel')}
           </Button>
@@ -257,10 +258,10 @@ export function EditProfileScreen({ navigation, route }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.surface,
   },
   card: {
     margin: 16,
@@ -279,10 +280,10 @@ const styles = StyleSheet.create({
     right: -5,
   },
   cameraButton: {
-    backgroundColor: '#2563eb',
+    backgroundColor: theme.colors.primary,
   },
   avatarHint: {
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
     textAlign: 'center',
   },
   input: {

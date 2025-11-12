@@ -18,7 +18,9 @@
     "no": "No",
     "home": "Inicio",
     "refresh": "Actualizar",
-    "notifications": "Notificaciones"
+    "notifications": "Notificaciones",
+    "close": "Cerrar",
+    "skip": "Omitir"
   },
   "auth": {
     "loginTitle": "¡Bienvenido a ParkDog!",
@@ -41,45 +43,101 @@
     "actionRequired": "Para {{action}} necesitas estar registrado"
   },
   "onboarding": {
+    "progress": "Paso {{current}} de {{total}}",
     "step1": {
-      "title": "Tu perfil",
-      "subtitle": "Cuéntanos sobre ti. Esta información nos ayudará a encontrar los mejores matches para ti.",
+      "title": "¿Cuál es tu nombre?",
+      "subtitle": "",
       "nameLabel": "Nombre",
-      "nameDisabled": "Este nombre viene de tu cuenta de Google",
-      "nicknameLabel": "Apodo o nombre preferido *",
-      "nicknameHelp": "Este es el nombre que verán otros usuarios",
-      "nicknameTaken": "Este apodo ya está en uso",
-      "nicknameAvailable": "Apodo disponible",
-      "ageLabel": "Edad *",
-      "photoLabel": "Foto de perfil (opcional)",
-      "uploadPhoto": "Subir foto",
-      "requiredFields": "Por favor, completa tu apodo y edad"
+      "nameHelp": "Así va a aparecer en tu perfil. Una vez completado el registro, no podrás cambiarlo.",
+      "nameMinLength": "El nombre debe tener al menos 2 caracteres",
+      "nameMaxLength": "El nombre no puede tener más de 30 caracteres"
     },
     "step2": {
-      "title": "Tu mascota",
-      "subtitle": "Cuéntanos sobre tu perro. Ayúdanos a conocer a tu compañero peludo.",
-      "dogNameLabel": "Nombre de tu perro *",
-      "dogAgeLabel": "Edad de tu perro *",
-      "dogAgeHelp": "Si es cachorro, puedes poner 0",
-      "breedLabel": "Raza *",
-      "breedPlaceholder": "Selecciona una raza",
-      "dogPhotoLabel": "Foto de tu perro (opcional)",
-      "requiredFields": "Por favor, completa todos los datos de tu perro"
+      "title": "Tu fecha de nacimiento",
+      "subtitle": "",
+      "birthdateLabel": "Tu fecha de nacimiento",
+      "yourAge": "Tenés {{age}} años",
+      "zodiacLabel": "Tu signo astral es:",
+      "showZodiacToggle": "¿Mostrarlo en tu perfil?",
+      "zodiacHelp": "Podrás modificarlo más tarde",
+      "underageError": "Debés tener al menos {{minAge}} años para usar Parkdog",
+      "invalidDate": "Fecha de nacimiento inválida",
+      "confirmTitle": "¿Tenés {{age}} años?",
+      "confirmMessage": "Comprobá que tu edad es la correcta, después no vas a poder cambiarla.",
+      "confirm": "Confirmar",
+      "modify": "Modificar"
     },
     "step3": {
-      "title": "Preferencias",
-      "subtitle": "Personaliza tu experiencia en ParkDog",
-      "privacySection": "Privacidad",
-      "publicProfile": "Perfil público",
-      "publicProfileDesc": "Otros usuarios pueden ver tu perfil",
-      "allowMatching": "Permitir matches",
-      "allowMatchingDesc": "Participar en el sistema de matches",
-      "allowProximity": "Descubrimiento por proximidad",
-      "allowProximityDesc": "Encontrar usuarios cercanos",
-      "interestsSection": "Tus intereses",
-      "note": "Podrás cambiar estas preferencias en cualquier momento desde tu perfil"
+      "title": "¿Cuál es tu género?",
+      "subtitle": "",
+      "description": "Seleccioná todas las opciones que te describan para ayudarnos a que mostremos tu perfil a las personas correctas. Podés agregar más detalles si querés.",
+      "selectAtLeastOne": "Seleccioná al menos un género",
+      "maxGendersReached": "Máximo 3 géneros",
+      "showGenderToggle": "Mostrar género en el perfil",
+      "showGenderDescription": "Otros usuarios podrán ver tu género en tu perfil",
+      "dataUsageLink": "Conocé cómo Parkdog usa esta información"
     },
-    "progress": "Paso {{current}} de {{total}}"
+    "step4": {
+      "title": "¿Cuál es tu orientación sexual?",
+      "subtitle": "Seleccioná todas las opciones que reflejen tu identidad.",
+      "showOrientationToggle": "Mostrar orientación sexual en mi perfil",
+      "showOrientationDescription": "Otros usuarios podrán ver tu orientación en tu perfil"
+    },
+    "step5": {
+      "title": "¿Qué estás buscando?",
+      "subtitle": "Todo bien si eso después cambia. Acá hay algo para todo el mundo."
+    },
+    "step6": {
+      "title": "¿Qué distancia preferís?",
+      "subtitle": "Usá el selector para establecer la máxima distancia a la que querés que se encuentren tus posibles matches y paseos.",
+      "distanceLabel": "Preferencia de distancia",
+      "infoText": "Podés cambiar tus preferencias más adelante en Ajustes."
+    },
+    "step7": {
+      "title": "¿Vivís por acá cerca?",
+      "subtitle": "Establecé tu ubicación para ver quiénes están en tu barrio o alrededores. De lo contrario, no vas a poder hacer match con otra gente.",
+      "description": "Establecé tu ubicación para ver quiénes están en tu barrio o alrededores.",
+      "benefit1": "Ver personas y perros cerca de vos",
+      "benefit2": "Encontrar paseos compatibles",
+      "benefit3": "Descubrir parques en tu zona",
+      "allowButton": "Permitir",
+      "permissionDenied": "Permiso denegado",
+      "permissionDeniedMessage": "Necesitamos tu ubicación para mostrarte personas y paseos cerca",
+      "permissionRequired": "Permiso de ubicación requerido",
+      "permissionRequiredMessage": "Sin tu ubicación no podemos mostrarte personas y paseos cerca. Podés activarla más tarde desde Ajustes.",
+      "openSettings": "Abrir Ajustes",
+      "privacyLink": "¿Cómo se usa mi ubicación?"
+    },
+    "step8": {
+      "title": "Hablemos de hábitos de paseo",
+      "subtitle": "¿Tus hábitos de paseo coinciden con los de los demás? Arrancá vos."
+    },
+    "step9": {
+      "title": "¿Qué te gusta hacer con tu perro?",
+      "subtitle": "Agregá hasta 10 intereses a tu perfil para ayudarte a encontrar personas que disfruten lo mismo que vos (y tu perro).",
+      "maxInterestsReached": "Podés elegir hasta 10 intereses",
+      "interestsSelected": "intereses seleccionados"
+    },
+    "step10": {
+      "title": "Añadí tus primeras fotos",
+      "subtitle": "Elegí fotos tuyas y de tu perro que muestren su personalidad y sus gustos.",
+      "photosAdded": "fotos agregadas",
+      "addPhoto": "Añadir una foto",
+      "photoTips": "Nuestros consejos para elegir tus fotos",
+      "takePhoto": "Tomar foto",
+      "chooseFromGallery": "Elegir de galería",
+      "minPhotosRequired": "Agregá al menos {{count}} fotos",
+      "maxPhotosReached": "Máximo {{count}} fotos alcanzado",
+      "atLeastOneUserPhoto": "Agregá al menos 1 foto tuya",
+      "finish": "Finalizar",
+      "success": "¡Perfil completado exitosamente!",
+      "tipsTitle": "Consejos para tus fotos",
+      "tip1": "Buena iluminación natural",
+      "tip2": "Fotos donde se te vea claramente",
+      "tip3": "Al menos una foto con tu perro",
+      "tip4": "Evita fotos con gafas de sol o filtros",
+      "close": "Cerrar"
+    }
   },
   "parks": {
     "title": "Parques en CABA",

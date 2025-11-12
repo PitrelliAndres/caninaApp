@@ -29,6 +29,7 @@ import { visitService } from '../../services/api/visits'
 export function MyVisitsScreen({ navigation }) {
   const { t, i18n } = useTranslation()
   const theme = useTheme()
+  const dynamicStyles = styles(theme)
   const [viewType, setViewType] = useState('upcoming')
   const [visits, setVisits] = useState([])
   const [loading, setLoading] = useState(true)
@@ -91,23 +92,23 @@ export function MyVisitsScreen({ navigation }) {
   }
 
   const renderVisit = ({ item }) => (
-    <Card style={styles.visitCard}>
+    <Card style={dynamicStyles.visitCard}>
       <Card.Content>
-        <View style={styles.visitHeader}>
-          <View style={styles.visitInfo}>
-            <Text variant="titleMedium" style={styles.parkName}>
+        <View style={dynamicStyles.visitHeader}>
+          <View style={dynamicStyles.visitInfo}>
+            <Text variant="titleMedium" style={dynamicStyles.parkName}>
               {item.park_name}
             </Text>
-            <Text variant="bodyLarge" style={styles.date}>
+            <Text variant="bodyLarge" style={dynamicStyles.date}>
               {format(new Date(item.date), "EEEE, d 'de' MMMM", { locale: dateLocale })}
             </Text>
-            <View style={styles.timeRow}>
-              <MaterialCommunityIcons name="clock-outline" size={16} color="#666" />
-              <Text style={styles.time}>{item.time}</Text>
-              <Text style={styles.duration}>• {item.duration}</Text>
+            <View style={dynamicStyles.timeRow}>
+              <MaterialCommunityIcons name="clock-outline" size={16} color={theme.colors.onSurfaceVariant} />
+              <Text style={dynamicStyles.time}>{item.time}</Text>
+              <Text style={dynamicStyles.duration}>• {item.duration}</Text>
             </View>
             {item.notes && (
-              <Text variant="bodySmall" style={styles.notes}>
+              <Text variant="bodySmall" style={dynamicStyles.notes}>
                 {item.notes}
               </Text>
             )}
@@ -126,18 +127,18 @@ export function MyVisitsScreen({ navigation }) {
   )
 
   const EmptyComponent = () => (
-    <View style={styles.emptyContainer}>
-      <MaterialCommunityIcons name="dog" size={64} color="#ccc" />
-      <Text variant="headlineSmall" style={styles.emptyTitle}>
+    <View style={dynamicStyles.emptyContainer}>
+      <MaterialCommunityIcons name="dog" size={64} color={theme.colors.outline} />
+      <Text variant="headlineSmall" style={dynamicStyles.emptyTitle}>
         {t('visits.noUpcomingVisits')}
       </Text>
-      <Text variant="bodyLarge" style={styles.emptyText}>
+      <Text variant="bodyLarge" style={dynamicStyles.emptyText}>
         {t('visits.registerFirstVisit')}
       </Text>
       <Button
         mode="contained"
         onPress={() => navigation.navigate('HomeTab')}
-        style={styles.exploreButton}
+        style={dynamicStyles.exploreButton}
       >
         {t('visits.exploreParks')}
       </Button>
@@ -145,10 +146,10 @@ export function MyVisitsScreen({ navigation }) {
   )
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView style={dynamicStyles.container}>
+      <View style={dynamicStyles.header}>
         <Text variant="headlineMedium">{t('visits.myVisits')}</Text>
-        <Text variant="bodyLarge" style={styles.subtitle}>
+        <Text variant="bodyLarge" style={dynamicStyles.subtitle}>
           {t('visits.subtitle')}
         </Text>
 
@@ -172,7 +173,7 @@ export function MyVisitsScreen({ navigation }) {
               icon: 'calendar',
             },
           ]}
-          style={styles.segmentedButtons}
+          style={dynamicStyles.segmentedButtons}
         />
       </View>
 
@@ -180,7 +181,7 @@ export function MyVisitsScreen({ navigation }) {
         data={visits}
         renderItem={renderVisit}
         keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={dynamicStyles.listContent}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
@@ -207,17 +208,17 @@ export function MyVisitsScreen({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.surface,
   },
   header: {
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.background,
   },
   subtitle: {
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
     marginTop: 4,
     marginBottom: 16,
   },
@@ -243,7 +244,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   date: {
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
     marginBottom: 4,
   },
   timeRow: {
@@ -253,16 +254,16 @@ const styles = StyleSheet.create({
   },
   time: {
     fontSize: 14,
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
   },
   duration: {
     fontSize: 14,
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
   },
   notes: {
     marginTop: 8,
     fontStyle: 'italic',
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
   },
   emptyContainer: {
     flex: 1,
@@ -278,7 +279,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     textAlign: 'center',
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
     marginBottom: 24,
   },
   exploreButton: {

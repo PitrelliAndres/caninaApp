@@ -1,22 +1,24 @@
 import React from 'react'
 import { View, ScrollView, StyleSheet } from 'react-native'
-import { Text, Card, Button, Chip, Avatar } from 'react-native-paper'
+import { Text, Card, Button, Chip, Avatar, useTheme } from 'react-native-paper'
 import { useTranslation } from 'react-i18next'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 export function VisitDetailScreen({ route, navigation }) {
   const { t } = useTranslation()
+  const theme = useTheme()
+  const dynamicStyles = styles(theme)
   const { visit } = route.params || {}
 
   if (!visit) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.errorContainer}>
+      <SafeAreaView style={dynamicStyles.container}>
+        <View style={dynamicStyles.errorContainer}>
           <Text variant="headlineSmall">{t('visits.visitNotFound')}</Text>
-          <Button 
-            mode="contained" 
+          <Button
+            mode="contained"
             onPress={() => navigation.goBack()}
-            style={styles.backButton}
+            style={dynamicStyles.backButton}
           >
             {t('common.goBack')}
           </Button>
@@ -36,29 +38,29 @@ export function VisitDetailScreen({ route, navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+    <SafeAreaView style={dynamicStyles.container}>
+      <ScrollView contentContainerStyle={dynamicStyles.scrollContent}>
         {/* Park Information */}
-        <Card style={styles.card}>
+        <Card style={dynamicStyles.card}>
           <Card.Content>
-            <Text variant="headlineSmall" style={styles.parkName}>
+            <Text variant="headlineSmall" style={dynamicStyles.parkName}>
               {visit.park?.name || t('visits.unknownPark')}
             </Text>
-            <Text variant="bodyMedium" style={styles.parkLocation}>
+            <Text variant="bodyMedium" style={dynamicStyles.parkLocation}>
               {visit.park?.address || t('visits.noAddress')}
             </Text>
           </Card.Content>
         </Card>
 
         {/* Visit Information */}
-        <Card style={styles.card}>
+        <Card style={dynamicStyles.card}>
           <Card.Content>
-            <Text variant="titleMedium" style={styles.sectionTitle}>
+            <Text variant="titleMedium" style={dynamicStyles.sectionTitle}>
               {t('visits.visitDetails')}
             </Text>
-            
-            <View style={styles.detailRow}>
-              <Text variant="bodyMedium" style={styles.label}>
+
+            <View style={dynamicStyles.detailRow}>
+              <Text variant="bodyMedium" style={dynamicStyles.label}>
                 {t('visits.scheduledTime')}:
               </Text>
               <Text variant="bodyMedium">
@@ -66,18 +68,18 @@ export function VisitDetailScreen({ route, navigation }) {
               </Text>
             </View>
 
-            <View style={styles.detailRow}>
-              <Text variant="bodyMedium" style={styles.label}>
+            <View style={dynamicStyles.detailRow}>
+              <Text variant="bodyMedium" style={dynamicStyles.label}>
                 {t('visits.status')}:
               </Text>
-              <Chip mode="outlined" style={styles.statusChip}>
+              <Chip mode="outlined" style={dynamicStyles.statusChip}>
                 {t(`visits.status.${visit.status}`) || visit.status}
               </Chip>
             </View>
 
             {visit.notes && (
-              <View style={styles.detailRow}>
-                <Text variant="bodyMedium" style={styles.label}>
+              <View style={dynamicStyles.detailRow}>
+                <Text variant="bodyMedium" style={dynamicStyles.label}>
                   {t('visits.notes')}:
                 </Text>
                 <Text variant="bodyMedium">{visit.notes}</Text>
@@ -88,21 +90,21 @@ export function VisitDetailScreen({ route, navigation }) {
 
         {/* Organizer Information */}
         {visit.organizer && (
-          <Card style={styles.card}>
+          <Card style={dynamicStyles.card}>
             <Card.Content>
-              <Text variant="titleMedium" style={styles.sectionTitle}>
+              <Text variant="titleMedium" style={dynamicStyles.sectionTitle}>
                 {t('visits.organizer')}
               </Text>
-              
-              <View style={styles.userRow}>
-                <Avatar.Text 
-                  size={40} 
-                  label={visit.organizer.name?.charAt(0) || 'U'} 
+
+              <View style={dynamicStyles.userRow}>
+                <Avatar.Text
+                  size={40}
+                  label={visit.organizer.name?.charAt(0) || 'U'}
                 />
-                <View style={styles.userInfo}>
+                <View style={dynamicStyles.userInfo}>
                   <Text variant="bodyLarge">{visit.organizer.name || t('users.anonymous')}</Text>
                   {visit.organizer.dog && (
-                    <Text variant="bodySmall" style={styles.dogInfo}>
+                    <Text variant="bodySmall" style={dynamicStyles.dogInfo}>
                       {t('users.withDog')}: {visit.organizer.dog.name}
                     </Text>
                   )}
@@ -114,22 +116,22 @@ export function VisitDetailScreen({ route, navigation }) {
 
         {/* Participants */}
         {visit.participants && visit.participants.length > 0 && (
-          <Card style={styles.card}>
+          <Card style={dynamicStyles.card}>
             <Card.Content>
-              <Text variant="titleMedium" style={styles.sectionTitle}>
+              <Text variant="titleMedium" style={dynamicStyles.sectionTitle}>
                 {t('visits.participants')} ({visit.participants.length})
               </Text>
-              
+
               {visit.participants.map((participant, index) => (
-                <View key={index} style={styles.userRow}>
-                  <Avatar.Text 
-                    size={32} 
-                    label={participant.name?.charAt(0) || 'U'} 
+                <View key={index} style={dynamicStyles.userRow}>
+                  <Avatar.Text
+                    size={32}
+                    label={participant.name?.charAt(0) || 'U'}
                   />
-                  <View style={styles.userInfo}>
+                  <View style={dynamicStyles.userInfo}>
                     <Text variant="bodyMedium">{participant.name || t('users.anonymous')}</Text>
                     {participant.dog && (
-                      <Text variant="bodySmall" style={styles.dogInfo}>
+                      <Text variant="bodySmall" style={dynamicStyles.dogInfo}>
                         {participant.dog.name}
                       </Text>
                     )}
@@ -141,31 +143,31 @@ export function VisitDetailScreen({ route, navigation }) {
         )}
 
         {/* Action Buttons */}
-        <View style={styles.actionButtons}>
+        <View style={dynamicStyles.actionButtons}>
           {visit.status === 'scheduled' && (
             <>
-              <Button 
-                mode="contained" 
+              <Button
+                mode="contained"
                 onPress={handleJoinVisit}
-                style={styles.button}
+                style={dynamicStyles.button}
               >
                 {t('visits.joinVisit')}
               </Button>
-              
-              <Button 
-                mode="outlined" 
+
+              <Button
+                mode="outlined"
                 onPress={handleLeaveVisit}
-                style={styles.button}
+                style={dynamicStyles.button}
               >
                 {t('visits.leaveVisit')}
               </Button>
             </>
           )}
-          
-          <Button 
-            mode="text" 
+
+          <Button
+            mode="text"
             onPress={() => navigation.goBack()}
-            style={styles.button}
+            style={dynamicStyles.button}
           >
             {t('common.goBack')}
           </Button>
@@ -175,10 +177,10 @@ export function VisitDetailScreen({ route, navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.surface,
   },
   scrollContent: {
     padding: 16,
@@ -201,12 +203,12 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   parkLocation: {
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
   },
   sectionTitle: {
     fontWeight: 'bold',
     marginBottom: 12,
-    color: '#333',
+    color: theme.colors.onSurface,
   },
   detailRow: {
     flexDirection: 'row',
@@ -232,7 +234,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   dogInfo: {
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
     fontStyle: 'italic',
   },
   actionButtons: {

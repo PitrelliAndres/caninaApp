@@ -27,16 +27,17 @@ export function ParkDetailScreen({ route, navigation }) {
   const { park } = route.params;
   const { t } = useTranslation();
   const theme = useTheme();
+  const dynamicStyles = styles(theme);
 
   const handleRegisterVisit = () => {
     navigation.navigate('RegisterVisit', { park });
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={dynamicStyles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <MapView
-          style={styles.map}
+          style={dynamicStyles.map}
           provider={PROVIDER_GOOGLE}
           initialRegion={{
             latitude: park.latitude,
@@ -55,35 +56,35 @@ export function ParkDetailScreen({ route, navigation }) {
           />
         </MapView>
 
-        <Card style={styles.infoCard}>
+        <Card style={dynamicStyles.infoCard}>
           <Card.Content>
-            <Text variant="headlineSmall" style={styles.parkName}>
+            <Text variant="headlineSmall" style={dynamicStyles.parkName}>
               {park.name}
             </Text>
 
-            <Text variant="bodyMedium" style={styles.neighborhood}>
+            <Text variant="bodyMedium" style={dynamicStyles.neighborhood}>
               {park.neighborhood}
             </Text>
 
             {park.description && (
-              <Text variant="bodyMedium" style={styles.description}>
+              <Text variant="bodyMedium" style={dynamicStyles.description}>
                 {park.description}
               </Text>
             )}
 
-            <View style={styles.featuresContainer}>
+            <View style={dynamicStyles.featuresContainer}>
               {park.hasArea && (
-                <Chip icon="run" style={styles.chip}>
+                <Chip icon="run" style={dynamicStyles.chip}>
                   {t('parks.hasArea')}
                 </Chip>
               )}
               {park.isFenced && (
-                <Chip icon="fence" style={styles.chip}>
+                <Chip icon="fence" style={dynamicStyles.chip}>
                   {t('parks.isFenced')}
                 </Chip>
               )}
               {park.hasWater && (
-                <Chip icon="water" style={styles.chip}>
+                <Chip icon="water" style={dynamicStyles.chip}>
                   {t('parks.hasWater')}
                 </Chip>
               )}
@@ -91,12 +92,12 @@ export function ParkDetailScreen({ route, navigation }) {
           </Card.Content>
         </Card>
 
-        <View style={styles.buttonContainer}>
+        <View style={dynamicStyles.buttonContainer}>
           <Button
             mode="contained"
             onPress={handleRegisterVisit}
-            style={styles.visitButton}
-            contentStyle={styles.buttonContent}
+            style={dynamicStyles.visitButton}
+            contentStyle={dynamicStyles.buttonContent}
           >
             {t('visits.registerTitle')}
           </Button>
@@ -106,10 +107,10 @@ export function ParkDetailScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.background,
   },
   map: {
     width: width,
@@ -124,7 +125,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   neighborhood: {
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
     marginBottom: 12,
   },
   description: {

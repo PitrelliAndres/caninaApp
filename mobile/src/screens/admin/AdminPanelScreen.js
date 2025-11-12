@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next'
 export function AdminPanelScreen({ navigation }) {
   const { t } = useTranslation()
   const theme = useTheme()
+  const dynamicStyles = styles(theme)
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalParks: 0,
@@ -107,71 +108,71 @@ export function AdminPanelScreen({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={dynamicStyles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Stats Overview */}
-        <Card style={styles.statsCard}>
+        <Card style={dynamicStyles.statsCard}>
           <Card.Content>
-            <Text variant="titleMedium" style={styles.sectionTitle}>
+            <Text variant="titleMedium" style={dynamicStyles.sectionTitle}>
               {t('admin.systemOverview')}
             </Text>
 
-            <View style={styles.statsGrid}>
-              <View style={styles.statItem}>
-                <Text variant="headlineSmall" style={styles.statNumber}>
+            <View style={dynamicStyles.statsGrid}>
+              <View style={dynamicStyles.statItem}>
+                <Text variant="headlineSmall" style={dynamicStyles.statNumber}>
                   {stats.totalUsers}
                 </Text>
-                <Text variant="bodySmall" style={styles.statLabel}>
+                <Text variant="bodySmall" style={dynamicStyles.statLabel}>
                   {t('admin.totalUsers')}
                 </Text>
               </View>
 
-              <View style={styles.statItem}>
-                <Text variant="headlineSmall" style={styles.statNumber}>
+              <View style={dynamicStyles.statItem}>
+                <Text variant="headlineSmall" style={dynamicStyles.statNumber}>
                   {stats.activeUsers}
                 </Text>
-                <Text variant="bodySmall" style={styles.statLabel}>
+                <Text variant="bodySmall" style={dynamicStyles.statLabel}>
                   {t('admin.activeUsers')}
                 </Text>
               </View>
 
-              <View style={styles.statItem}>
-                <Text variant="headlineSmall" style={styles.statNumber}>
+              <View style={dynamicStyles.statItem}>
+                <Text variant="headlineSmall" style={dynamicStyles.statNumber}>
                   {stats.totalParks}
                 </Text>
-                <Text variant="bodySmall" style={styles.statLabel}>
+                <Text variant="bodySmall" style={dynamicStyles.statLabel}>
                   {t('admin.totalParks')}
                 </Text>
               </View>
 
-              <View style={styles.statItem}>
-                <Text variant="headlineSmall" style={styles.statNumber}>
+              <View style={dynamicStyles.statItem}>
+                <Text variant="headlineSmall" style={dynamicStyles.statNumber}>
                   {stats.totalVisits}
                 </Text>
-                <Text variant="bodySmall" style={styles.statLabel}>
+                <Text variant="bodySmall" style={dynamicStyles.statLabel}>
                   {t('admin.totalVisits')}
                 </Text>
               </View>
 
-              <View style={styles.statItem}>
-                <Text variant="headlineSmall" style={styles.statNumber}>
+              <View style={dynamicStyles.statItem}>
+                <Text variant="headlineSmall" style={dynamicStyles.statNumber}>
                   {stats.totalMatches}
                 </Text>
-                <Text variant="bodySmall" style={styles.statLabel}>
+                <Text variant="bodySmall" style={dynamicStyles.statLabel}>
                   {t('admin.totalMatches')}
                 </Text>
               </View>
 
-              <View style={styles.statItem}>
-                <View style={styles.statWithBadge}>
-                  <Text variant="headlineSmall" style={[styles.statNumber, { color: theme.colors.error }]}>
+              <View style={dynamicStyles.statItem}>
+                <View style={dynamicStyles.statWithBadge}>
+                  <Text variant="headlineSmall" style={[dynamicStyles.statNumber, { color: theme.colors.error }]}>
                     {stats.pendingReports}
                   </Text>
                   {stats.pendingReports > 0 && (
-                    <Badge style={styles.badge}>{stats.pendingReports}</Badge>
+                    <Badge style={dynamicStyles.badge}>{stats.pendingReports}</Badge>
                   )}
                 </View>
-                <Text variant="bodySmall" style={styles.statLabel}>
+                <Text variant="bodySmall" style={dynamicStyles.statLabel}>
                   {t('admin.pendingReports')}
                 </Text>
               </View>
@@ -180,9 +181,9 @@ export function AdminPanelScreen({ navigation }) {
         </Card>
 
         {/* Management Options */}
-        <Card style={styles.card}>
+        <Card style={dynamicStyles.card}>
           <Card.Content>
-            <Text variant="titleMedium" style={styles.sectionTitle}>
+            <Text variant="titleMedium" style={dynamicStyles.sectionTitle}>
               {t('admin.management')}
             </Text>
 
@@ -207,9 +208,9 @@ export function AdminPanelScreen({ navigation }) {
               description={t('admin.reportManagementDescription')}
               left={props => <List.Icon {...props} icon="flag" />}
               right={() => (
-                <View style={styles.listItemRight}>
+                <View style={dynamicStyles.listItemRight}>
                   {stats.pendingReports > 0 && (
-                    <Badge style={styles.badge}>{stats.pendingReports}</Badge>
+                    <Badge style={dynamicStyles.badge}>{stats.pendingReports}</Badge>
                   )}
                   <List.Icon icon="chevron-right" />
                 </View>
@@ -220,9 +221,9 @@ export function AdminPanelScreen({ navigation }) {
         </Card>
 
         {/* System Options */}
-        <Card style={styles.card}>
+        <Card style={dynamicStyles.card}>
           <Card.Content>
-            <Text variant="titleMedium" style={styles.sectionTitle}>
+            <Text variant="titleMedium" style={dynamicStyles.sectionTitle}>
               {t('admin.system')}
             </Text>
 
@@ -253,12 +254,12 @@ export function AdminPanelScreen({ navigation }) {
         </Card>
 
         {/* Quick Actions */}
-        <View style={styles.actionsContainer}>
+        <View style={dynamicStyles.actionsContainer}>
           <Button
             mode="contained"
             onPress={loadAdminStats}
             loading={loading}
-            style={styles.actionButton}
+            style={dynamicStyles.actionButton}
             icon="refresh"
           >
             {t('admin.refreshStats')}
@@ -267,15 +268,15 @@ export function AdminPanelScreen({ navigation }) {
           <Button
             mode="outlined"
             onPress={() => navigation.goBack()}
-            style={styles.actionButton}
+            style={dynamicStyles.actionButton}
             icon="arrow-left"
           >
             {t('common.back')}
           </Button>
         </View>
 
-        <View style={styles.warningContainer}>
-          <Text variant="bodySmall" style={styles.warningText}>
+        <View style={dynamicStyles.warningContainer}>
+          <Text variant="bodySmall" style={dynamicStyles.warningText}>
             {t('admin.adminWarning')}
           </Text>
         </View>
@@ -284,10 +285,10 @@ export function AdminPanelScreen({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.surface,
   },
   statsCard: {
     margin: 16,
@@ -312,7 +313,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
     padding: 12,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: theme.colors.primaryContainer,
     borderRadius: 8,
   },
   statWithBadge: {
@@ -321,10 +322,10 @@ const styles = StyleSheet.create({
   },
   statNumber: {
     fontWeight: 'bold',
-    color: '#2563eb',
+    color: theme.colors.primary,
   },
   statLabel: {
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
     marginTop: 4,
     textAlign: 'center',
   },
@@ -347,7 +348,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   warningText: {
-    color: '#dc2626',
+    color: theme.colors.error,
     textAlign: 'center',
     fontStyle: 'italic',
   },

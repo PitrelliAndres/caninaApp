@@ -6,67 +6,69 @@
 
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Card, Text, Button, Chip } from 'react-native-paper';
+import { Card, Text, Button, Chip, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
 
 export function ParkCard({ park, onPress, onRegisterVisit }) {
   const { t } = useTranslation();
+  const theme = useTheme();
+  const dynamicStyles = styles(theme);
 
   return (
-    <Card style={styles.card} onPress={onPress}>
+    <Card style={dynamicStyles.card} onPress={onPress}>
       <Card.Cover
         source={{
           uri: park.photo_url || 'https://via.placeholder.com/400x200',
         }}
       />
 
-      <Card.Content style={styles.content}>
-        <Text variant="titleLarge" style={styles.title}>
+      <Card.Content style={dynamicStyles.content}>
+        <Text variant="titleLarge" style={dynamicStyles.title}>
           {park.name}
         </Text>
 
-        <View style={styles.locationRow}>
-          <MaterialCommunityIcons name="map-marker" size={16} color="#666" />
-          <Text variant="bodyMedium" style={styles.neighborhood}>
+        <View style={dynamicStyles.locationRow}>
+          <MaterialCommunityIcons name="map-marker" size={16} color={theme.colors.onSurfaceVariant} />
+          <Text variant="bodyMedium" style={dynamicStyles.neighborhood}>
             {park.neighborhood}
           </Text>
         </View>
 
         <Text
           variant="bodyMedium"
-          style={styles.description}
+          style={dynamicStyles.description}
           numberOfLines={2}
         >
           {park.description}
         </Text>
 
-        <View style={styles.features}>
+        <View style={dynamicStyles.features}>
           {park.has_dog_area && (
-            <Chip icon="dog" style={styles.chip}>
+            <Chip icon="dog" style={dynamicStyles.chip}>
               {t('parks.dogArea')}
             </Chip>
           )}
           {park.is_fenced && (
-            <Chip icon="fence" style={styles.chip}>
+            <Chip icon="fence" style={dynamicStyles.chip}>
               {t('parks.fenced')}
             </Chip>
           )}
           {park.has_water && (
-            <Chip icon="water" style={styles.chip}>
+            <Chip icon="water" style={dynamicStyles.chip}>
               {t('parks.waterAvailable')}
             </Chip>
           )}
         </View>
 
         {park.active_visits_today > 0 && (
-          <View style={styles.visitorsRow}>
+          <View style={dynamicStyles.visitorsRow}>
             <MaterialCommunityIcons
               name="account-multiple"
               size={16}
-              color="#666"
+              color={theme.colors.onSurfaceVariant}
             />
-            <Text variant="bodySmall" style={styles.visitorsText}>
+            <Text variant="bodySmall" style={dynamicStyles.visitorsText}>
               {t('parks.visitorsToday', { count: park.active_visits_today })}
             </Text>
           </View>
@@ -89,7 +91,7 @@ export function ParkCard({ park, onPress, onRegisterVisit }) {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
   card: {
     marginBottom: 16,
   },
@@ -107,11 +109,11 @@ const styles = StyleSheet.create({
   },
   neighborhood: {
     marginLeft: 4,
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
     textTransform: 'capitalize',
   },
   description: {
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
     marginBottom: 12,
   },
   features: {
@@ -121,7 +123,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   chip: {
-    backgroundColor: '#e3f2fd',
+    backgroundColor: theme.colors.primaryContainer,
   },
   visitorsRow: {
     flexDirection: 'row',
@@ -130,6 +132,6 @@ const styles = StyleSheet.create({
   },
   visitorsText: {
     marginLeft: 4,
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
   },
 });

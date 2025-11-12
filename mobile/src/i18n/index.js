@@ -4,8 +4,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { localizationService } from "../services/i18n/localizationService";
 
 // Importar traducciones
-import es from "../locales/es.json";
-import en from "../locales/en.json";
+import es from "./locales/es.json";
+import en from "./locales/en.json";
 
 const resources = {
   es: { translation: es },

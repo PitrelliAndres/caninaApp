@@ -1,6 +1,7 @@
 import React from 'react'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { useTranslation } from 'react-i18next'
+import { useTheme } from 'react-native-paper'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 import { DiscoverScreen } from '../screens/matches/DiscoverScreen'
@@ -10,13 +11,14 @@ const Tab = createBottomTabNavigator()
 
 export function MatchesTabNavigator() {
   const { t } = useTranslation()
+  const theme = useTheme()
 
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarActiveTintColor: '#2563eb',
-        tabBarInactiveTintColor: '#6b7280',
-        tabBarStyle: { backgroundColor: '#fff' },
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.onSurfaceVariant,
+        tabBarStyle: { backgroundColor: theme.colors.surface },
         headerShown: false,
       }}
     >

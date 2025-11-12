@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next'
 export function MyMatchesScreen({ navigation }) {
   const { t } = useTranslation()
   const theme = useTheme()
+  const dynamicStyles = styles(theme)
   const [matches, setMatches] = useState([])
   const [loading, setLoading] = useState(false)
 
@@ -120,50 +121,50 @@ export function MyMatchesScreen({ navigation }) {
   }
 
   const renderMatch = ({ item }) => (
-    <Card style={styles.matchCard}>
-      <Card.Content style={styles.cardContent}>
-        <View style={styles.matchInfo}>
+    <Card style={dynamicStyles.matchCard}>
+      <Card.Content style={dynamicStyles.cardContent}>
+        <View style={dynamicStyles.matchInfo}>
           {item.user.avatar_url ? (
             <Avatar.Image
               size={50}
               source={{ uri: item.user.avatar_url }}
-              style={styles.avatar}
+              style={dynamicStyles.avatar}
             />
           ) : (
             <Avatar.Text
               size={50}
               label={item.user.name.charAt(0)}
-              style={styles.avatar}
+              style={dynamicStyles.avatar}
             />
           )}
 
-          <View style={styles.textContainer}>
-            <Text variant="titleMedium" style={styles.userName}>
+          <View style={dynamicStyles.textContainer}>
+            <Text variant="titleMedium" style={dynamicStyles.userName}>
               {item.user.name}, {item.user.age}
             </Text>
             {item.dog && (
-              <Text variant="bodyMedium" style={styles.dogInfo}>
+              <Text variant="bodyMedium" style={dynamicStyles.dogInfo}>
                 Con {item.dog.name} ({item.dog.breed})
               </Text>
             )}
             {item.user.lastMessage && (
-              <Text variant="bodySmall" style={styles.lastMessage} numberOfLines={2}>
+              <Text variant="bodySmall" style={dynamicStyles.lastMessage} numberOfLines={2}>
                 {item.user.lastMessage}
               </Text>
             )}
             {item.user.lastMessageTime && (
-              <Text variant="bodySmall" style={styles.timestamp}>
+              <Text variant="bodySmall" style={dynamicStyles.timestamp}>
                 Hace {item.user.lastMessageTime}
               </Text>
             )}
           </View>
         </View>
 
-        <View style={styles.buttonsContainer}>
+        <View style={dynamicStyles.buttonsContainer}>
           <Button
             mode="outlined"
             onPress={() => handleMatchPress(item)}
-            style={styles.button}
+            style={dynamicStyles.button}
             compact
           >
             Perfil
@@ -171,7 +172,7 @@ export function MyMatchesScreen({ navigation }) {
           <Button
             mode="contained"
             onPress={() => handleChatPress(item)}
-            style={styles.button}
+            style={dynamicStyles.button}
             compact
             icon="message"
           >
@@ -183,17 +184,17 @@ export function MyMatchesScreen({ navigation }) {
   )
 
   const EmptyComponent = () => (
-    <View style={styles.emptyContainer}>
-      <Text variant="headlineSmall" style={styles.emptyTitle}>
+    <View style={dynamicStyles.emptyContainer}>
+      <Text variant="headlineSmall" style={dynamicStyles.emptyTitle}>
         {t('matches.noMatches')}
       </Text>
-      <Text variant="bodyMedium" style={styles.emptyText}>
+      <Text variant="bodyMedium" style={dynamicStyles.emptyText}>
         {t('matches.noMatchesDescription')}
       </Text>
       <Button
         mode="contained"
         onPress={() => navigation.navigate('DiscoverTab')}
-        style={styles.discoverButton}
+        style={dynamicStyles.discoverButton}
       >
         {t('matches.startDiscovering')}
       </Button>
@@ -201,12 +202,12 @@ export function MyMatchesScreen({ navigation }) {
   )
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={dynamicStyles.container}>
       <FlatList
         data={matches}
         renderItem={renderMatch}
         keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={dynamicStyles.listContent}
         showsVerticalScrollIndicator={false}
         refreshing={loading}
         onRefresh={loadMatches}
@@ -216,10 +217,10 @@ export function MyMatchesScreen({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.surface,
   },
   listContent: {
     flexGrow: 1,
@@ -248,15 +249,15 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   dogInfo: {
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
     marginBottom: 4,
   },
   lastMessage: {
-    color: '#333',
+    color: theme.colors.onSurface,
     marginBottom: 2,
   },
   timestamp: {
-    color: '#999',
+    color: theme.colors.onSurfaceVariant,
     fontSize: 12,
   },
   buttonsContainer: {
@@ -279,7 +280,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     textAlign: 'center',
-    color: '#666',
+    color: theme.colors.onSurfaceVariant,
     marginBottom: 24,
     lineHeight: 20,
   },
