@@ -1,4 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react'
+/**
+ * DM Chat Screen - Refactored for SQLite offline-first architecture
+ * Now uses MessageSyncEngine and Redux async thunks
+ */
+
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   StyleSheet,
@@ -6,7 +11,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
-} from 'react-native'
+} from 'react-native';
 import {
   Text,
   TextInput,
@@ -16,477 +21,583 @@ import {
   useTheme,
   ActivityIndicator,
   Chip,
-} from 'react-native-paper'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { useTranslation } from 'react-i18next'
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
-import Toast from 'react-native-toast-message'
-import { formatDistanceToNow } from 'date-fns'
-import es from 'date-fns/locale/es'
-import enUS from 'date-fns/locale/en-US'
+  Button,
+} from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { formatDistanceToNow } from 'date-fns';
+import es from 'date-fns/locale/es';
+import enUS from 'date-fns/locale/en-US';
 
-import { messageService } from '../../services/api/messages'
-import { useSelector } from 'react-redux'
-import MobileLogger from '../../utils/logger'
-import Keychain from 'react-native-keychain'
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  loadMessages,
+  sendMessage,
+  markConversationAsRead,
+  retryFailedMessage,
+  setCurrentConversation,
+  clearCurrentConversation,
+  setUserTyping,
+  selectMessages,
+  selectChatLoading,
+  selectChatConnected,
+  selectChatSyncing,
+  selectUserTyping,
+  selectCurrentConversation,
+} from '../../store/slices/chatSlice';
+import messageSyncEngine from '../../services/MessageSyncEngine';
+import { messageService } from '../../services/api/messages';
+import MobileLogger from '../../utils/logger';
 
 export function DMChatScreen({ navigation, route }) {
-  const { t, i18n } = useTranslation()
-  const theme = useTheme()
-  const dynamicStyles = styles(theme)
-  const { user } = useSelector((state) => state.user)
-  const { conversationId, chatId, user: chatUser } = route.params
-  const actualConversationId = conversationId || chatId  // Accept both names
+  const { t, i18n } = useTranslation();
+  const theme = useTheme();
+  const dispatch = useDispatch();
 
-  const [messages, setMessages] = useState([])
-  const [newMessage, setNewMessage] = useState('')
-  const [loading, setLoading] = useState(true)
-  const [sending, setSending] = useState(false)
-  const [otherUserTyping, setOtherUserTyping] = useState(false)
-  const [connectionStatus, setConnectionStatus] = useState('connecting')
-  const [hasMatch, setHasMatch] = useState(true)
-  const [error, setError] = useState(null)
+  const { user } = useSelector((state) => state.user);
+  const messages = useSelector(selectMessages);
+  const loading = useSelector(selectChatLoading);
+  const connected = useSelector(selectChatConnected);
+  const syncing = useSelector(selectChatSyncing);
+  const currentConversation = useSelector(selectCurrentConversation);
 
-  const flatListRef = useRef(null)
-  const socketRef = useRef(null)
+  const { conversationId, chatId, user: chatUser } = route.params;
+  const actualConversationId = conversationId || chatId;
 
-  // Auth status validation
+  const [newMessage, setNewMessage] = useState('');
+  const [sending, setSending] = useState(false);
+  const [hasMatch, setHasMatch] = useState(true);
+  const [error, setError] = useState(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const flatListRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
+  const dateLocale = i18n.language === 'es' ? es : enUS;
+
+  // Check if other user is typing
+  const otherUserTyping = useSelector((state) =>
+    selectUserTyping(state, actualConversationId)
+  );
+
+  // ============================================
+  // INITIALIZATION
+  // ============================================
+
   useEffect(() => {
-    if (!user?.id) {
-      // User not authenticated - handle appropriately
+    if (!user?.id || !actualConversationId) {
+      MobileLogger.logError(new Error('Missing user or conversation ID'), {
+        userId: user?.id,
+        conversationId: actualConversationId,
+      }, 'DMChatScreen');
+      navigation.goBack();
+      return;
     }
-  }, [user, actualConversationId])
-  const typingTimeoutRef = useRef(null)
-  const reconnectTimeoutRef = useRef(null)
-  const dateLocale = i18n.language === 'es' ? es : enUS
 
-  useEffect(() => {
-    setupDMChat()
+    initializeChat();
 
     return () => {
-      cleanup()
+      cleanup();
+    };
+  }, [actualConversationId]);
+
+  const initializeChat = async () => {
+    try {
+      // Set current conversation in Redux
+      dispatch(setCurrentConversation({
+        id: actualConversationId,
+        user1_id: user.id,
+        user2_id: chatUser?.id,
+        other_user_name: chatUser?.name,
+        other_user_avatar: chatUser?.profile_photo,
+        other_user_online: chatUser?.is_online || false,
+      }));
+
+      // Load messages from SQLite
+      await dispatch(loadMessages({
+        conversationId: actualConversationId,
+        limit: 50,
+      })).unwrap();
+
+      // Mark as read
+      if (messages.length > 0) {
+        const messageIds = messages
+          .filter(m => m.sender_id !== user.id)
+          .map(m => m.id);
+
+        if (messageIds.length > 0) {
+          dispatch(markConversationAsRead({
+            conversationId: actualConversationId,
+            messageIds,
+          }));
+        }
+      }
+
+      // Setup WebSocket listeners
+      setupWebSocketListeners();
+
+      // Scroll to bottom
+      scrollToBottom();
+
+    } catch (error) {
+      MobileLogger.logError(error, {
+        conversationId: actualConversationId,
+      }, 'DMChatScreen');
+      handleError(error);
     }
-  }, [actualConversationId])
+  };
 
   const cleanup = () => {
     if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current)
+      clearTimeout(typingTimeoutRef.current);
     }
-    if (reconnectTimeoutRef.current) {
-      clearTimeout(reconnectTimeoutRef.current)
-    }
-    messageService.removeAllListeners()
-    messageService.sendTypingDM(actualConversationId, false) // Stop typing
-  }
 
-  const setupDMChat = async () => {
-    // Starting DM chat setup
-    try {
-      setLoading(true)
-      setConnectionStatus('connecting')
+    // Stop typing indicator
+    messageService.sendTypingDM(actualConversationId, false);
 
-      // Check for realtime token first
-      let realtimeToken = null
-      const credentials = await Keychain.getGenericPassword({ service: 'realtime_token' })
-      if (credentials) {
-        realtimeToken = credentials.password
-      }
-      // Realtime token verification
+    // Clear current conversation
+    dispatch(clearCurrentConversation());
+  };
 
-      if (!realtimeToken) {
-        console.warn('No realtime token found, attempting to get new WebSocket token...')
-        // Try to get a fresh WebSocket token
-        try {
-          const { apiClient } = await import('../../services/api/client')
-          const authHeaders = await apiClient.getAuthHeaders()
-          const wsTokenResponse = await fetch(`${apiClient.baseURL}/auth/ws-token`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              ...authHeaders
-            }
-          })
+  // ============================================
+  // WEBSOCKET INTEGRATION
+  // ============================================
 
-          if (wsTokenResponse.ok) {
-            const wsTokenData = await wsTokenResponse.json()
-            realtimeToken = wsTokenData.realtime_token
-            await Keychain.setGenericPassword('realtime_token', realtimeToken, { service: 'realtime_token' })
-            console.log('Mobile WebSocket token obtained successfully')
-          } else {
-            console.error('Failed to get mobile WebSocket token:', await wsTokenResponse.text())
-          }
-        } catch (tokenError) {
-          console.error('Mobile token acquisition failed:', tokenError)
-        }
-      }
-
-      // Connect to WebSocket
-      socketRef.current = await messageService.connectWebSocket()
-
-      if (!socketRef.current) {
-        throw new Error('Could not establish WebSocket connection')
-      }
-
-      // Set up DM event listeners
-      setupDMEventListeners()
-
-      // Join the conversation
-      const response = await messageService.joinConversation(actualConversationId)
-
-      if (response && response.messages) {
-        setMessages(response.messages)
-        setConnectionStatus('connected')
-        scrollToBottom()
-
-        // Mark latest message as read if exists
-        if (response.messages.length > 0) {
-          const latestMessage = response.messages[response.messages.length - 1]
-          messageService.markAsReadDM(actualConversationId, latestMessage.id)
-        }
-      }
-
-    } catch (error) {
-      MobileLogger.logError(error, { conversationId: actualConversationId }, 'DMChatScreen')
-      handleDMError(error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const setupDMEventListeners = () => {
+  const setupWebSocketListeners = () => {
     // Listen for new messages
     messageService.onNewDMMessage((data) => {
       if (data.conversationId === actualConversationId) {
-        const newMsg = data.message
+        // MessageSyncEngine already saved to SQLite
+        // Just reload messages from DB
+        dispatch(loadMessages({
+          conversationId: actualConversationId,
+          limit: 50,
+        }));
 
-        // Processing incoming message
+        // Mark as read
+        messageService.markAsReadDM(actualConversationId, data.message.id);
 
-        setMessages(prev => {
-          // Check if message already exists (pending from outbox)
-          const existingIndex = prev.findIndex(msg =>
-            msg.id === newMsg.id ||
-            (msg.temp_id && msg.sender_id === newMsg.sender_id && msg.text === newMsg.text)
-          )
-
-          if (existingIndex !== -1) {
-            // Update existing pending message with server data
-            const updated = [...prev]
-            updated[existingIndex] = {
-              ...updated[existingIndex],
-              id: newMsg.id,
-              created_at: newMsg.created_at,
-              time: newMsg.time,
-              status: 'sent'
-            }
-            return updated
-          } else {
-            // Add new message (from other user or if outbox failed)
-            return [...prev, newMsg]
-          }
-        })
-
-        // Auto-mark as read if we're viewing the chat
-        messageService.markAsReadDM(actualConversationId, newMsg.id)
-        scrollToBottom()
+        scrollToBottom();
       }
-    })
+    });
 
     // Listen for typing indicators
     messageService.onDMTyping((data) => {
       if (data.conversationId === actualConversationId && data.userId !== user?.id) {
-        setOtherUserTyping(data.isTyping)
+        dispatch(setUserTyping({
+          conversationId: actualConversationId,
+          userId: data.userId,
+          isTyping: data.isTyping,
+        }));
 
         if (data.isTyping) {
+          // Auto-clear typing after 3 seconds
           if (typingTimeoutRef.current) {
-            clearTimeout(typingTimeoutRef.current)
+            clearTimeout(typingTimeoutRef.current);
           }
 
           typingTimeoutRef.current = setTimeout(() => {
-            setOtherUserTyping(false)
-          }, 3000)
+            dispatch(setUserTyping({
+              conversationId: actualConversationId,
+              userId: data.userId,
+              isTyping: false,
+            }));
+          }, 3000);
         }
       }
-    })
+    });
 
     // Listen for read receipts
     messageService.onDMReadReceipt((data) => {
       if (data.conversationId === actualConversationId) {
-        setMessages(prev =>
-          prev.map(msg => {
-            if (msg.id <= data.upToMessageId && msg.sender_id === user?.id) {
-              return { ...msg, is_read: true }
-            }
-            return msg
-          })
-        )
+        // Reload messages to show updated read status
+        dispatch(loadMessages({
+          conversationId: actualConversationId,
+          limit: 50,
+        }));
       }
-    })
+    });
 
     // Listen for DM-specific errors
     messageService.onDMError((error) => {
-      handleDMError(error)
-    })
+      handleError(error);
+    });
+  };
 
-    // Connection status
-    const socket = messageService.getSocket()
-    if (socket) {
-      socket.on('connect', () => setConnectionStatus('connected'))
-      socket.on('disconnect', () => {
-        setConnectionStatus('reconnecting')
-        attemptReconnect()
-      })
+  // ============================================
+  // MESSAGE HANDLING
+  // ============================================
+
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || sending || !hasMatch) return;
+
+    const messageText = newMessage.trim();
+    setNewMessage('');
+    setSending(true);
+
+    // Stop typing indicator
+    messageService.sendTypingDM(actualConversationId, false);
+
+    try {
+      // Send via MessageSyncEngine (offline-first)
+      await dispatch(sendMessage({
+        conversationId: actualConversationId,
+        content: messageText,
+        receiverId: chatUser?.id || currentConversation?.user2_id,
+        currentUserId: user.id,
+      })).unwrap();
+
+      // Reload messages to show optimistic update
+      await dispatch(loadMessages({
+        conversationId: actualConversationId,
+        limit: 50,
+      }));
+
+      scrollToBottom();
+
+    } catch (error) {
+      console.error('[DMChatScreen] Send message error:', error);
+      // Restore message text for retry
+      setNewMessage(messageText);
+      handleError(error);
+    } finally {
+      setSending(false);
     }
-  }
+  };
 
-  const handleDMError = (error) => {
-    const errorId = MobileLogger.logError(error, {
+  const handleRetryMessage = async (message) => {
+    try {
+      await dispatch(retryFailedMessage({
+        tempId: message.temp_id,
+      })).unwrap();
+
+      // Reload messages
+      await dispatch(loadMessages({
+        conversationId: actualConversationId,
+        limit: 50,
+      }));
+
+    } catch (error) {
+      console.error('[DMChatScreen] Retry message error:', error);
+      handleError(error);
+    }
+  };
+
+  const handleTextChange = (text) => {
+    setNewMessage(text);
+
+    // Send typing indicator
+    if (text.length > 0 && hasMatch && connected) {
+      messageService.sendTypingDM(actualConversationId, true);
+    } else {
+      messageService.sendTypingDM(actualConversationId, false);
+    }
+  };
+
+  const handleLoadMore = async () => {
+    if (loadingMore || messages.length === 0) return;
+
+    setLoadingMore(true);
+    try {
+      const oldestMessage = messages[0];
+
+      await dispatch(loadMessages({
+        conversationId: actualConversationId,
+        limit: 50,
+        beforeTimestamp: oldestMessage.created_at,
+      })).unwrap();
+
+    } catch (error) {
+      console.error('[DMChatScreen] Load more error:', error);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  // ============================================
+  // ERROR HANDLING
+  // ============================================
+
+  const handleError = (error) => {
+    MobileLogger.logError(error, {
       conversationId: actualConversationId,
-      errorCode: error.code
-    }, 'DMChatScreen')
+      errorCode: error.code,
+    }, 'DMChatScreen');
 
     if (error.code === 'NO_MATCH') {
-      setHasMatch(false)
-      setError(t('chat.dm.noMutualMatch'))
+      setHasMatch(false);
+      setError(t('chat.dm.noMutualMatch'));
     } else if (error.code === 'BLOCKED') {
-      setError(t('chat.dm.userBlocked'))
+      setError(t('chat.dm.userBlocked'));
     } else if (error.code === 'UNAUTHORIZED') {
-      setError(t('chat.dm.unauthorized'))
-      navigation.goBack()
+      setError(t('chat.dm.unauthorized'));
+      navigation.goBack();
     } else {
-      setError(error.message || t('chat.dm.messageFailedToSend'))
+      setError(error.message || t('chat.dm.messageFailedToSend'));
     }
-  }
+  };
 
-  const attemptReconnect = () => {
-    if (reconnectTimeoutRef.current) {
-      clearTimeout(reconnectTimeoutRef.current)
-    }
-
-    reconnectTimeoutRef.current = setTimeout(() => {
-      setupDMChat()
-    }, 2000)
-  }
+  // ============================================
+  // UI HELPERS
+  // ============================================
 
   const scrollToBottom = () => {
     setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true })
-    }, 100)
-  }
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }, 100);
+  };
 
-  const sendMessage = async () => {
-    if (!newMessage.trim() || sending || !hasMatch) return
+  const getConnectionStatus = () => {
+    if (!connected) return 'reconnecting';
+    if (syncing) return 'syncing';
+    return 'connected';
+  };
 
-    const messageText = newMessage.trim()
-    setNewMessage('')
-    setSending(true)
-
-    // Stop typing indicator
-    messageService.sendTypingDM(actualConversationId, false)
-
-    try {
-      const response = await messageService.sendDMMessage(actualConversationId, messageText)
-
-      // Message will be added via dm:new event from server
-      scrollToBottom()
-
-    } catch (error) {
-      console.error('Send message error:', error)
-      // Restore message text for retry
-      setNewMessage(messageText)
-      handleDMError(error)
-    } finally {
-      setSending(false)
-    }
-  }
-
-  const handleTextChange = (text) => {
-    setNewMessage(text)
-
-    // Send typing indicator
-    if (text.length > 0 && hasMatch) {
-      messageService.sendTypingDM(actualConversationId, true)
-    } else {
-      messageService.sendTypingDM(actualConversationId, false)
-    }
-  }
+  // ============================================
+  // RENDERERS
+  // ============================================
 
   const renderMessage = ({ item: message }) => {
-    const isOwnMessage = message.sender_id === user?.id
-
-    // Message ownership check
+    const isOwnMessage = message.sender_id === user?.id;
 
     const timeText = formatDistanceToNow(new Date(message.created_at), {
       addSuffix: true,
-      locale: dateLocale
-    })
+      locale: dateLocale,
+    });
+
+    // Determine message status
+    const status = message.status || 'sent';
+    const isFailed = status === 'failed';
+    const isPending = status === 'pending';
 
     return (
-      <View style={[
-        styles.messageContainer,
-        isOwnMessage ? styles.ownMessage : styles.otherMessage
-      ]}>
-        <Surface style={[
-          styles.messageBubble,
-          isOwnMessage
-            ? { backgroundColor: theme.colors.primary }
-            : { backgroundColor: theme.colors.surface }
-        ]}>
-          <Text style={[
-            styles.messageText,
-            isOwnMessage && { color: theme.colors.onPrimary }
-          ]}>
-            {message.text}
+      <View
+        style={[
+          styles(theme).messageContainer,
+          isOwnMessage ? styles(theme).ownMessage : styles(theme).otherMessage,
+        ]}
+      >
+        <Surface
+          style={[
+            styles(theme).messageBubble,
+            isOwnMessage
+              ? { backgroundColor: theme.colors.primary }
+              : { backgroundColor: theme.colors.surface },
+            isFailed && { backgroundColor: theme.colors.errorContainer },
+          ]}
+        >
+          <Text
+            style={[
+              styles(theme).messageText,
+              isOwnMessage && { color: theme.colors.onPrimary },
+              isFailed && { color: theme.colors.error },
+            ]}
+          >
+            {message.content || message.text}
           </Text>
-          <View style={styles.messageInfo}>
-            <Text style={[
-              styles.timeText,
-              isOwnMessage && { color: theme.colors.onPrimary }
-            ]}>
+
+          <View style={styles(theme).messageInfo}>
+            <Text
+              style={[
+                styles(theme).timeText,
+                isOwnMessage && { color: theme.colors.onPrimary },
+              ]}
+            >
               {timeText}
             </Text>
+
             {isOwnMessage && (
               <MaterialCommunityIcons
                 name={
-                  message.status === 'pending' ? 'clock-outline' :
-                  message.status === 'failed' ? 'alert-circle-outline' :
-                  message.is_read ? 'check-all' : 'check'
+                  isPending
+                    ? 'clock-outline'
+                    : isFailed
+                    ? 'alert-circle-outline'
+                    : message.is_read || message.status === 'read'
+                    ? 'check-all'
+                    : 'check'
                 }
                 size={14}
                 color={
-                  message.status === 'pending' ? (isOwnMessage ? theme.colors.onPrimary : theme.colors.primary) :
-                  message.status === 'failed' ? theme.colors.error :
-                  isOwnMessage ? theme.colors.onPrimary : theme.colors.primary
+                  isPending
+                    ? isOwnMessage
+                      ? theme.colors.onPrimary
+                      : theme.colors.primary
+                    : isFailed
+                    ? theme.colors.error
+                    : isOwnMessage
+                    ? theme.colors.onPrimary
+                    : theme.colors.primary
                 }
               />
             )}
           </View>
+
+          {/* Retry button for failed messages */}
+          {isFailed && isOwnMessage && (
+            <Button
+              mode="text"
+              onPress={() => handleRetryMessage(message)}
+              compact
+              textColor={theme.colors.error}
+            >
+              {t('chat.retry')}
+            </Button>
+          )}
         </Surface>
       </View>
-    )
-  }
+    );
+  };
 
   const renderConnectionStatus = () => {
-    if (connectionStatus === 'connected') return null
+    const status = getConnectionStatus();
+
+    if (status === 'connected') return null;
 
     const statusConfig = {
-      connecting: { text: t('chat.dm.connecting'), color: theme.colors.primary },
-      reconnecting: { text: t('chat.dm.reconnecting'), color: theme.colors.error },
-    }
+      syncing: {
+        text: t('chat.dm.syncing'),
+        color: theme.colors.primary,
+        icon: 'sync',
+      },
+      reconnecting: {
+        text: t('chat.dm.reconnecting'),
+        color: theme.colors.error,
+        icon: 'wifi-off',
+      },
+    };
 
-    const config = statusConfig[connectionStatus] || statusConfig.connecting
+    const config = statusConfig[status] || statusConfig.reconnecting;
 
     return (
-      <View style={styles.statusContainer}>
+      <View style={styles(theme).statusContainer}>
         <Chip
-          icon="wifi"
+          icon={config.icon}
           textStyle={{ color: config.color }}
           style={{ backgroundColor: theme.colors.background }}
         >
           {config.text}
         </Chip>
       </View>
-    )
-  }
+    );
+  };
 
-  if (loading) {
+  const renderListHeader = () => {
+    if (!loadingMore) return null;
+
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <IconButton
-            icon="arrow-left"
-            onPress={() => navigation.goBack()}
-          />
-          <View style={styles.headerInfo}>
-            <Text variant="titleMedium">{chatUser?.name || t('common.loading')}</Text>
+      <View style={styles(theme).loadMoreContainer}>
+        <ActivityIndicator size="small" />
+        <Text variant="bodySmall">{t('common.loading')}</Text>
+      </View>
+    );
+  };
+
+  // ============================================
+  // LOADING / ERROR STATES
+  // ============================================
+
+  if (loading && messages.length === 0) {
+    return (
+      <SafeAreaView style={styles(theme).container}>
+        <View style={styles(theme).header}>
+          <IconButton icon="arrow-left" onPress={() => navigation.goBack()} />
+          <View style={styles(theme).headerInfo}>
+            <Text variant="titleMedium">
+              {chatUser?.name || t('common.loading')}
+            </Text>
           </View>
         </View>
-        <View style={styles.loadingContainer}>
+        <View style={styles(theme).loadingContainer}>
           <ActivityIndicator size="large" />
           <Text>{t('chat.loadingChat')}</Text>
         </View>
       </SafeAreaView>
-    )
+    );
   }
 
   if (!hasMatch) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <IconButton
-            icon="arrow-left"
-            onPress={() => navigation.goBack()}
-          />
-          <View style={styles.headerInfo}>
+      <SafeAreaView style={styles(theme).container}>
+        <View style={styles(theme).header}>
+          <IconButton icon="arrow-left" onPress={() => navigation.goBack()} />
+          <View style={styles(theme).headerInfo}>
             <Text variant="titleMedium">{chatUser?.name}</Text>
           </View>
         </View>
-        <View style={styles.errorContainer}>
+        <View style={styles(theme).errorContainer}>
           <MaterialCommunityIcons
             name="heart-broken"
             size={64}
             color={theme.colors.outline}
           />
-          <Text variant="titleMedium" style={styles.errorTitle}>
+          <Text variant="titleMedium" style={styles(theme).errorTitle}>
             {t('chat.dm.unavailable_no_match')}
           </Text>
-          <Text variant="bodyMedium" style={styles.errorText}>
+          <Text variant="bodyMedium" style={styles(theme).errorText}>
             {t('matches.noMatches')}
           </Text>
         </View>
       </SafeAreaView>
-    )
+    );
   }
 
-  if (error && !messages.length) {
+  if (error && messages.length === 0) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <IconButton
-            icon="arrow-left"
-            onPress={() => navigation.goBack()}
-          />
-          <View style={styles.headerInfo}>
+      <SafeAreaView style={styles(theme).container}>
+        <View style={styles(theme).header}>
+          <IconButton icon="arrow-left" onPress={() => navigation.goBack()} />
+          <View style={styles(theme).headerInfo}>
             <Text variant="titleMedium">{chatUser?.name}</Text>
           </View>
         </View>
-        <View style={styles.errorContainer}>
+        <View style={styles(theme).errorContainer}>
           <MaterialCommunityIcons
             name="alert-circle"
             size={64}
             color={theme.colors.error}
           />
-          <Text variant="titleMedium" style={styles.errorTitle}>
+          <Text variant="titleMedium" style={styles(theme).errorTitle}>
             {t('common.error')}
           </Text>
-          <Text variant="bodyMedium" style={styles.errorText}>
+          <Text variant="bodyMedium" style={styles(theme).errorText}>
             {error}
           </Text>
+          <Button mode="contained" onPress={() => initializeChat()}>
+            {t('common.retry')}
+          </Button>
         </View>
       </SafeAreaView>
-    )
+    );
   }
 
+  // ============================================
+  // MAIN RENDER
+  // ============================================
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles(theme).container}>
       <KeyboardAvoidingView
-        style={styles.container}
+        style={styles(theme).container}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         {/* Header */}
-        <View style={styles.header}>
-          <IconButton
-            icon="arrow-left"
-            onPress={() => navigation.goBack()}
-          />
+        <View style={styles(theme).header}>
+          <IconButton icon="arrow-left" onPress={() => navigation.goBack()} />
           <Avatar.Image
             size={40}
-            source={{ uri: chatUser?.profile_photo }}
-            style={styles.avatar}
+            source={{ uri: chatUser?.profile_photo || currentConversation?.other_user_avatar }}
+            style={styles(theme).avatar}
           />
-          <View style={styles.headerInfo}>
-            <Text variant="titleMedium">{chatUser?.name}</Text>
+          <View style={styles(theme).headerInfo}>
+            <Text variant="titleMedium">
+              {chatUser?.name || currentConversation?.other_user_name}
+            </Text>
             {otherUserTyping && (
-              <Text variant="bodySmall" style={{ color: theme.colors.primary }}>
+              <Text
+                variant="bodySmall"
+                style={{ color: theme.colors.primary }}
+              >
                 {t('chat.dm.typing')}
               </Text>
             )}
@@ -500,122 +611,135 @@ export function DMChatScreen({ navigation, route }) {
           ref={flatListRef}
           data={messages}
           renderItem={renderMessage}
-          keyExtractor={(item) => item.id}
-          style={styles.messagesList}
-          contentContainerStyle={styles.messagesContent}
+          keyExtractor={(item) => item.id || item.temp_id}
+          style={styles(theme).messagesList}
+          contentContainerStyle={styles(theme).messagesContent}
           onContentSizeChange={scrollToBottom}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
+          ListHeaderComponent={renderListHeader}
         />
 
         {/* Input */}
-        <View style={styles.inputContainer}>
+        <View style={styles(theme).inputContainer}>
           <TextInput
-            style={styles.textInput}
+            style={styles(theme).textInput}
             value={newMessage}
             onChangeText={handleTextChange}
-            placeholder={hasMatch ? t('chat.dm.placeholder') : t('chat.dm.unavailable_no_match')}
+            placeholder={
+              hasMatch
+                ? t('chat.dm.placeholder')
+                : t('chat.dm.unavailable_no_match')
+            }
             multiline
             maxLength={4096}
-            editable={hasMatch && connectionStatus === 'connected'}
+            editable={hasMatch && connected}
           />
           <IconButton
             icon="send"
-            onPress={sendMessage}
-            disabled={!newMessage.trim() || sending || !hasMatch || connectionStatus !== 'connected'}
+            onPress={handleSendMessage}
+            disabled={!newMessage.trim() || sending || !hasMatch || !connected}
             loading={sending}
           />
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
-  )
+  );
 }
 
-const styles = (theme) => StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.outline,
-  },
-  avatar: {
-    marginRight: 12,
-  },
-  headerInfo: {
-    flex: 1,
-  },
-  statusContainer: {
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 16,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 32,
-    gap: 16,
-  },
-  errorTitle: {
-    textAlign: 'center',
-  },
-  errorText: {
-    textAlign: 'center',
-    opacity: 0.7,
-  },
-  messagesList: {
-    flex: 1,
-  },
-  messagesContent: {
-    padding: 16,
-    gap: 8,
-  },
-  messageContainer: {
-    marginVertical: 4,
-  },
-  ownMessage: {
-    alignItems: 'flex-end',
-  },
-  otherMessage: {
-    alignItems: 'flex-start',
-  },
-  messageBubble: {
-    borderRadius: 16,
-    padding: 12,
-    maxWidth: '80%',
-    elevation: 1,
-  },
-  messageText: {
-    fontSize: 16,
-    lineHeight: 20,
-  },
-  messageInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 4,
-    gap: 4,
-  },
-  timeText: {
-    fontSize: 12,
-    opacity: 0.7,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.outline,
-  },
-  textInput: {
-    flex: 1,
-    marginRight: 8,
-    maxHeight: 100,
-  },
-})
+const styles = (theme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.outline,
+    },
+    avatar: {
+      marginRight: 12,
+    },
+    headerInfo: {
+      flex: 1,
+    },
+    statusContainer: {
+      alignItems: 'center',
+      paddingVertical: 8,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      gap: 16,
+    },
+    loadMoreContainer: {
+      alignItems: 'center',
+      paddingVertical: 16,
+      gap: 8,
+    },
+    errorContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 32,
+      gap: 16,
+    },
+    errorTitle: {
+      textAlign: 'center',
+    },
+    errorText: {
+      textAlign: 'center',
+      opacity: 0.7,
+    },
+    messagesList: {
+      flex: 1,
+    },
+    messagesContent: {
+      padding: 16,
+      gap: 8,
+    },
+    messageContainer: {
+      marginVertical: 4,
+    },
+    ownMessage: {
+      alignItems: 'flex-end',
+    },
+    otherMessage: {
+      alignItems: 'flex-start',
+    },
+    messageBubble: {
+      borderRadius: 16,
+      padding: 12,
+      maxWidth: '80%',
+      elevation: 1,
+    },
+    messageText: {
+      fontSize: 16,
+      lineHeight: 20,
+    },
+    messageInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: 4,
+      gap: 4,
+    },
+    timeText: {
+      fontSize: 12,
+      opacity: 0.7,
+    },
+    inputContainer: {
+      flexDirection: 'row',
+      alignItems: 'flex-end',
+      padding: 16,
+      borderTopWidth: 1,
+      borderTopColor: theme.colors.outline,
+    },
+    textInput: {
+      flex: 1,
+      marginRight: 8,
+      maxHeight: 100,
+    },
+  });
