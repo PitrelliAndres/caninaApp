@@ -846,7 +846,33 @@ def handle_dm_send(data):
             'senderId': user_id,
             'receiverId': other_user_id
         })
-        
+
+        # Send push notification to offline receiver
+        try:
+            from app.services.notification_service import notification_service
+            from app.models.user import User
+
+            if notification_service.is_initialized():
+                # Get sender info
+                sender = User.query.get(user_id)
+
+                # Send notification
+                result = notification_service.send_message_notification(
+                    user_id=other_user_id,
+                    message=message,
+                    sender=sender,
+                    conversation=conversation
+                )
+
+                if result['success'] > 0:
+                    current_app.logger.info(
+                        f"Push notification sent: {result['success']} devices, "
+                        f"{result['failure']} failed for user {other_user_id}"
+                    )
+        except Exception as e:
+            # Don't fail message delivery if push fails
+            current_app.logger.error(f"Push notification failed: {str(e)}")
+
         current_app.logger.info(f"DM message sent: {user_id} -> {other_user_id} in conversation {conversation_id}")
         
     except Exception as e:

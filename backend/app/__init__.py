@@ -32,6 +32,10 @@ def create_app(config_name=None):
     # Inicializar extensiones
     db.init_app(app)
     migrate.init_app(app, db)
+
+    # Inicializar notification service (Firebase Cloud Messaging)
+    from app.services.notification_service import notification_service
+    notification_service.initialize_app(app)
     
     # Configurar CORS
     CORS(app, 
@@ -90,7 +94,8 @@ def create_app(config_name=None):
     from app.routes.messages import messages_bp
     from app.routes.onboarding import onboarding_bp
     from app.routes.admin import admin_bp
-    
+    from app.routes.devices import bp as devices_bp
+
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(users_bp, url_prefix='/api/users')
     app.register_blueprint(parks_bp, url_prefix='/api/parks')
@@ -99,6 +104,7 @@ def create_app(config_name=None):
     app.register_blueprint(messages_bp, url_prefix='/api/messages')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
     app.register_blueprint(onboarding_bp, url_prefix='/api/onboarding')
+    app.register_blueprint(devices_bp)  # Already has /api/v1/devices prefix
     
     # Registrar manejadores de WebSocket
     from app.routes import messages
