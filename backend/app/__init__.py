@@ -36,6 +36,10 @@ def create_app(config_name=None):
     # Inicializar notification service (Firebase Cloud Messaging)
     from app.services.notification_service import notification_service
     notification_service.initialize_app(app)
+
+    # Inicializar queue service (RQ - Redis Queue)
+    from app.queue.queue_service import queue_service
+    queue_service.initialize_app(app)
     
     # Configurar CORS
     CORS(app, 

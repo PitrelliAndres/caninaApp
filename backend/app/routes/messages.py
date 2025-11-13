@@ -847,31 +847,29 @@ def handle_dm_send(data):
             'receiverId': other_user_id
         })
 
-        # Send push notification to offline receiver
+        # Enqueue message delivery (WebSocket + Push) for async processing
         try:
-            from app.services.notification_service import notification_service
-            from app.models.user import User
+            from app.queue.queue_service import queue_service
 
-            if notification_service.is_initialized():
-                # Get sender info
-                sender = User.query.get(user_id)
+            # Enqueue delivery job - worker will handle WebSocket and push notifications
+            job = queue_service.enqueue_message_delivery(
+                message_id=message.id,
+                receiver_id=other_user_id,
+                conversation_id=conversation_id
+            )
 
-                # Send notification
-                result = notification_service.send_message_notification(
-                    user_id=other_user_id,
-                    message=message,
-                    sender=sender,
-                    conversation=conversation
+            if job:
+                current_app.logger.info(
+                    f"Message delivery job enqueued: {job.id} for message {message.id}"
+                )
+            else:
+                current_app.logger.warning(
+                    f"Failed to enqueue delivery job for message {message.id}"
                 )
 
-                if result['success'] > 0:
-                    current_app.logger.info(
-                        f"Push notification sent: {result['success']} devices, "
-                        f"{result['failure']} failed for user {other_user_id}"
-                    )
         except Exception as e:
-            # Don't fail message delivery if push fails
-            current_app.logger.error(f"Push notification failed: {str(e)}")
+            # Don't fail message delivery if queue fails
+            current_app.logger.error(f"Message queue failed: {str(e)}")
 
         current_app.logger.info(f"DM message sent: {user_id} -> {other_user_id} in conversation {conversation_id}")
         

@@ -32,9 +32,13 @@ python-dateutil==2.8.2
 
 # Redis for Pub/Sub and caching
 redis==5.0.1
+rq==1.15.1
 
 # ULID for message IDs
 python-ulid==3.0.0
+
+# Push Notifications
+firebase-admin==6.4.0
 
 # Rate limiting and security (ver como usar)
 # TODO: PRODUCTION - Install security libs: pip install Flask-Limiter==3.5.0 bleach==6.1.0
