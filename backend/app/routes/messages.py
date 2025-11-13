@@ -31,18 +31,71 @@ messages_bp = Blueprint('messages', __name__)
 @rate_limit_api
 @log_route_errors
 def get_conversations():
-    """Obtener lista de conversaciones del usuario - solo con matches"""
+    """
+    Get user conversations with pagination (cursor-based)
+
+    Query params:
+        limit (int): Max conversations per page (default: 20, max: 50)
+        cursor (str): Cursor for pagination (last_message_at timestamp)
+
+    Returns:
+        {
+            conversations: [...],
+            pagination: {
+                next_cursor: str | null,
+                has_more: bool,
+                total: int
+            }
+        }
+    """
     try:
         # Verificar que el usuario existe
         current_user = User.query.get(request.current_user_id)
         if not current_user:
             return jsonify({'error': 'User not found'}), 404
+
+        # Get pagination parameters
+        limit = min(int(request.args.get('limit', 20)), 50)  # Max 50 per page
+        cursor = request.args.get('cursor')  # Timestamp cursor
+
+        # Build base query for user conversations
+        # Ordered by last_message_at descending (most recent first)
+        query = Conversation.query.filter(
+            or_(
+                Conversation.user1_id == request.current_user_id,
+                Conversation.user2_id == request.current_user_id
+            ),
+            Conversation.is_deleted == False
+        ).order_by(Conversation.last_message_at.desc().nullslast())
+
+        # Apply cursor if provided (for pagination)
+        if cursor:
+            try:
+                # Cursor is ISO timestamp of last conversation's last_message_at
+                from datetime import datetime
+                cursor_dt = datetime.fromisoformat(cursor.replace('Z', '+00:00'))
+                query = query.filter(Conversation.last_message_at < cursor_dt)
+            except (ValueError, TypeError) as e:
+                return jsonify({'error': 'Invalid cursor format'}), 400
+
+        # Fetch limit + 1 to check if there are more results
+        conversations = query.limit(limit + 1).all()
         
-        # Obtener conversaciones del usuario
-        conversations = Conversation.get_user_conversations(request.current_user_id)
-        
+        # Check if there are more results
+        has_more = len(conversations) > limit
+        if has_more:
+            # Remove the extra conversation
+            conversations = conversations[:limit]
+
+        # Determine next cursor (last_message_at of last conversation)
+        next_cursor = None
+        if has_more and conversations:
+            last_conv = conversations[-1]
+            if last_conv.last_message_at:
+                next_cursor = last_conv.last_message_at.isoformat()
+
         conv_list = []
-        
+
         # Batch query for users to reduce database hits
         user_ids = []
         for conv in conversations:
@@ -103,7 +156,12 @@ def get_conversations():
         
         return jsonify({
             'conversations': conv_list,
-            'total': len(conv_list)
+            'pagination': {
+                'next_cursor': next_cursor,
+                'has_more': has_more,
+                'total': len(conv_list),
+                'limit': limit
+            }
         }), 200
         
     except Exception as e:

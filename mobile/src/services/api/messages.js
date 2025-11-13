@@ -39,9 +39,13 @@ export const messageService = {
   // Optimizado para: historial, paginación, cache, fallback
   // Beneficios: CDN-friendly, probado, debugging fácil, offline-capable
   
-  async getConversations() {
-    // Obteniendo lista de conversaciones por HTTP
-    return apiClient.get('/messages/conversations')
+  async getConversations({ cursor = null, limit = 20 } = {}) {
+    // Get conversations with pagination support
+    const params = {};
+    if (cursor) params.cursor = cursor;
+    if (limit) params.limit = limit;
+
+    return apiClient.get('/messages/conversations', { params });
   },
 
   async getChatMessages(chatId, page = 1) {

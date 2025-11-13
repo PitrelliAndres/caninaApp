@@ -267,38 +267,66 @@ class MessageSyncEngine {
   }
 
   /**
-   * Sync conversations list
+   * Sync conversations list with pagination support
+   * Fetches all pages automatically
    */
   async syncConversations() {
     try {
       console.log('[SyncEngine] Syncing conversations');
 
-      // Fetch conversations from server
-      const response = await messageService.getConversations();
+      let allConversations = [];
+      let cursor = null;
+      let hasMore = true;
+      let pageCount = 0;
+      const maxPages = 50; // Safety limit (50 pages × 20 = 1000 conversations max)
 
-      if (response.conversations && response.conversations.length > 0) {
+      // Fetch all pages
+      while (hasMore && pageCount < maxPages) {
+        pageCount++;
+
+        // Fetch conversations from server with cursor
+        const response = await messageService.getConversations({ cursor, limit: 20 });
+
+        if (response.conversations && response.conversations.length > 0) {
+          allConversations = allConversations.concat(response.conversations);
+          console.log(`[SyncEngine] Fetched page ${pageCount}: ${response.conversations.length} conversations`);
+        }
+
+        // Check if there are more pages
+        hasMore = response.pagination?.has_more || false;
+        cursor = response.pagination?.next_cursor || null;
+
+        if (!hasMore || !cursor) {
+          break;
+        }
+      }
+
+      if (allConversations.length > 0) {
         // Transform server format to local format
-        const conversations = response.conversations.map(conv => ({
-          id: conv.id,
+        const conversations = allConversations.map(conv => ({
+          id: conv.chat_id, // Note: API returns 'chat_id'
           user1_id: conv.user1_id,
           user2_id: conv.user2_id,
-          last_message_id: conv.last_message?.id,
-          last_message_at: conv.last_message?.created_at || Date.now(),
-          last_message_preview: conv.last_message?.content?.substring(0, 100),
-          unread_count: conv.unread_count || 0,
-          other_user_name: conv.other_user?.name,
-          other_user_avatar: conv.other_user?.avatar_url,
-          other_user_online: conv.other_user?.online || false,
+          last_message_id: conv.last_message_id,
+          last_message_at: conv.last_message_time ? new Date(conv.last_message_time).getTime() : Date.now(),
+          last_message_preview: conv.last_message || '',
+          unread_count: conv.unread || 0,
+          other_user_name: conv.user?.nickname,
+          other_user_avatar: conv.user?.avatar,
+          other_user_online: conv.user?.is_online || false,
         }));
 
         // Bulk upsert
         await ConversationRepository.bulkUpsertConversations(conversations);
 
-        console.log(`[SyncEngine] Synced ${conversations.length} conversations`);
+        console.log(`[SyncEngine] Synced ${conversations.length} conversations in ${pageCount} pages`);
 
         this.notifyListeners('conversations_synced', {
           count: conversations.length,
+          pages: pageCount,
         });
+      } else {
+        console.log('[SyncEngine] No conversations to sync');
       }
 
       // Update global sync timestamp
