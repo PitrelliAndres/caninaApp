@@ -5,7 +5,7 @@ Stores FCM/APNS tokens for push notifications
 
 from datetime import datetime
 from app import db
-from app.utils.ulid import generate_ulid
+from app.utils.message_ids import generate_message_id
 
 
 class DeviceToken(db.Model):
@@ -13,7 +13,7 @@ class DeviceToken(db.Model):
 
     __tablename__ = 'device_tokens'
 
-    id = db.Column(db.String(26), primary_key=True, default=generate_ulid)
+    id = db.Column(db.String(26), primary_key=True, default=lambda: generate_message_id())
     user_id = db.Column(db.String(26), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
 
     # Token data

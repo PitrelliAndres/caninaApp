@@ -50,6 +50,10 @@ services:
       - FRONTEND_URL=http://localhost:3000
       - BACKEND_URL=http://localhost:5000
       - REDIS_URL=redis://redis:6379/0
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+      - 1.1.1.1
     depends_on:
       db:
         condition: service_healthy
@@ -59,10 +63,13 @@ services:
       - ./backend:/app
     command: >
       sh -c "
-        flask db upgrade &&
-        python scripts/init_db.py &&
         python run.py
       "
+    # TODO: harden for production - fix migration conflicts before enabling
+    # Original command:
+    # flask db upgrade &&
+    # python scripts/init_db.py &&
+    # python run.py
 
   # Frontend Next.js
   frontend:

@@ -1,6 +1,6 @@
 /**
  * Image Service - Native React Native implementation
- * Replaces expo-image-picker with react-native-image-picker + react-native-permissions
+ * react-native-image-picker + react-native-permissions
  */
 
 import {
@@ -62,7 +62,7 @@ class ImageService {
   }
 
   /**
-   * Launch image library (equivalent to expo-image-picker launchImageLibraryAsync)
+   * Launch image library
    */
   async launchImageLibraryAsync(options = {}) {
     const config = {
@@ -78,7 +78,7 @@ class ImageService {
   }
 
   /**
-   * Launch camera (equivalent to expo-image-picker launchCameraAsync)
+   * Launch camera
    */
   async launchCameraAsync(options = {}) {
     const config = {
@@ -221,7 +221,7 @@ class ImageService {
   }
 
   /**
-   * Format response to match Expo API structure
+   * Format response to match
    */
   formatResponse(response) {
     if (response.didCancel) {
@@ -239,7 +239,7 @@ class ImageService {
       return { cancelled: true };
     }
 
-    // Format for single image (Expo API compatibility)
+    // Format for single image
     if (response.assets.length === 1) {
       const asset = response.assets[0];
       return {
@@ -250,7 +250,6 @@ class ImageService {
         type: asset.type,
         fileSize: asset.fileSize,
         fileName: asset.fileName,
-        // Expo-like properties
         assets: [{
           uri: asset.uri,
           width: asset.width,

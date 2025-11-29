@@ -1,6 +1,10 @@
 """
 Script principal para ejecutar la aplicación en desarrollo
 """
+# IMPORTANTE: Monkey patch de eventlet ANTES de cualquier otro import
+import eventlet
+eventlet.monkey_patch()
+
 import os
 from app import create_app, db, socketio
 from app.models import User, UserRole
@@ -76,10 +80,11 @@ if __name__ == '__main__':
         except Exception as e:
             print(f"Compatibility check failed: {e}")
     
-    # Ejecutar con SocketIO para soporte de WebSocket
-    socketio.run(app, 
-                 host='0.0.0.0', 
-                 port=port, 
+    # Ejecutar con SocketIO usando eventlet para WebSocket estable
+    # eventlet monkey patch maneja las conexiones WebSocket correctamente
+    socketio.run(app,
+                 host='0.0.0.0',
+                 port=port,
                  debug=debug,
-                 use_reloader=False,  # Deshabilitar reloader en Docker para evitar WERKZEUG_SERVER_FD
-                 allow_unsafe_werkzeug=True)  # TODO: harden for production - Use proper WSGI server
+                 use_reloader=False,  # Deshabilitar reloader en Docker
+                 allow_unsafe_werkzeug=True)  # Permitir para DEV - eventlet monkey patch maneja WS

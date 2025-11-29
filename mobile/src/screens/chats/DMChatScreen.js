@@ -119,6 +119,12 @@ export function DMChatScreen({ navigation, route }) {
         limit: 50,
       })).unwrap();
 
+      // Connect WebSocket first
+      await messageService.connectWebSocket();
+      MobileLogger.logInfo('WebSocket connected for chat', {
+        conversationId: actualConversationId,
+      }, 'DMChatScreen');
+
       // Mark as read
       if (messages.length > 0) {
         const messageIds = messages
@@ -154,6 +160,9 @@ export function DMChatScreen({ navigation, route }) {
 
     // Stop typing indicator
     messageService.sendTypingDM(actualConversationId, false);
+
+    // Disconnect WebSocket
+    messageService.disconnectWebSocket();
 
     // Clear current conversation
     dispatch(clearCurrentConversation());

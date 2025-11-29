@@ -20,7 +20,7 @@ Guía **maestra** para Claude Code. Mantiene enfoque **security‑first**, **per
 **ParkDog** conecta dueños de perros mediante visitas a parques y matching.
 - **Frontend**: Next.js 15.x (App Router) · Redux · shadcn/ui · Tailwind
 - **Backend**: Flask 3.x · PostgreSQL · SQLAlchemy · Socket.IO
-- **Mobile**: React Native (Expo)
+- **Mobile**: React Native 0.81.5 (Pure RN CLI, NO Expo) - Proyecto: `mobile/`
 - **Infra DEV**: Docker Compose (DB/Redis)
 
 Pilares: mínima superficie de ataque, baja latencia, i18n (es/en), **dark mode** intacto.
@@ -43,20 +43,18 @@ Pilares: mínima superficie de ataque, baja latencia, i18n (es/en), **dark mode*
 - `lib/i18n/` es/en
 - `hooks/` useAuth, useProtectedActions, usePublicData, useRealtime
 
-**Mobile** `mobile/`
-- `src/navigation`, `src/screens`, `src/components`, `src/store`, `src/services/api`
+**Mobile** `mobile/` - React Native 0.81.5 (Pure RN CLI)
+- `src/navigation`, `src/screens`, `src/components`, `src/store`, `src/services`
 
 ---
 
 ## 3) Comandos DEV
 ```bash
-# Full stack
-pnpm run dev
+# Backend / Frontend (usar Docker - ver sección Development Environment)
+docker-compose up -d
 
-# Backend / Frontend / Mobile
-pnpm run dev:backend   # http://localhost:5000
-pnpm run dev:frontend  # http://localhost:3000
-pnpm run dev:mobile    # Expo
+# Mobile (React Native CLI)
+cd mobile && npm start -- --reset-cache  # Metro en http://localhost:8081
 ```
 ```bash
 # Docker (DEV convenience)
@@ -192,26 +190,51 @@ Siempre usar puerto comunes en front, back y mobile, si el cuerpo esta ocupado m
 - To access containers: `docker-compose exec [service_name] bash`
 
 ### Mobile Development
-- Use `mobile-build.sh/bat dev` for Expo development
-- Use `mobile-build.sh/bat android` for Android builds
-- Use `mobile-build.sh/bat build` for production builds
+
+#### Metro Bundler
+**Levantar Metro:**
+```bash
+# Desde la raíz del proyecto
+cd mobile && npm start -- --reset-cache
+```
+
+**Matar Metro específicamente (SIN matar sesión de Claude):**
+```bash
+# 1. Encontrar el PID del puerto 8081
+netstat -ano | findstr :8081
+
+# 2. Matar SOLO ese proceso específico (no todos los node)
+powershell "Stop-Process -Id <PID_ESPECÍFICO> -Force"
+
+# ⚠️ PROHIBIDO: powershell "Get-Process -Name node | Stop-Process -Force"
+# (Esto mata TODOS los procesos Node, incluyendo Claude Code)
+```
+
+**Reinstalar dependencias si Metro falla:**
+```bash
+cd mobile
+npm cache clean --force
+powershell "if (Test-Path node_modules) { Remove-Item -Recurse -Force node_modules }"
+npm install
+npm start -- --reset-cache
+```
 
 ### Service URLs (Docker)
 - Frontend: http://localhost:3000
 - Backend: http://localhost:5000
 - Database: localhost:5432 (postgres/password)
 
-### Mobile Deployment Rules
-- NEVER run `eas login` automatically - user handles EAS authentication manually
-- For mobile builds, use `npx expo run:android` for local APK builds
-- For production EAS builds, create instructions but don't execute
-- Use local Android builds for development and testing
+### Mobile Deployment Rules (React Native CLI)
+- NO usar Expo ni EAS (React Native puro)
+- Builds locales: `cd mobile && npx react-native run-android`
+- Para producción: usar Gradle directamente en `mobile/android/`
 
 ### Mobile Development Workflow
-- **Development Mode**: `npx expo start` or `mobile-build.sh dev`
-- **Install on Android**: `npx expo run:android` (builds and installs APK)
-- **Install on iOS**: `npx expo run:ios` (requires Xcode and Mac)
-- **Production Builds**: Create EAS build instructions for user to execute manually
+- **Development Mode**: `cd mobile && npm start -- --reset-cache`
+- **Install on Android**: `cd mobile && npx react-native run-android`
+- **Install on iOS**: `cd mobile && npx react-native run-ios` (requires Xcode and Mac)
+- **Build APK**: Ver scripts en `mobile/android/`
+- **Production Builds**: Sin Expo - builds nativos de React Native CLI
 
 ### Port Management
 - Always use standard ports: Frontend (3000), Backend (5000), Mobile (8081/8082)

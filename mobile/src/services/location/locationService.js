@@ -1,7 +1,6 @@
 /**
  * Location Service
  * Pure React Native implementation using @react-native-community/geolocation
- * Replaces expo-location
  */
 
 import Geolocation from '@react-native-community/geolocation';

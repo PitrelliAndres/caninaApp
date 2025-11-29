@@ -11,7 +11,7 @@ from flask_socketio import SocketIO
 # Inicializar extensiones
 db = SQLAlchemy()
 migrate = Migrate()
-socketio = SocketIO()
+socketio = SocketIO(async_mode='eventlet')  # Forzar uso de eventlet para WebSocket
 
 def create_app(config_name=None):
     """Factory pattern para crear la aplicación Flask"""
@@ -38,8 +38,12 @@ def create_app(config_name=None):
     notification_service.initialize_app(app)
 
     # Inicializar queue service (RQ - Redis Queue)
-    from app.queue.queue_service import queue_service
-    queue_service.initialize_app(app)
+    # TODO: harden for production - install rq dependency
+    try:
+        from app.queue.queue_service import queue_service
+        queue_service.initialize_app(app)
+    except ImportError as e:
+        print(f'[App] Queue service not available: {e} - async processing disabled')
     
     # Configurar CORS
     CORS(app, 
@@ -98,7 +102,8 @@ def create_app(config_name=None):
     from app.routes.messages import messages_bp
     from app.routes.onboarding import onboarding_bp
     from app.routes.admin import admin_bp
-    from app.routes.devices import bp as devices_bp
+    # TODO: harden for production - install flask_jwt_extended to enable devices blueprint
+    # from app.routes.devices import bp as devices_bp
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(users_bp, url_prefix='/api/users')
@@ -108,7 +113,7 @@ def create_app(config_name=None):
     app.register_blueprint(messages_bp, url_prefix='/api/messages')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
     app.register_blueprint(onboarding_bp, url_prefix='/api/onboarding')
-    app.register_blueprint(devices_bp)  # Already has /api/v1/devices prefix
+    # app.register_blueprint(devices_bp)  # Already has /api/v1/devices prefix
     
     # Registrar manejadores de WebSocket
     from app.routes import messages

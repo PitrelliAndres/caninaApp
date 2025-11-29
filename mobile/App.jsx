@@ -13,6 +13,7 @@ import { AppNavigator } from './src/navigation/AppNavigator'
 import { toastConfig } from './src/utils/toastConfig'
 import { secureStorage } from './src/services/storage/secureStorage'
 import { fetchCurrentUser } from './src/store/slices/userSlice'
+import sqliteService from './src/database/sqliteService'
 
 export default function App() {
   const [appIsReady, setAppIsReady] = useState(false)
@@ -20,6 +21,11 @@ export default function App() {
   useEffect(() => {
     async function prepare() {
       try {
+        // Initialize SQLite database first
+        console.log('[App] Initializing SQLite database...')
+        await sqliteService.init()
+        console.log('[App] SQLite database initialized')
+
         // Check if user is logged in by verifying token
         const token = await secureStorage.getItemAsync('jwt_token')
 

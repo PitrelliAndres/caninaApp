@@ -1,6 +1,5 @@
 /**
  * Localization Service - Native React Native implementation
- * Replaces expo-localization with react-native-localize
  */
 
 import {
@@ -59,7 +58,7 @@ class LocalizationService {
   }
 
   /**
-   * Get device locales (equivalent to expo-localization getLocalizationAsync)
+   * Get device locales
    */
   getLocalizationAsync() {
     try {

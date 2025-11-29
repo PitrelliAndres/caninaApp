@@ -1,7 +1,6 @@
 /**
  * useLocation Hook
  * Pure React Native implementation using locationService
- * Replaces expo-location
  */
 
 import { useState, useEffect } from 'react';

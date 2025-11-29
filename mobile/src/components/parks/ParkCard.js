@@ -1,7 +1,6 @@
 /**
  * ParkCard Component
  * Pure React Native implementation
- * Replaces @expo/vector-icons with react-native-vector-icons
  */
 
 import React from 'react';

@@ -1,7 +1,6 @@
 /**
  * Device Service
  * Pure React Native implementation using react-native-device-info
- * Replaces expo-device
  */
 
 import DeviceInfo from 'react-native-device-info';

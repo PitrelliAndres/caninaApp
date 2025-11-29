@@ -1,5 +1,5 @@
 /**
- * Cliente WebSocket optimizado para React Native (Pure RN - NO Expo)
+ * Cliente WebSocket optimizado para React Native
  */
 
 import { io } from 'socket.io-client'

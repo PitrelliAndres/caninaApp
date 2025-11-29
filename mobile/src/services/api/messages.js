@@ -112,14 +112,29 @@ export const messageService = {
         this._setupRealtimeListeners()
       })
 
-      socket.on('connect_error', (error) => {
+      socket.on('connect_error', async (error) => {
         // Error de conexión WebSocket
         MobileLogger.logError(error, {
           errorType: 'connection_failed',
           reconnectAttempts,
           fallbackEnabled: true
         }, 'MessageService')
-        
+
+        // Si el error es por token expirado o rechazado, refrescar token
+        if (error.message && (error.message.includes('rejected') || error.message.includes('Unauthorized'))) {
+          console.log('🔑 Connection rejected - refreshing WebSocket token')
+          // Borrar token viejo
+          await secureStorage.deleteItemAsync('realtime_token')
+          // Intentar obtener nuevo token
+          const newToken = await this._refreshWebSocketToken()
+          if (newToken && socket) {
+            // Reconectar con el nuevo token
+            socket.auth = { token: newToken }
+            socket.connect()
+            return
+          }
+        }
+
         reconnectAttempts++
         if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
           // Máximo de intentos alcanzado, activando fallback HTTP

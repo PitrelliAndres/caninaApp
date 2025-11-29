@@ -1,7 +1,6 @@
 /**
  * ParksScreen
  * Pure React Native implementation with react-native-maps
- * Replaces expo-location with locationService
  */
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';

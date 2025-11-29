@@ -1,44 +1,26 @@
 {
   "project_info": {
-    "project_number": "123456789012",
-    "project_id": "parkdog-temp-dev",
-    "storage_bucket": "parkdog-temp-dev.appspot.com"
+    "project_number": "1017968218360",
+    "project_id": "parkdog-90ec8",
+    "storage_bucket": "parkdog-90ec8.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:123456789012:android:abcdef1234567890",
+        "mobilesdk_app_id": "1:1017968218360:android:57dc0ff6123c668a33ab0d",
         "android_client_info": {
-          "package_name": "com.parkdog.app"
+          "package_name": "com.park.dog"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "301209986798-fuk4h414g85ljkaho0b4hgn6qgb4o16p.apps.googleusercontent.com",
-          "client_type": 3
-        },
-        {
-          "client_id": "123456789012-androidclient.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.parkdog.app",
-            "certificate_hash": "1234567890abcdef1234567890abcdef12345678"
-          }
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyA-temporarykey-fordevonly-12345"
+          "current_key": "AIzaSyCSmDiQZhXPRckCt7nKTKZDstlZVJ4RJTE"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "301209986798-fuk4h414g85ljkaho0b4hgn6qgb4o16p.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

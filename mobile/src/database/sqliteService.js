@@ -213,9 +213,11 @@ class SQLiteService {
     ];
 
     // Execute all statements in a transaction
-    await this.db.transaction(async (tx) => {
+    // Note: Don't use async/await inside transaction callback
+    // The transaction completes when the callback returns, not when promises resolve
+    await this.db.transaction((tx) => {
       for (const statement of statements) {
-        await tx.executeSql(statement);
+        tx.executeSql(statement);
       }
     });
 
@@ -286,14 +288,15 @@ class SQLiteService {
   async bulkInsert(table, records) {
     if (!records || records.length === 0) return;
 
-    await this.transaction(async (tx) => {
+    // Don't use async/await inside transaction callback
+    await this.transaction((tx) => {
       const keys = Object.keys(records[0]);
       const placeholders = keys.map(() => '?').join(', ');
       const sql = `INSERT OR REPLACE INTO ${table} (${keys.join(', ')}) VALUES (${placeholders})`;
 
       for (const record of records) {
         const values = keys.map(key => record[key]);
-        await tx.executeSql(sql, values);
+        tx.executeSql(sql, values);
       }
     });
   }
@@ -401,12 +404,13 @@ class SQLiteService {
    * Clear all data (logout)
    */
   async clearAllData() {
-    await this.transaction(async (tx) => {
-      await tx.executeSql('DELETE FROM messages');
-      await tx.executeSql('DELETE FROM conversations');
-      await tx.executeSql('DELETE FROM message_queue');
-      await tx.executeSql('DELETE FROM user_cache');
-      await tx.executeSql('DELETE FROM sync_state');
+    // Don't use async/await inside transaction callback
+    await this.transaction((tx) => {
+      tx.executeSql('DELETE FROM messages');
+      tx.executeSql('DELETE FROM conversations');
+      tx.executeSql('DELETE FROM message_queue');
+      tx.executeSql('DELETE FROM user_cache');
+      tx.executeSql('DELETE FROM sync_state');
     });
 
     console.log('[SQLite] All data cleared');

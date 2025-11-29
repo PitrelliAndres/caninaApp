@@ -5,7 +5,12 @@ ParkDog es una aplicación web que permite a los dueños de perros conectar entr
 ## 🚀 Características Principales
 
 - **Autenticación con Google OAuth2**: Login seguro sin contraseñas
-- **Onboarding de 3 pasos**: Perfil usuario, mascota y preferencias
+- **Onboarding de 10 pasos**: Proceso completo de configuración de perfil
+  - Información personal (nombre editable autocompletado, fecha de nacimiento, género)
+  - Orientación sexual y preferencias de relación
+  - Configuración de distancia y permisos de ubicación
+  - Hábitos e intereses con tu perro
+  - Fotos de perfil
 - **Registro de visitas**: Agenda tus visitas a parques
 - **Sistema de matches**: Encuentra otros dueños compatibles
 - **Chat en tiempo real**: Comunícate con tus matches
@@ -139,7 +144,17 @@ pnpm dev
 ### Flujo de Usuario
 
 1. **Login**: Inicia sesión con tu cuenta de Google
-2. **Onboarding**: Completa tu perfil en 3 pasos
+2. **Onboarding (10 pasos)**:
+   - **Paso 1**: Tu nombre
+   - **Paso 2**: Fecha de nacimiento (con confirmación de edad)
+   - **Paso 3**: Género
+   - **Paso 4**: Orientación sexual (opcional)
+   - **Paso 5**: ¿Qué estás buscando? (opcional)
+   - **Paso 6**: Distancia preferida
+   - **Paso 7**: Permiso de ubicación
+   - **Paso 8**: Hábitos de paseo con tu perro (opcional)
+   - **Paso 9**: Intereses con tu perro (opcional)
+   - **Paso 10**: Añadir fotos de perfil
 3. **Explorar Parques**: Busca parques por barrio
 4. **Registrar Visitas**: Agenda cuándo irás al parque
 5. **Matches**: Descubre otros usuarios compatibles
